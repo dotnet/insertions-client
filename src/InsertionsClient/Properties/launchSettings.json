@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "InsertionsClient": {
+      "commandName": "Project",
+      "commandLineArgs": "-d:C:\\Users\\joaguila\\source\\repos\\InsertionsClient\\tests\\InsertionsClientTest\\Assets\\default.config -m:C:\\Users\\joaguila\\source\\repos\\InsertionsClient\\tests\\InsertionsClientTest\\Assets\\manifest.json"
+    }
+  }
+}
