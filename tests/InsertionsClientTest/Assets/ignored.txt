@@ -1,0 +1,11 @@
+Microsoft.VisualStudio.LiveShare
+System.Reflection.Metadata
+VS.ExternalAPIs.MSBuild
+VS.Redist.Common.NetCore.Templates.x64.2.1
+VS.Redist.Common.NetCore.Templates.x64.2.2
+VS.Redist.Common.NetCore.Templates.x64.3.0
+VS.Redist.Common.NetCore.Templates.x86.2.1
+VS.Redist.Common.NetCore.Templates.x86.2.2
+VS.Redist.Common.NetCore.Templates.x86.3.0
+VS.Tools.Net.Core.SDK.Resolver
+VS.Tools.Net.Core.SDK.x86

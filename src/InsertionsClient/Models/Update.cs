@@ -7,6 +7,7 @@ namespace Microsoft.Net.Insertions.Models
         CommonVersion,
         ExactMatch,
         FailedUpdate,
-        NoMatch
+        NoMatch,
+        Ignored
     }
 }

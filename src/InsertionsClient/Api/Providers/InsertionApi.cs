@@ -41,7 +41,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
 
         #region IInsertionApi API
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile)
+        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile = null)
         {
             IEnumerable<Asset> assets = Enumerable.Empty<Asset>();
 
@@ -49,8 +49,10 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 || !TryExtractManifestAssets(manifestFile, out assets, out details)
                 || !TryLoadDefaultConfig(defaultConfigFile, out details))
             {
-                new UpdateResults { OutcomeDetails = details };
+                return new UpdateResults { OutcomeDetails = details };
             }
+
+            HashSet<string> packagesToIgnore = LoadPackagesToIgnore(ignoredPackagesFile);
 
             UpdateResults results = new UpdateResults();
             Stopwatch overallRunStopWatch = Stopwatch.StartNew();
@@ -65,7 +67,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
                 _ = Parallel.ForEach(packageXElements,
                     CreateParallelOptions(source.Token),
-                    packageXElement => ParallelCallback(packageXElement, assets, results));
+                    packageXElement => ParallelCallback(packageXElement, assets, packagesToIgnore, results));
 
                 _xmlDoc.Save(defaultConfigFile);
             }
@@ -116,7 +118,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
         private void LogStatistics(Update update)
         {
-            Trace.WriteLine($"Statistics: {update} - {update.GetString()}{Environment.NewLine}{_metrics[update].ToString()}");
+            Trace.WriteLine($"Statistics: {update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
         }
 
         private bool TryValidateManifestFile(string manifestFile, out string details)
@@ -172,7 +174,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 }
                 else
                 {
-                    assets = map.Values.OrderBy(x => x.Name);
+                    assets = map.Values.OrderBy(x => x.Name).ToList();
                 }
             }
             catch (Exception e)
@@ -225,53 +227,79 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return string.IsNullOrWhiteSpace(details);
         }
 
-        private void ParallelCallback(XElement packageXElement, IEnumerable<Asset> assets, UpdateResults results)
+        private HashSet<string> LoadPackagesToIgnore(string ignoredPackagesFile)
+        {
+            if(string.IsNullOrWhiteSpace(ignoredPackagesFile))
+                return new HashSet<string>();
+
+            FileInfo ignoreFile = new FileInfo(ignoredPackagesFile);
+            
+            if (!ignoreFile.Exists)
+                return new HashSet<string>();
+
+            string line;
+            HashSet<string> ignoredPackages = new HashSet<string>();
+            using StreamReader fileStream = new StreamReader(ignoreFile.OpenRead());
+            
+            while((line = fileStream.ReadLine()) != null)
+                ignoredPackages.Add(line);
+
+            return ignoredPackages;
+        }
+
+        private void ParallelCallback(XElement packageXElement, IEnumerable<Asset> assets, HashSet<string> ignoredPackages, UpdateResults results)
         {
             Stopwatch stopWatch = Stopwatch.StartNew();
             string packageId = packageXElement.Attribute("id").Value;
-            IEnumerable<Asset> matches = assets.Where(x => x.Name.Contains(packageId));
-            if (matches.Any())
+
+            if(ignoredPackages.Contains(packageId))
             {
-                XAttribute versionAttribute = packageXElement.Attribute("version");
-                string version = string.Empty;
-                Update update = Update.FailedUpdate;
+                _metrics.AddMeasurement(Update.Ignored, stopWatch.ElapsedMilliseconds);
+                return;
+            }
 
-                if (matches.Select(x => x.Version).Distinct().Count() == 1)
-                {
-                    version = matches.First().Version;
-                    update = Update.CommonVersion;
-                }
-                else
-                {
-                    IEnumerable<Asset> matchingAsset = assets.Where(x => x.Name == packageId);
-                    if (matchingAsset.Any())
-                    {
-                        version = matchingAsset.First().Version;
-                        update = Update.ExactMatch;
-                    }
-                }
+            IEnumerable<Asset> matches = assets.Where(x => x.Name.Contains(packageId)).ToList();
+            if (!matches.Any())
+            {
+                _metrics.AddMeasurement(Update.NoMatch, stopWatch.ElapsedMilliseconds);
+                return;
+            }
+            
+            XAttribute versionAttribute = packageXElement.Attribute("version");
+            string version = string.Empty;
+            Update update = Update.FailedUpdate;
 
-                if (versionAttribute == null)
-                {
-                    Trace.WriteLine($"Package id {packageId} lacked \"version\" attribute.");
-                    update = Update.FailedUpdate;
-                }
-
-                _metrics.AddMeasurement(update, stopWatch.ElapsedMilliseconds);
-                if (update == Update.FailedUpdate)
-                {
-                    Trace.WriteLine($"{GetNugetMatchDetails(packageId, matches)}{packageId} version NOT set.{Environment.NewLine}");
-                }
-                else
-                {
-                    versionAttribute.Value = version;
-                    Trace.WriteLine($"{GetNugetMatchDetails(packageId, matches)}Set {packageId} version to {version}{Environment.NewLine}Update type: {update}.{Environment.NewLine}");
-                    results.AddPackage(packageId, version);
-                }
+            if (matches.Select(x => x.Version).Distinct().Count() == 1)
+            {
+                version = matches.First().Version;
+                update = Update.CommonVersion;
             }
             else
             {
-                _metrics.AddMeasurement(Update.NoMatch, stopWatch.ElapsedMilliseconds);
+                IEnumerable<Asset> matchingAsset = assets.Where(x => x.Name == packageId);
+                if (matchingAsset.Any())
+                {
+                    version = matchingAsset.First().Version;
+                    update = Update.ExactMatch;
+                }
+            }
+
+            if (versionAttribute == null)
+            {
+                Trace.WriteLine($"Package id {packageId} lacked \"version\" attribute.");
+                update = Update.FailedUpdate;
+            }
+
+            _metrics.AddMeasurement(update, stopWatch.ElapsedMilliseconds);
+            if (update == Update.FailedUpdate)
+            {
+                Trace.WriteLine($"{GetNugetMatchDetails(packageId, matches)}{packageId} version NOT set.{Environment.NewLine}");
+            }
+            else
+            {
+                versionAttribute.Value = version;
+                Trace.WriteLine($"{GetNugetMatchDetails(packageId, matches)}Set {packageId} version to {version}{Environment.NewLine}Update type: {update}.{Environment.NewLine}");
+                results.AddPackage(packageId, version);
             }
         }
         
