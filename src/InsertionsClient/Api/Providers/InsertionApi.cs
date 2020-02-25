@@ -229,20 +229,18 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
         private HashSet<string> LoadPackagesToIgnore(string ignoredPackagesFile)
         {
-            if(string.IsNullOrWhiteSpace(ignoredPackagesFile))
+            if (!File.Exists(ignoredPackagesFile))
+            {
                 return new HashSet<string>();
+            }
 
-            FileInfo ignoreFile = new FileInfo(ignoredPackagesFile);
-            
-            if (!ignoreFile.Exists)
-                return new HashSet<string>();
-
-            string line;
             HashSet<string> ignoredPackages = new HashSet<string>();
-            using StreamReader fileStream = new StreamReader(ignoreFile.OpenRead());
-            
-            while((line = fileStream.ReadLine()) != null)
+            var fileLines = File.ReadAllLines(ignoredPackagesFile);
+
+            foreach(var line in fileLines)
+            {
                 ignoredPackages.Add(line);
+            }
 
             return ignoredPackages;
         }
