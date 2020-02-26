@@ -28,7 +28,7 @@ namespace Microsoft.Net.Insertions.Common.Logging
 
         public override string ToString()
         {
-            return $"{TimeStamp:dd-M-yyyy hh:mm:ss.ffffff}|thread:{ThreadId}|{Message}";
+            return $"{TimeStamp.ToString("dd-M-yyyy hh:mm:ss.ffffff")}|thread:{ThreadId}|{Message}";
         }
     }
 }

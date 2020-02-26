@@ -43,7 +43,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
         #region IInsertionApi API
         public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile = null)
         {
-            IEnumerable<Asset> assets = Enumerable.Empty<Asset>();
+            List<Asset> assets = null;
 
             if (!TryValidateManifestFile(manifestFile, out string details)
                 || !TryExtractManifestAssets(manifestFile, out assets, out details)
@@ -135,9 +135,8 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return string.IsNullOrWhiteSpace(details);
         }
 
-        private bool TryExtractManifestAssets(string manifestFile, out IEnumerable<Asset> assets, out string details)
+        private bool TryExtractManifestAssets(string manifestFile, out List<Asset> assets, out string details)
         {
-            assets = Enumerable.Empty<Asset>();
             details = string.Empty;
 
             try
@@ -145,6 +144,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 Manifest buildManifest = DeserializeManifest(manifestFile);
                 if (!buildManifest.Validate())
                 {
+                    assets = new List<Asset>();
                     details = $"Validation of de-serialized {InsertionConstants.ManifestFile} file content failed.";
                     return false;
                 }
@@ -168,17 +168,21 @@ namespace Microsoft.Net.Insertions.Api.Providers
                         }
                     }
                 }
+
+                assets = new List<Asset>(map.Count);
+                foreach (var value in map.Values.OrderBy(x => x.Name))
+                {
+                    assets.Add(value);
+                }
+
                 if (map.Count < 1)
                 {
                     details = $"No assets in {InsertionConstants.ManifestFile}";
                 }
-                else
-                {
-                    assets = map.Values.OrderBy(x => x.Name).ToList();
-                }
             }
             catch (Exception e)
             {
+                assets = new List<Asset>();
                 details = e.Message;
             }
             return string.IsNullOrWhiteSpace(details);
@@ -245,18 +249,19 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return ignoredPackages;
         }
 
-        private void ParallelCallback(XElement packageXElement, IEnumerable<Asset> assets, HashSet<string> ignoredPackages, UpdateResults results)
+        private void ParallelCallback(XElement packageXElement, List<Asset> assets, HashSet<string> ignoredPackages, UpdateResults results)
         {
             Stopwatch stopWatch = Stopwatch.StartNew();
             string packageId = packageXElement.Attribute("id").Value;
 
             if(ignoredPackages.Contains(packageId))
             {
+                Trace.WriteLine($"Skipping {packageId} since it was ignored{Environment.NewLine}");
                 _metrics.AddMeasurement(Update.Ignored, stopWatch.ElapsedMilliseconds);
                 return;
             }
 
-            IEnumerable<Asset> matches = assets.Where(x => x.Name.Contains(packageId)).ToList();
+            List<Asset> matches = assets.Where(x => x.Name.Contains(packageId)).ToList();
             if (!matches.Any())
             {
                 _metrics.AddMeasurement(Update.NoMatch, stopWatch.ElapsedMilliseconds);
@@ -265,33 +270,40 @@ namespace Microsoft.Net.Insertions.Api.Providers
             
             XAttribute versionAttribute = packageXElement.Attribute("version");
             string version = string.Empty;
-            Update update = Update.FailedUpdate;
+            Update update = Update.VersionUnspecified;
 
-            if (matches.Select(x => x.Version).Distinct().Count() == 1)
+            if(versionAttribute == null)
             {
-                version = matches.First().Version;
-                update = Update.CommonVersion;
+                Trace.WriteLine($"Package id {packageId} lacked \"version\" attribute.");
+                update = Update.VersionUnspecified;
+            } 
+            else if(matches.FirstOrDefault(a => a.Name == packageId) is var exactMatch)
+            {
+                version = exactMatch.Version;
+                update = Update.ExactMatch;
             }
             else
             {
-                IEnumerable<Asset> matchingAsset = assets.Where(x => x.Name == packageId);
-                if (matchingAsset.Any())
+                int distincVersionsCount = matches.Select(x => x.Version).Distinct().Count();
+                
+                if (distincVersionsCount == 1)
                 {
-                    version = matchingAsset.First().Version;
-                    update = Update.ExactMatch;
+                    // We have multiple matches, but they all have the same version
+                    version = matches.First().Version;
+                    update = Update.CommonVersion;
+                }
+                else
+                {
+                    // There are multiple packages matching the same asset and they don't all have the same version
+                    Trace.WriteLine($"Package id {packageId} lacked \"version\" attribute.");
+                    update = Update.MultipleConflictingMatches;
                 }
             }
 
-            if (versionAttribute == null)
-            {
-                Trace.WriteLine($"Package id {packageId} lacked \"version\" attribute.");
-                update = Update.FailedUpdate;
-            }
-
             _metrics.AddMeasurement(update, stopWatch.ElapsedMilliseconds);
-            if (update == Update.FailedUpdate)
+            if (update == Update.VersionUnspecified || update == Update.MultipleConflictingMatches)
             {
-                Trace.WriteLine($"{GetNugetMatchDetails(packageId, matches)}{packageId} version NOT set.{Environment.NewLine}");
+                Trace.WriteLine($"{GetNugetMatchDetails(packageId, matches)}{packageId} version NOT set: {update}{Environment.NewLine}");
             }
             else
             {
