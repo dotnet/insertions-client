@@ -172,7 +172,6 @@ namespace Microsoft.Net.Insertions.Api.Providers
         private bool TryLoadDefaultConfig(string defaultConfigPath, out DefaultConfigUpdater configUpdater, out string details)
         {
             configUpdater = new DefaultConfigUpdater();
-            Trace.WriteLine($"Loading {InsertionConstants.DefaultConfigFile} content from {defaultConfigPath}.");
             return configUpdater.Load(defaultConfigPath, out details);
         }
 
