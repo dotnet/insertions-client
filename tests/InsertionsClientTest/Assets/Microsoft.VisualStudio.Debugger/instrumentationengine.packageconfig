@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<corext>
+  <packages>
+    <package id="Microsoft.InstrumentationEngine_x64" version="1.0.31" tags="redist" />
+    <package id="Microsoft.InstrumentationEngine_x86" version="1.0.31" tags="redist" />
+  </packages>
+</corext>

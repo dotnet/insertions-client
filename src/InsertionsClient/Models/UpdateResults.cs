@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +12,7 @@ namespace Microsoft.Net.Insertions.Models
     /// </summary>
     public sealed class UpdateResults
     {
-        private readonly List<string> _updatedNugetsList = new List<string>();
+        private readonly ConcurrentBag<string> _updatedNugetsList = new ConcurrentBag<string>();
 
 
         /// <summary>

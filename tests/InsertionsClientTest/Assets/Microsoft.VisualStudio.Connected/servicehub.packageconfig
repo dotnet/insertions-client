@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<corext>
+  <packages>
+    <package id="Microsoft.ServiceHub.Client" version="2.4.205" tags="exapis" />
+    <package id="Microsoft.ServiceHub.Framework" version="2.4.205" tags="exapis" />
+  </packages>
+</corext>

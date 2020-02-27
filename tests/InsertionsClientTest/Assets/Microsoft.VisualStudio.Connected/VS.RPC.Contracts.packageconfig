@@ -1,0 +1,6 @@
+<corext>
+  <packages>
+    <package id="Microsoft.VisualStudio.RpcContracts" version="16.6.6-alpha" tags="exapis" />
+    <package id="Microsoft.VisualStudio.Services.Framework" version="16.6.6-alpha" tags="exapis" />
+  </packages>
+</corext>

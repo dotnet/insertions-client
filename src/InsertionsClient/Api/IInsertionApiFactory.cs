@@ -13,6 +13,6 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="maxWaitSeconds">Optional: boxed wait seconds integer.</param>
         /// <param name="maxConcurrency">Optional: boxed concurrency integer.</param>
         /// <returns><see cref="IInsertionApi"/> instance.</returns>
-        IInsertionApi Create(string maxWaitSeconds = null, string maxConcurrency = null);
+        IInsertionApi Create(int? maxWaitSeconds = null, int? maxConcurrency = null);
     }
 }

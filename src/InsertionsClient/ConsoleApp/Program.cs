@@ -51,9 +51,9 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private static string IgnoredPackagesFile = string.Empty;
 
-        private static string MaxWaitSeconds = string.Empty;
+        private static int MaxWaitSeconds = 75;
 
-        private static string MaxConcurrency = string.Empty;
+        private static int MaxConcurrency = 4;
 
 
         /// <summary>
@@ -165,6 +165,20 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
             }
 
+            static void ProcessArgumentInt(string argument, string appSwitch, string cmdLineMessage, ref int target)
+            {
+                string trimmedArg = argument.Replace(appSwitch, string.Empty);
+                if(int.TryParse(trimmedArg, out target))
+                {
+                    Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
+                }
+                else
+                {
+                    target = -1;
+                    Trace.WriteLine($"Specified value is not an integer. Default value will be used.");
+                }
+            }
+
             foreach (var arg in args)
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
@@ -181,11 +195,11 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 }
                 else if (arg.StartsWith(SwitchMaxWaitSeconds))
                 {
-                    ProcessArgument(arg, SwitchMaxWaitSeconds, $"Specified \"max wait seconds\":", ref MaxWaitSeconds);
+                    ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max wait seconds\":", ref MaxWaitSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxConcurrency))
                 {
-                    ProcessArgument(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", ref MaxConcurrency);
+                    ProcessArgumentInt(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", ref MaxConcurrency);
                 }
             }
 
