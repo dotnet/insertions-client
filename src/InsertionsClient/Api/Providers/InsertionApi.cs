@@ -197,16 +197,16 @@ namespace Microsoft.Net.Insertions.Api.Providers
         {
             Stopwatch stopWatch = Stopwatch.StartNew();
 
-            if (!TryGetPackageId(asset.Name, out string packageId))
+            if (!TryGetPackageId(asset.Name, asset.Version, out string packageId))
             {
                 _metrics.AddMeasurement(Update.NotAPackage, stopWatch.ElapsedTicks);
                 return;
             }
 
-            if (packagesToIgnore.Contains(asset.Name))
+            if (packagesToIgnore.Contains(packageId))
             {
                 _metrics.AddMeasurement(Update.Ignored, stopWatch.ElapsedTicks);
-                Trace.WriteLine($"Skipping {asset.Name} since it was requested to be ignored.");
+                Trace.WriteLine($"Skipping {packageId} since it was requested to be ignored.");
                 return;
             }
 
@@ -217,11 +217,11 @@ namespace Microsoft.Net.Insertions.Api.Providers
             }
 
             _metrics.AddMeasurement(Update.ExactMatch, stopWatch.ElapsedTicks);
-            results.AddPackage(asset.Name, asset.Version);
-            Trace.WriteLine($"Package {asset.Name} was updated to version {asset.Version}");
+            results.AddPackage(packageId, asset.Version);
+            Trace.WriteLine($"Package {packageId} was updated to version {asset.Version}");
         }
 
-        private bool TryGetPackageId(string assetName, out string packageId)
+        private bool TryGetPackageId(string assetName, string version, out string packageId)
         {
             packageId = null;
 
@@ -246,6 +246,16 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
             // We have a nupkg file path.
             string filename = Path.GetFileNameWithoutExtension(assetName);
+
+            if (!string.IsNullOrWhiteSpace(version) &&
+                filename.EndsWith(version) && 
+                filename.Length > version.Length && 
+                filename[filename.Length - 1 - version.Length] == '.')
+            {
+                // Package id with a version suffix. Remove version including the dot inbetween.
+                packageId = filename.Substring(0, filename.Length - version.Length - 1);
+                return true;
+            }
 
             int index = 0;
             int versionNumberStart = -1;
