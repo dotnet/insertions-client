@@ -36,7 +36,15 @@ namespace Microsoft.Net.Insertions.Models
         /// </summary>
         public string OutcomeDetails { get; set; }
 
+        /// <summary>
+        /// All the files that were modified during the update or
+        /// the exceptions if there was an error while saving the file.
+        /// </summary>
+        public List<FileSaveResult> FileSaveResults { get; set; }
 
+        /// <summary>
+        /// Adds the given package to the updated nuget list.
+        /// </summary>
         public void AddPackage(string nugetId, string version)
         {
             _updatedNugetsList.Add($"{nugetId}, version: {version}");
@@ -44,7 +52,7 @@ namespace Microsoft.Net.Insertions.Models
 
         public override string ToString()
         {
-            return $"Validation {(Outcome? "succeeded" : "failed")} with {UpdatedNuGets.Count()} matched assets ({DurationMilliseconds:N0}-ms)";
+            return $"Validation {(Outcome ? "succeeded" : "failed")} with {UpdatedNuGets.Count()} matched assets ({DurationMilliseconds:N0}-ms)";
         }
     }
 }

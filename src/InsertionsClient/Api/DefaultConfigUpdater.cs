@@ -1,4 +1,5 @@
 ﻿using Microsoft.Net.Insertions.Common.Constants;
+using Microsoft.Net.Insertions.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -127,14 +128,29 @@ namespace Microsoft.Net.Insertions.Api
         /// <summary>
         /// Saves all the modified default.config and .packageconfig files to disk.
         /// </summary>
-        public void Save()
+        /// <returns> Results of the save operations. </returns>
+        public List<FileSaveResult> Save()
         {
+            List<FileSaveResult> results = new List<FileSaveResult>(_modifiedDocuments.Count);
+
             foreach(var document in _modifiedDocuments)
             {
                 var savePath = _documentPaths[document];
                 Trace.WriteLine($"Saving modified config file: {savePath}");
-                document.Save(savePath);
+                try
+                {
+                    document.Save(savePath);
+                    results.Add(new FileSaveResult(savePath));
+                    Trace.WriteLine("Save success.");
+                }
+                catch(Exception e)
+                {
+                    results.Add(new FileSaveResult(savePath, e));
+                    Trace.WriteLine($"Save failed with exception:{e.ToString()}");
+                }
             }
+
+            return results;
         }
     
         private void LoadPackagesFromXml(XDocument xDocument)

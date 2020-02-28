@@ -60,7 +60,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                     CreateParallelOptions(source.Token),
                     asset => ParallelCallback(asset, packagesToIgnore, configUpdater, results));
 
-                configUpdater.Save();
+                results.FileSaveResults = configUpdater.Save();
             }
             catch (Exception e)
             {
