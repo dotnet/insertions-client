@@ -2,14 +2,15 @@
 **InsertionsClient** updates the versions of NuGet packages in _default.config_ with the corresponding versions specified in _manifest.json_ assets.
 
 ## How does **InsertionsClient** work?
-1. Loads into memory the contents of both _default.config_ and _manifest.json_
-1. Searches _default.config_ for corresponding NuGet packages for each _manifest.json_ asset
-1. For every match, the NuGet version in _default.config_ is updated with that of the corresponding _manifest.json_ asset
-1. The updated _default.config_ is saved on disk
+1. Loads into memory the contents of both _default.config_ and _manifest.json_ as well as all the _.packageconfig_ files listed in the _default.config_
+1. Searches _default.config_ and _.packageconfig_ files for corresponding NuGet packages for each _manifest.json_ asset
+1. For every match, the NuGet version in the config file is updated with that of the corresponding _manifest.json_ asset
+1. The updated _default.config_ and _.packageconfig_'s are saved on disk
 
 ## Input
 1. **-d:** Path to the default.config.  Example: _-d:[c:\default.config]_
 1. **-m:** Path to the manifest.json.  Example: _-m:[c:\files\manifest.json]_
+1. **-i:** Path to ignored packages file [**optional**]. Example: _-i:[c:\files\ignore.txt]_
 1. **-w:** Maximum allowed duration in seconds [**optional**].  Example: _-w:60_
 1. **-c:** Maximum concurrency of default.config version updates [**optional**].  Example: _-c:10_
 

@@ -20,6 +20,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private const string SwitchManifest = "-m:";
 
+        private const string SwitchIgnorePackages = "-i:";
+
         private const string SwitchMaxWaitSeconds = "-w:";
 
         private const string SwitchMaxConcurrency = "-c:";
@@ -31,6 +33,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             txt.Append($"{SwitchDefaultConfig}<default.config full file path>");
             txt.Append(" ");
             txt.Append($"{SwitchManifest}<manifest.json full file path>");
+            txt.Append(" ");
+            txt.Append($"{SwitchIgnorePackages}<ignored packages file path>");
             txt.Append(" ");
             txt.Append($"{SwitchMaxWaitSeconds}<maximum seconds to allow job run, as int>");
             txt.Append(" ");
@@ -44,6 +48,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
         private static string DefaultConfigFile = string.Empty;
 
         private static string ManifestFile = string.Empty;
+
+        private static string IgnoredPackagesFile = string.Empty;
 
         private static string MaxWaitSeconds = string.Empty;
 
@@ -80,7 +86,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
             IInsertionApi api = apiFactory.Create(MaxWaitSeconds, MaxConcurrency);
-            UpdateResults results = api.UpdateVersions(ManifestFile, DefaultConfigFile);
+            UpdateResults results = api.UpdateVersions(ManifestFile, DefaultConfigFile, IgnoredPackagesFile);
 
             ShowResults(results);
 
@@ -123,6 +129,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Console.WriteLine($"{Environment.NewLine}Options:");
             Console.WriteLine($"{SwitchDefaultConfig}   full path on disk to default.config to update");
             Console.WriteLine($"{SwitchManifest}   full path on disk to manifest.json");
+            Console.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
             Console.WriteLine($"{SwitchMaxWaitSeconds}   maximum allowed duration in seconds [optional]");
             Console.WriteLine($"{SwitchMaxConcurrency}   maximum concurrency of default.config version updates [optional]{Environment.NewLine}");
  
@@ -162,19 +169,23 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
                 {
-                    ProcessArgument(arg, SwitchDefaultConfig, $"Specified {InsertionConstants.DefaultConfigFile}: {DefaultConfigFile}", ref DefaultConfigFile);
+                    ProcessArgument(arg, SwitchDefaultConfig, $"Specified {InsertionConstants.DefaultConfigFile}:", ref DefaultConfigFile);
                 }
                 else if (arg.StartsWith(SwitchManifest))
                 {
-                    ProcessArgument(arg, SwitchManifest, $"Specified {InsertionConstants.ManifestFile}: {ManifestFile}", ref ManifestFile);
+                    ProcessArgument(arg, SwitchManifest, $"Specified {InsertionConstants.ManifestFile}:", ref ManifestFile);
+                }
+                else if (arg.StartsWith(SwitchIgnorePackages))
+                {
+                    ProcessArgument(arg, SwitchIgnorePackages, $"Specified ignored packages file:", ref IgnoredPackagesFile);
                 }
                 else if (arg.StartsWith(SwitchMaxWaitSeconds))
                 {
-                    ProcessArgument(arg, SwitchMaxWaitSeconds, $"Specified \"max wait seconds\": {MaxWaitSeconds}", ref MaxWaitSeconds);
+                    ProcessArgument(arg, SwitchMaxWaitSeconds, $"Specified \"max wait seconds\":", ref MaxWaitSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxConcurrency))
                 {
-                    ProcessArgument(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\": {MaxConcurrency}", ref MaxConcurrency);
+                    ProcessArgument(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", ref MaxConcurrency);
                 }
             }
 
