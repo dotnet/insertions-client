@@ -105,7 +105,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Trace.WriteLine($"Duration: {results.DurationMilliseconds:N2}-ms.");
             Trace.WriteLine($"Successful updates: {results.UpdatedNuGets.Count():N0}.");
             Trace.WriteLine("Updated default.config NuGet package versions...");
-            foreach (string updatedNuget in results.UpdatedNuGets)
+            foreach (string updatedNuget in results.UpdatedNuGets.OrderBy(r => r)
             {
                 Trace.WriteLine($"           {updatedNuget}");
             }
@@ -175,7 +175,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 else
                 {
                     target = -1;
-                    Trace.WriteLine($"Specified value is not an integer. Default value will be used.");
+                    Trace.WriteLine("Specified value is not an integer. Default value will be used.");
                 }
             }
 

@@ -10,9 +10,10 @@ namespace Microsoft.Net.Insertions.Api
         /// <summary>
         /// Creates an <see cref="IInsertionApi"/> instances.
         /// </summary>
-        /// <param name="maxWaitSeconds">Optional: boxed wait seconds integer.</param>
-        /// <param name="maxConcurrency">Optional: boxed concurrency integer.</param>
-        /// <returns><see cref="IInsertionApi"/> instance.</returns>
+        /// <param name="maxWaitSeconds">Optional: Maximum number of seconds that the application
+        /// is allowed to run. After that, operation will be cancelled.</param>
+        /// <param name="maxConcurrency">Optional: Level of concurrency.</param>
+        /// <returns><see cref="IInsertionApi"/> An IInsertionApi instance.</returns>
         IInsertionApi Create(int? maxWaitSeconds = null, int? maxConcurrency = null);
     }
 }

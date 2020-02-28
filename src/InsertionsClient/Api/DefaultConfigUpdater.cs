@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -34,7 +33,7 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="defaultConfigPath">Path to the &quot;default.config&quot; file.</param>
         /// <param name="error">Description of the error occured during load.</param>
         /// <returns>True if the operation is successful. False otherwise.</returns>
-        public bool Load(string defaultConfigPath, out string error)
+        public bool TryLoad(string defaultConfigPath, out string error)
         {
             error = null;
 
@@ -44,14 +43,23 @@ namespace Microsoft.Net.Insertions.Api
                 return false;
             }
 
-            Trace.WriteLine($"Loading {InsertionConstants.DefaultConfigFile} content from {defaultConfigPath}.");            
-            var defaultConfigXml = XDocument.Load(defaultConfigPath, LoadOptions.SetLineInfo);
-            Trace.WriteLine($"Loaded {InsertionConstants.DefaultConfigFile} content.");
+            XDocument defaultConfigXml;
+            try
+            {
+                Trace.WriteLine($"Loading {InsertionConstants.DefaultConfigFile} content from {defaultConfigPath}.");
+                defaultConfigXml = XDocument.Load(defaultConfigPath, LoadOptions.SetLineInfo);
+                Trace.WriteLine($"Loaded {InsertionConstants.DefaultConfigFile} content.");
+            }
+            catch(Exception e)
+            {
+                Trace.WriteLine($"Loading of {InsertionConstants.DefaultConfigFile} content has failed with exception:{Environment.NewLine} {e.ToString()}");
+                return false;
+            }
 
             _documentPaths[defaultConfigXml] = defaultConfigPath;
             LoadPackagesFromXml(defaultConfigXml);
 
-            var additionalConfigParent = defaultConfigXml.Element(ElementNameAdditionalConfigsParent);
+            XElement additionalConfigParent = defaultConfigXml.Element(ElementNameAdditionalConfigsParent);
             if(additionalConfigParent != null)
             {
                 string configsDirectory = Path.GetDirectoryName(defaultConfigPath);
@@ -74,9 +82,18 @@ namespace Microsoft.Net.Insertions.Api
                         continue;
                     }
 
-                    Trace.WriteLine($"Loading content of .packageconfig at {defaultConfigPath}.");
-                    var packageConfigXDocument = XDocument.Load(configFileAbsolutePath);
-                    Trace.WriteLine($"Loaded .packageconfig content.");
+                    XDocument packageConfigXDocument;
+                    try
+                    {
+                        Trace.WriteLine($"Loading content of .packageconfig at {defaultConfigPath}.");
+                        packageConfigXDocument = XDocument.Load(configFileAbsolutePath);
+                        Trace.WriteLine($"Loaded .packageconfig content.");
+                    } 
+                    catch(Exception e)
+                    {
+                        Trace.WriteLine($"Loading of .packageconfig file has failed with exception{Environment.NewLine}{e.ToString()}");
+                        continue;
+                    }
 
                     _documentPaths[packageConfigXDocument] = configFileAbsolutePath;
                     LoadPackagesFromXml(packageConfigXDocument);
@@ -86,6 +103,40 @@ namespace Microsoft.Net.Insertions.Api
             return true;
         }
 
+        /// <summary>
+        /// Attempts to find the package with given id and update its version number.
+        /// </summary>
+        /// <param name="packageId">Id of the package to change the version of</param>
+        /// <param name="version">Version number to assign</param>
+        /// <returns>True if package was found. False otherwise.</returns>
+        public bool TryUpdatePackage(string packageId, string version)
+        {
+            lock(_updateLock)
+            {
+                if (!_packageXElements.TryGetValue(packageId, out var xElement))
+                {
+                    return false;
+                }
+
+                xElement.Attribute("version").Value = version;
+                _modifiedDocuments.Add(xElement.Document);
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Saves all the modified default.config and .packageconfig files to disk.
+        /// </summary>
+        public void Save()
+        {
+            foreach(var document in _modifiedDocuments)
+            {
+                var savePath = _documentPaths[document];
+                Trace.WriteLine($"Saving modified config file: {savePath}");
+                document.Save(savePath);
+            }
+        }
+    
         private void LoadPackagesFromXml(XDocument xDocument)
         {
             foreach (var packageXElement in xDocument.Descendants(ElementNamePackage))
@@ -111,38 +162,6 @@ namespace Microsoft.Net.Insertions.Api
                 }
 
                 _packageXElements.Add(packageId, packageXElement);
-            }
-        }
-    
-        /// <summary>
-        /// Attempts to find the package with given id and update its version number.
-        /// </summary>
-        /// <param name="packageId">Id of the package to change the version of</param>
-        /// <param name="version">Version number to assign</param>
-        /// <returns>True if package was found. False otherwise.</returns>
-        public bool TryUpdatePackage(string packageId, string version)
-        {
-            lock(_updateLock)
-            {
-                if (!_packageXElements.TryGetValue(packageId, out var xElement))
-                    return false;
-
-                xElement.Attribute("version").Value = version;
-                _modifiedDocuments.Add(xElement.Document);
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Saves all the modified default.config and .packageconfig files to disk.
-        /// </summary>
-        public void Save()
-        {
-            foreach(var document in _modifiedDocuments)
-            {
-                var savePath = _documentPaths[document];
-                Trace.WriteLine($"Saving modified config file: {savePath}");
-                document.Save(savePath);
             }
         }
     }

@@ -172,7 +172,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
         private bool TryLoadDefaultConfig(string defaultConfigPath, out DefaultConfigUpdater configUpdater, out string details)
         {
             configUpdater = new DefaultConfigUpdater();
-            return configUpdater.Load(defaultConfigPath, out details);
+            return configUpdater.TryLoad(defaultConfigPath, out details);
         }
 
         private HashSet<string> LoadPackagesToIgnore(string ignoredPackagesFile)
@@ -264,7 +264,9 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 char c = filename[index++];
                 
                 if (c > '0' && c <= '9')
+                {
                     continue;
+                }
 
                 if (c == '.')
                 {
@@ -281,7 +283,9 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
                 // we found a letter. This cannot be the start of the version number. Skip ahead
                 while (index < filename.Length && filename[index] != '.')
+                {
                     index++;
+                }
 
                 versionNumberStart = index++;
             }
