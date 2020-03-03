@@ -2,10 +2,12 @@
 using Microsoft.Net.Insertions.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using System.Xml.Linq;
+using System.Threading.Tasks;
 
 namespace Microsoft.Net.Insertions.Api
 {
@@ -20,13 +22,28 @@ namespace Microsoft.Net.Insertions.Api
 
         private const string ElementNameAdditionalConfig = "config";
 
-        private readonly object _updateLock = new object();
+        private readonly Dictionary<XDocument, string> _documentPaths;
 
-        private readonly Dictionary<XDocument, string> _documentPaths = new Dictionary<XDocument, string>(16);
+        private readonly ConcurrentDictionary<XDocument, byte> _modifiedDocuments;
 
-        private readonly HashSet<XDocument> _modifiedDocuments = new HashSet<XDocument>(16);
+        private readonly ConcurrentDictionary<string, XElement> _packageXElements;
 
-        private readonly Dictionary<string, XElement> _packageXElements = new Dictionary<string, XElement>(256);
+        /// <summary>
+        /// Creates an instance of DefaultConfigUpdater
+        /// </summary>
+        public DefaultConfigUpdater() : this(TaskScheduler.Current.MaximumConcurrencyLevel) { }
+
+        /// <summary>
+        /// Creates an instance using the given concurrency level for initializing internal
+        /// concurrent collections.
+        /// </summary>
+        /// <param name="concurrencyLevel">Excpected concurrency level for multithreaded access.</param>
+        public DefaultConfigUpdater(int concurrencyLevel)
+        {
+            _documentPaths = new Dictionary<XDocument, string>(16);
+            _modifiedDocuments = new ConcurrentDictionary<XDocument, byte>(concurrencyLevel, 17);
+            _packageXElements = new ConcurrentDictionary<string, XElement>(concurrencyLevel, 1021);
+        }
 
         /// <summary>
         /// Loads the config file at the given path along with all the .packageconfig files in it.
@@ -34,6 +51,7 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="defaultConfigPath">Path to the &quot;default.config&quot; file.</param>
         /// <param name="error">Description of the error occured during load.</param>
         /// <returns>True if the operation is successful. False otherwise.</returns>
+        /// <remarks>This method is not thread-safe.</remarks>
         public bool TryLoad(string defaultConfigPath, out string error)
         {
             error = null;
@@ -110,30 +128,31 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="packageId">Id of the package to change the version of</param>
         /// <param name="version">Version number to assign</param>
         /// <returns>True if package was found. False otherwise.</returns>
+        /// <remarks>This method is safe to call simultaneously from multiple threads.</remarks>
         public bool TryUpdatePackage(string packageId, string version)
         {
-            lock(_updateLock)
+            if (!_packageXElements.TryGetValue(packageId, out var xElement))
             {
-                if (!_packageXElements.TryGetValue(packageId, out var xElement))
-                {
-                    return false;
-                }
-
-                xElement.Attribute("version").Value = version;
-                _modifiedDocuments.Add(xElement.Document);
-                return true;
+                return false;
             }
+
+            xElement.Attribute("version").Value = version;
+                
+            // Store the document. Store a junk value (0) with it, because we have to.
+            _modifiedDocuments[xElement.Document] = 0;
+            return true;
         }
 
         /// <summary>
         /// Saves all the modified default.config and .packageconfig files to disk.
         /// </summary>
         /// <returns> Results of the save operations. </returns>
+        /// <remarks>This method is not thread-safe.</remarks>
         public List<FileSaveResult> Save()
         {
             List<FileSaveResult> results = new List<FileSaveResult>(_modifiedDocuments.Count);
 
-            foreach(var document in _modifiedDocuments)
+            foreach(var document in _modifiedDocuments.Keys)
             {
                 var savePath = _documentPaths[document];
                 Trace.WriteLine($"Saving modified config file: {savePath}");
@@ -177,7 +196,7 @@ namespace Microsoft.Net.Insertions.Api
                     continue;
                 }
 
-                _packageXElements.Add(packageId, packageXElement);
+                _packageXElements[packageId] = packageXElement;
             }
         }
     }
