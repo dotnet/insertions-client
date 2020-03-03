@@ -48,10 +48,10 @@ namespace InsertionsClientTest
 			Assert.IsNull(error);
 
 			// Test Content
-			Assert.IsTrue(updater.TryUpdatePackage("Microsoft.IdentityModel.Clients.ActiveDirectory", "1.2.3.4.5"));
+			Assert.IsTrue(updater.TryUpdatePackage("Microsoft.IdentityModel.Clients.ActiveDirectory", "1.2.3.4.5", out _));
 			List<FileSaveResult> saveResults = updater.Save();
 			Assert.IsNotNull(saveResults);
-			Assert.AreEqual(saveResults.Count, 1);
+			Assert.AreEqual(1, saveResults.Count);
 
 			Assert.IsTrue(saveResults[0].DidSucceed);
 		}
@@ -67,7 +67,7 @@ namespace InsertionsClientTest
 			Assert.IsNull(error);
 
 			// Update a package that doesn't exist
-			Assert.IsFalse(updater.TryUpdatePackage("Some.Package.Nobody.Created", "xxx"));
+			Assert.IsFalse(updater.TryUpdatePackage("Some.Package.Nobody.Created", "xxx", out _));
 			List<FileSaveResult> saveResults = updater.Save();
 			Assert.IsNotNull(saveResults);
 			Assert.AreEqual(saveResults.Count, 0);
@@ -85,7 +85,7 @@ namespace InsertionsClientTest
 
 			// Test Content
 			string versionNumber = Guid.NewGuid().ToString();
-			Assert.IsTrue(updater.TryUpdatePackage("VS.Redist.X86.Retail.Bin.I386.HelpDocs.Intellisense.NETPortableV4_0.1055", versionNumber));
+			Assert.IsTrue(updater.TryUpdatePackage("VS.Redist.X86.Retail.Bin.I386.HelpDocs.Intellisense.NETPortableV4_0.1055", versionNumber, out _));
 			List<FileSaveResult> saveResults = updater.Save();
 			Assert.IsNotNull(saveResults);
 			Assert.AreEqual(saveResults.Count, 1);
@@ -106,7 +106,7 @@ namespace InsertionsClientTest
 
 			// Test Content
 			string versionNumber = Guid.NewGuid().ToString();
-			Assert.IsTrue(updater.TryUpdatePackage("Microsoft.VisualStudio.Language.NavigateTo.Implementation", versionNumber));
+			Assert.IsTrue(updater.TryUpdatePackage("Microsoft.VisualStudio.Language.NavigateTo.Implementation", versionNumber, out _));
 			List<FileSaveResult> saveResults = updater.Save();
 			Assert.IsNotNull(saveResults);
 			Assert.AreEqual(saveResults.Count, 1);
