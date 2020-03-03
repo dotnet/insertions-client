@@ -31,23 +31,42 @@ namespace InsertionsClientTest
 		public void TestLoadFile()
 		{
 			DefaultConfigUpdater updater = new DefaultConfigUpdater();
-			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets/default.config");
+			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets", "default.config");
 			Assert.IsTrue(File.Exists(defaultConfigPath));
 			Assert.IsTrue(updater.TryLoad(defaultConfigPath, out string error), error);
 			Assert.IsNull(error);
 		}
 
 		[TestMethod]
-		public void TestLoadedFileContent()
+		public void TestDefaultConfigContent()
 		{
 			// Load file
 			DefaultConfigUpdater updater = new DefaultConfigUpdater();
-			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets/default.config");
+			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets", "default.config");
 			Assert.IsTrue(File.Exists(defaultConfigPath));
 			Assert.IsTrue(updater.TryLoad(defaultConfigPath, out string error), error);
 			Assert.IsNull(error);
 
-			// Test Content
+			// Test Content: change a version in default.config
+			Assert.IsTrue(updater.TryUpdatePackage("VS.Tools.Roslyn", "1.2.3.4.5", out _));
+			List<FileSaveResult> saveResults = updater.Save();
+			Assert.IsNotNull(saveResults);
+			Assert.AreEqual(1, saveResults.Count);
+
+			Assert.IsTrue(saveResults[0].DidSucceed);
+		}
+
+		[TestMethod]
+		public void TestPackageConfigContent()
+		{
+			// Load file
+			DefaultConfigUpdater updater = new DefaultConfigUpdater();
+			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets", "default.config");
+			Assert.IsTrue(File.Exists(defaultConfigPath));
+			Assert.IsTrue(updater.TryLoad(defaultConfigPath, out string error), error);
+			Assert.IsNull(error);
+
+			// Test Content: change a version in a packageconfig
 			Assert.IsTrue(updater.TryUpdatePackage("Microsoft.IdentityModel.Clients.ActiveDirectory", "1.2.3.4.5", out _));
 			List<FileSaveResult> saveResults = updater.Save();
 			Assert.IsNotNull(saveResults);
@@ -61,7 +80,7 @@ namespace InsertionsClientTest
 		{
 			// Load file
 			DefaultConfigUpdater updater = new DefaultConfigUpdater();
-			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets/default.config");
+			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets", "default.config");
 			Assert.IsTrue(File.Exists(defaultConfigPath));
 			Assert.IsTrue(updater.TryLoad(defaultConfigPath, out string error), error);
 			Assert.IsNull(error);
@@ -74,17 +93,18 @@ namespace InsertionsClientTest
 		}
 
 		[TestMethod]
-		public void TestSetCorrectVersion()
+		public void TestSetCorrectVersionDefaultConfig()
 		{
 			// Load file
 			DefaultConfigUpdater updater = new DefaultConfigUpdater();
-			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets/default.config");
+			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets", "default.config");
 			Assert.IsTrue(File.Exists(defaultConfigPath));
 			Assert.IsTrue(updater.TryLoad(defaultConfigPath, out string error), error);
 			Assert.IsNull(error);
 
 			// Test Content
 			string versionNumber = Guid.NewGuid().ToString();
+			// Edit a package that is inside default.config
 			Assert.IsTrue(updater.TryUpdatePackage("VS.Redist.X86.Retail.Bin.I386.HelpDocs.Intellisense.NETPortableV4_0.1055", versionNumber, out _));
 			List<FileSaveResult> saveResults = updater.Save();
 			Assert.IsNotNull(saveResults);
@@ -95,17 +115,18 @@ namespace InsertionsClientTest
 		}
 
 		[TestMethod]
-		public void TestSetCorrectVersion2()
+		public void TestSetCorrectVersionPackageConfig()
 		{
 			// Load file
 			DefaultConfigUpdater updater = new DefaultConfigUpdater();
-			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets/default.config");
+			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets", "default.config");
 			Assert.IsTrue(File.Exists(defaultConfigPath));
 			Assert.IsTrue(updater.TryLoad(defaultConfigPath, out string error), error);
 			Assert.IsNull(error);
 
 			// Test Content
 			string versionNumber = Guid.NewGuid().ToString();
+			// Edit a package that is inside a packageconfig file
 			Assert.IsTrue(updater.TryUpdatePackage("Microsoft.VisualStudio.Language.NavigateTo.Implementation", versionNumber, out _));
 			List<FileSaveResult> saveResults = updater.Save();
 			Assert.IsNotNull(saveResults);

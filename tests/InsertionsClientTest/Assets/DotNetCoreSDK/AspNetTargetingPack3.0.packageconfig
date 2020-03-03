@@ -1,0 +1,6 @@
+<corext>
+  <packages>
+    <package id="VS.Redist.Common.AspNetCore.TargetingPack.x64.3.0" version="3.0.1-servicing.19554.7" link="src\Redist\common\NetCoreSDK\AspNetCoreTargetingPack_3.0\x64" tags="redist" />
+    <package id="VS.Redist.Common.AspNetCore.TargetingPack.x86.3.0" version="3.0.1-servicing.19554.7" link="src\Redist\common\NetCoreSDK\AspNetCoreTargetingPack_3.0\x86" tags="redist" />
+  </packages>
+</corext>

@@ -24,6 +24,90 @@
     <None Update="Assets\default.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\DotNetCoreSDK\AppHostPack3.0.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\AppHostPack3.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\AspNetFramework2.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\AspNetFramework2.2.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\AspNetFramework3.0.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\AspNetFramework3.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\AspNetTargetingPack3.0.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\AspNetTargetingPack3.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\CoreTargetingPack3.0.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\CoreTargetingPack3.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\DesktopSharedFramework3.0.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\DesktopSharedFramework3.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\DesktopTargetingPack3.0.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\DesktopTargetingPack3.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\HostFXR.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\MSBuildExtensions.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\Runtime2.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\Runtime2.1TargetingPacks.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\Runtime2.2.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\SdkPlaceholder.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\SharedFramework3.0.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\SharedFramework3.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\SharedHost3.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\Templates2.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\Templates2.2.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\Templates3.0.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\Templates3.1.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\DotNetCoreSDK\Toolset.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\manifest.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

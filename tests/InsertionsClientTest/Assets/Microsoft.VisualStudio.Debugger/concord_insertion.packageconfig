@@ -2,13 +2,13 @@
 <corext>
   <packages>
     <package id="Microsoft.Debugging.TargetModel.Core" version="20191113.1" tags="redist" />
-    <package id="Microsoft.VisualStudio.Debugger.ConcordInsertion" version="16.5.2022402-gaee35db95ffa8486d033d47855251565b05b4e41" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Debugger.ConcordInsertion" />
-    <package id="Microsoft.VisualStudio.Debugger.Engine" version="16.5.2022402-preview" link="src\ExternalAPIs\Microsoft.VisualStudio.Debugger.Engine" tags="exapis" />
-    <package id="Microsoft.VisualStudio.Debugger.Metadata" version="16.5.2022402-preview" link="src\ExternalAPIs\Microsoft.VisualStudio.Debugger.Metadata" tags="exapis" />
+    <package id="Microsoft.VisualStudio.Debugger.ConcordInsertion" version="16.5.2022801-gdceedbcc0dff083b2a3259af1a25b081cbb9a27b" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Debugger.ConcordInsertion" />
+    <package id="Microsoft.VisualStudio.Debugger.Engine" version="16.5.2022801-preview" link="src\ExternalAPIs\Microsoft.VisualStudio.Debugger.Engine" tags="exapis" />
+    <package id="Microsoft.VisualStudio.Debugger.Metadata" version="16.5.2022801-preview" link="src\ExternalAPIs\Microsoft.VisualStudio.Debugger.Metadata" tags="exapis" />
     <package id="Microsoft.VisualStudio.Debugger.TimeTravel.Replay" version="1.4.0-build2020011501" link="src\ExternalAPIs\Microsoft.VisualStudio.Debugger.TimeTravel.Replay" tags="exapis" />
     <package id="Microsoft.VisualStudio.Diagnostics.ProcessRecording" version="2.1.0-build2020011501" link="src\ExternalAPIs\Microsoft.VisualStudio.Diagnostics.ProcessRecording" tags="exapis" />
-    <package id="Microsoft.VSSDK.Debugger.VSDConfigTool" version="16.5.2022402-preview" link="src\ExternalAPIs\Microsoft.VSSDK.Debugger.VSDConfigTool" tags="exapis" />
-    <package id="Microsoft.VSSDK.Debugger.VSDebugEng" version="16.5.2022402-preview" link="src\ExternalAPIs\Microsoft.VSSDK.Debugger.VSDebugEng" tags="exapis" />
-    <package id="Microsoft.VSSDK.Debugger.VSDebugEng.Internal" version="16.5.2022402-preview" tags="exapis" link="src\ExternalAPIs\Microsoft.VSSDK.Debugger.VSDebugEng.Internal" />
+    <package id="Microsoft.VSSDK.Debugger.VSDConfigTool" version="16.5.2022801-preview" link="src\ExternalAPIs\Microsoft.VSSDK.Debugger.VSDConfigTool" tags="exapis" />
+    <package id="Microsoft.VSSDK.Debugger.VSDebugEng" version="16.5.2022801-preview" link="src\ExternalAPIs\Microsoft.VSSDK.Debugger.VSDebugEng" tags="exapis" />
+    <package id="Microsoft.VSSDK.Debugger.VSDebugEng.Internal" version="16.5.2022801-preview" tags="exapis" link="src\ExternalAPIs\Microsoft.VSSDK.Debugger.VSDebugEng.Internal" />
   </packages>
 </corext>

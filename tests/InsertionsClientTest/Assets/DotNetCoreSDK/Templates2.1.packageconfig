@@ -1,0 +1,6 @@
+<corext>
+  <packages>
+    <package id="VS.Redist.Common.NetCore.Templates.x64.2.1" version="3.1.200-servicing-015008" link="src\Redist\common\NetCoreSDK\NetCoreTemplates_2.1\x64" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.Templates.x86.2.1" version="3.1.200-servicing-015008" link="src\Redist\common\NetCoreSDK\NetCoreTemplates_2.1\x86" tags="redist" />
+  </packages>
+</corext>

@@ -1,0 +1,6 @@
+<corext>
+  <packages>
+    <package id="VS.Redist.Common.NetStandard.TargetingPack.x64.2.1" version="2.1.0-rc2-19463-05" link="src\Redist\common\NetCoreSDK\NetStandardTargetingPack_2.1\x64" tags="redist" />
+    <package id="VS.Redist.Common.NetStandard.TargetingPack.x86.2.1" version="2.1.0-rc2-19463-05" link="src\Redist\common\NetCoreSDK\NetStandardTargetingPack_2.1\x86" tags="redist" />
+  </packages>
+</corext>
