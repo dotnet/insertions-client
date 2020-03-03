@@ -83,7 +83,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
             Trace.WriteLine($"Statistics: {update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
         }
 
-        private bool TryValidateManifestFile(string manifestFile, out string details)
+        internal bool TryValidateManifestFile(string manifestFile, out string details)
         {
             details = string.Empty;
             if (string.IsNullOrWhiteSpace(manifestFile))
@@ -97,7 +97,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return string.IsNullOrWhiteSpace(details);
         }
 
-        private bool TryExtractManifestAssets(string manifestFile, out List<Asset> assets, out string details)
+        internal bool TryExtractManifestAssets(string manifestFile, out List<Asset> assets, out string details)
         {
             details = string.Empty;
 
