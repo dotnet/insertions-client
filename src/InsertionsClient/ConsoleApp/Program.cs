@@ -87,7 +87,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
             IInsertionApi api = apiFactory.Create(MaxWaitSeconds, MaxConcurrency);
             UpdateResults results = api.UpdateVersions(ManifestFile, DefaultConfigFile, IgnoredPackagesFile);
-
+            
             ShowResults(results);
 
             Trace.WriteLine($"Log: {LogFile}{Environment.NewLine}");
@@ -105,7 +105,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Trace.WriteLine($"Duration: {results.DurationMilliseconds:N2}-ms.");
             Trace.WriteLine($"Successful updates: {results.UpdatedNuGets.Count():N0}.");
             Trace.WriteLine("Updated default.config NuGet package versions...");
-            foreach (string updatedNuget in results.UpdatedNuGets.OrderBy(r => r)
+            foreach (string updatedNuget in results.UpdatedNuGets.OrderBy(r => r))
             {
                 Trace.WriteLine($"           {updatedNuget}");
             }

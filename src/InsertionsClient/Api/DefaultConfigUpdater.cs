@@ -8,6 +8,7 @@ using System.IO;
 using System.Xml;
 using System.Xml.Linq;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Microsoft.Net.Insertions.Api
 {
@@ -31,7 +32,7 @@ namespace Microsoft.Net.Insertions.Api
         /// <summary>
         /// Creates an instance of DefaultConfigUpdater
         /// </summary>
-        public DefaultConfigUpdater() : this(TaskScheduler.Current.MaximumConcurrencyLevel) { }
+        public DefaultConfigUpdater() : this(concurrencyLevel: 8) { }
 
         /// <summary>
         /// Creates an instance using the given concurrency level for initializing internal
@@ -78,12 +79,13 @@ namespace Microsoft.Net.Insertions.Api
             _documentPaths[defaultConfigXml] = defaultConfigPath;
             LoadPackagesFromXml(defaultConfigXml);
 
-            XElement additionalConfigParent = defaultConfigXml.Element(ElementNameAdditionalConfigsParent);
-            if(additionalConfigParent != null)
+            // Find xml elements that define additional .packageconfig in them.
+            IEnumerable<XElement> additionalConfigParents = defaultConfigXml.Descendants(ElementNameAdditionalConfigsParent);
+            if(additionalConfigParents != null)
             {
                 string configsDirectory = Path.GetDirectoryName(defaultConfigPath);
 
-                foreach(var packageconfigXElement in additionalConfigParent.Descendants(ElementNameAdditionalConfig))
+                foreach(var packageconfigXElement in additionalConfigParents.SelectMany(p => p.Elements(ElementNameAdditionalConfig)))
                 {
                     string configFileRelativePath = packageconfigXElement.Attribute("name")?.Value;
 
