@@ -29,6 +29,8 @@ namespace Microsoft.Net.Insertions.Api
 
         private readonly ConcurrentDictionary<string, XElement> _packageXElements;
 
+        private readonly XmlWriterSettings _packageconfigWriteSettings;
+
         /// <summary>
         /// Creates an instance of DefaultConfigUpdater
         /// </summary>
@@ -44,6 +46,13 @@ namespace Microsoft.Net.Insertions.Api
             _documentPaths = new Dictionary<XDocument, string>(16);
             _modifiedDocuments = new ConcurrentDictionary<XDocument, byte>(concurrencyLevel, 17);
             _packageXElements = new ConcurrentDictionary<string, XElement>(concurrencyLevel, 1021);
+
+            _packageconfigWriteSettings = new XmlWriterSettings()
+            {
+                OmitXmlDeclaration = true,
+                Indent = true,
+                NewLineHandling = NewLineHandling.Entitize
+            };
         }
 
         /// <summary>
@@ -106,7 +115,7 @@ namespace Microsoft.Net.Insertions.Api
                     XDocument packageConfigXDocument;
                     try
                     {
-                        Trace.WriteLine($"Loading content of .packageconfig at {defaultConfigPath}.");
+                        Trace.WriteLine($"Loading content of .packageconfig at {configFileAbsolutePath}.");
                         packageConfigXDocument = XDocument.Load(configFileAbsolutePath);
                         Trace.WriteLine($"Loaded .packageconfig content.");
                     } 
@@ -138,6 +147,13 @@ namespace Microsoft.Net.Insertions.Api
                 return false;
             }
 
+            string currentVersion = xElement.Attribute("version").Value;
+            if (currentVersion == version)
+            {
+                // Package was found. But no version update was necessary
+                return true;
+            }
+
             xElement.Attribute("version").Value = version;
                 
             // Store the document. Store a junk value (0) with it, because we have to.
@@ -160,7 +176,10 @@ namespace Microsoft.Net.Insertions.Api
                 Trace.WriteLine($"Saving modified config file: {savePath}");
                 try
                 {
-                    document.Save(savePath);
+                    using(XmlWriter writer = XmlWriter.Create(savePath, _packageconfigWriteSettings))
+                    {
+                        document.Save(writer);
+                    }
                     results.Add(new FileSaveResult(savePath));
                     Trace.WriteLine("Save success.");
                 }
