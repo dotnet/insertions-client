@@ -210,15 +210,19 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 return;
             }
 
-            if (!configUpdater.TryUpdatePackage(packageId, asset.Version))
+            if (!configUpdater.TryUpdatePackage(packageId, asset.Version, out string oldVersion))
             {
                 _metrics.AddMeasurement(Update.NoMatch, stopWatch.ElapsedTicks);
                 return;
             }
 
             _metrics.AddMeasurement(Update.ExactMatch, stopWatch.ElapsedTicks);
-            results.AddPackage(packageId, asset.Version);
-            Trace.WriteLine($"Package {packageId} was updated to version {asset.Version}");
+
+            if(oldVersion != asset.Version)
+            {
+                results.AddPackage(packageId, asset.Version);
+                Trace.WriteLine($"Package {packageId} was updated to version {asset.Version}");
+            }
         }
 
         private bool TryGetPackageId(string assetName, string version, out string packageId)

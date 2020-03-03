@@ -50,8 +50,7 @@ namespace Microsoft.Net.Insertions.Api
             _packageconfigWriteSettings = new XmlWriterSettings()
             {
                 OmitXmlDeclaration = true,
-                Indent = true,
-                NewLineHandling = NewLineHandling.Entitize
+                Indent = true
             };
         }
 
@@ -140,22 +139,23 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="version">Version number to assign</param>
         /// <returns>True if package was found. False otherwise.</returns>
         /// <remarks>This method is safe to call simultaneously from multiple threads.</remarks>
-        public bool TryUpdatePackage(string packageId, string version)
+        public bool TryUpdatePackage(string packageId, string version, out string existingVersion)
         {
             if (!_packageXElements.TryGetValue(packageId, out var xElement))
             {
+                existingVersion = null;
                 return false;
             }
 
-            string currentVersion = xElement.Attribute("version").Value;
-            if (currentVersion == version)
+            existingVersion = xElement.Attribute("version").Value;
+            if (existingVersion == version)
             {
                 // Package was found. But no version update was necessary
                 return true;
             }
 
             xElement.Attribute("version").Value = version;
-                
+
             // Store the document. Store a junk value (0) with it, because we have to.
             _modifiedDocuments[xElement.Document] = 0;
             return true;
