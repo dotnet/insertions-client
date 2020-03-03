@@ -3,7 +3,7 @@ using System;
 namespace Microsoft.Net.Insertions.Models
 {
     /// <summary> Stores the result of a file save operation.
-    public struct FileSaveResult
+    public struct FileSaveResult : IEquatable<FileSaveResult>
     {
         /// <summary> Path to the file that was saved. </summary>
         public readonly string Path;
@@ -20,6 +20,16 @@ namespace Microsoft.Net.Insertions.Models
         {
             Path = path;
             Exception = exception;
+        }
+
+        /// <summary>
+        /// Compare given instance to this.
+        /// </summary>
+        /// <param name="other">Instance to compare to this.</param>
+        /// <returns>True if both instances are storing the same data. False, otherwise</returns>
+        public bool Equals(FileSaveResult other)
+        {
+            return Path == other.Path && Exception == other.Exception;
         }
     }
 }
