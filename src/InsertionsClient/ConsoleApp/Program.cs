@@ -51,9 +51,9 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private static string IgnoredPackagesFile = string.Empty;
 
-        private static string MaxWaitSeconds = string.Empty;
+        private static int MaxWaitSeconds = 75;
 
-        private static string MaxConcurrency = string.Empty;
+        private static int MaxConcurrency = 4;
 
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
             IInsertionApi api = apiFactory.Create(MaxWaitSeconds, MaxConcurrency);
             UpdateResults results = api.UpdateVersions(ManifestFile, DefaultConfigFile, IgnoredPackagesFile);
-
+            
             ShowResults(results);
 
             Trace.WriteLine($"Log: {LogFile}{Environment.NewLine}");
@@ -105,7 +105,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Trace.WriteLine($"Duration: {results.DurationMilliseconds:N2}-ms.");
             Trace.WriteLine($"Successful updates: {results.UpdatedNuGets.Count():N0}.");
             Trace.WriteLine("Updated default.config NuGet package versions...");
-            foreach (string updatedNuget in results.UpdatedNuGets)
+            foreach (string updatedNuget in results.UpdatedNuGets.OrderBy(r => r))
             {
                 Trace.WriteLine($"           {updatedNuget}");
             }
@@ -165,6 +165,20 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
             }
 
+            static void ProcessArgumentInt(string argument, string appSwitch, string cmdLineMessage, ref int target)
+            {
+                string trimmedArg = argument.Replace(appSwitch, string.Empty);
+                if(int.TryParse(trimmedArg, out target))
+                {
+                    Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
+                }
+                else
+                {
+                    target = -1;
+                    Trace.WriteLine("Specified value is not an integer. Default value will be used.");
+                }
+            }
+
             foreach (var arg in args)
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
@@ -181,11 +195,11 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 }
                 else if (arg.StartsWith(SwitchMaxWaitSeconds))
                 {
-                    ProcessArgument(arg, SwitchMaxWaitSeconds, $"Specified \"max wait seconds\":", ref MaxWaitSeconds);
+                    ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max wait seconds\":", ref MaxWaitSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxConcurrency))
                 {
-                    ProcessArgument(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", ref MaxConcurrency);
+                    ProcessArgumentInt(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", ref MaxConcurrency);
                 }
             }
 

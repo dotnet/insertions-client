@@ -23,20 +23,16 @@ namespace Microsoft.Net.Insertions.Api.Providers
     /// </summary>
     internal sealed class InsertionApi : IInsertionApi
     {
-        private const string ElementNamePackage = "package";
-
         private readonly MeasurementsSession _metrics;
-
+        
         private readonly int _maxWaitSeconds = 75, _maxConcurrentWorkers = 15;
 
-        private XDocument _xmlDoc = null;
-
-
-        internal InsertionApi(string maxWaitSeconds = null, string maxConcurrency = null)
+        
+        internal InsertionApi(int? maxWaitSeconds = null, int? maxConcurrency = null)
         {
             _metrics = new MeasurementsSession();
-            _maxWaitSeconds = ParseInt(maxWaitSeconds, "max wait seconds", 60, 120);
-            _maxConcurrentWorkers = ParseInt(maxConcurrency, "max concurrency", 1, 20);
+            _maxWaitSeconds = Math.Clamp(maxWaitSeconds ?? 120, 60, 120);
+            _maxConcurrentWorkers = Math.Clamp(maxConcurrency ?? 20, 1, 20);
         }
 
 
@@ -44,10 +40,11 @@ namespace Microsoft.Net.Insertions.Api.Providers
         public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile = null)
         {
             List<Asset> assets = null;
+            DefaultConfigUpdater configUpdater;
 
             if (!TryValidateManifestFile(manifestFile, out string details)
                 || !TryExtractManifestAssets(manifestFile, out assets, out details)
-                || !TryLoadDefaultConfig(defaultConfigFile, out details))
+                || !TryLoadDefaultConfig(defaultConfigFile, out configUpdater, out details))
             {
                 return new UpdateResults { OutcomeDetails = details };
             }
@@ -59,17 +56,11 @@ namespace Microsoft.Net.Insertions.Api.Providers
             using CancellationTokenSource source = new CancellationTokenSource(TimeSpan.FromSeconds(_maxWaitSeconds));
             try
             {
-                IEnumerable<XElement> packageXElements = _xmlDoc.Descendants(ElementNamePackage);
-                if (packageXElements == null || !packageXElements.Any())
-                {
-                    return new UpdateResults { OutcomeDetails = $"{ElementNamePackage} element does not exist" };
-                }
-
-                _ = Parallel.ForEach(packageXElements,
+                _ = Parallel.ForEach(assets,
                     CreateParallelOptions(source.Token),
-                    packageXElement => ParallelCallback(packageXElement, assets, packagesToIgnore, results));
+                    asset => ParallelCallback(asset, packagesToIgnore, configUpdater, results));
 
-                _xmlDoc.Save(defaultConfigFile);
+                results.FileSaveResults = configUpdater.Save();
             }
             catch (Exception e)
             {
@@ -86,35 +77,6 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return results;
         }
         #endregion
-
-
-        private static int ParseInt(string boxedInt, string name, int minValue, int maxValue)
-        {
-            int targetValue = 0;
-            try
-            {
-                if (string.IsNullOrWhiteSpace(boxedInt))
-                {
-                    targetValue = maxValue;
-                    return targetValue;
-                }
-                targetValue = int.TryParse(boxedInt, out int tmp) ? tmp : maxValue;
-
-                if (targetValue > maxValue)
-                {
-                    targetValue = maxValue;
-                }
-                if (targetValue < minValue)
-                {
-                    targetValue = minValue;
-                }
-                return targetValue;
-            }
-            finally
-            {
-                Trace.WriteLine($"Set \"{name}\" to {targetValue}");
-            }
-        }
 
         private void LogStatistics(Update update)
         {
@@ -207,28 +169,10 @@ namespace Microsoft.Net.Insertions.Api.Providers
             }
         }
 
-        private bool TryLoadDefaultConfig(string defaultConfigPath, out string details)
+        private bool TryLoadDefaultConfig(string defaultConfigPath, out DefaultConfigUpdater configUpdater, out string details)
         {
-            details = string.Empty;
-
-            _xmlDoc = null;
-
-            if (string.IsNullOrWhiteSpace(defaultConfigPath))
-            {
-                details = $"{InsertionConstants.DefaultConfigFile} cannot be null";
-            }
-            else if (!File.Exists(defaultConfigPath))
-            {
-                details = $"Inexistent file {defaultConfigPath}";
-            }
-            else
-            {
-                Trace.WriteLine($"Loading {InsertionConstants.DefaultConfigFile} content from {defaultConfigPath}.");
-                _xmlDoc = XDocument.Load(defaultConfigPath);
-                Trace.WriteLine($"Loaded {InsertionConstants.DefaultConfigFile} content.");
-            }
-
-            return string.IsNullOrWhiteSpace(details);
+            configUpdater = new DefaultConfigUpdater();
+            return configUpdater.TryLoad(defaultConfigPath, out details);
         }
 
         private HashSet<string> LoadPackagesToIgnore(string ignoredPackagesFile)
@@ -249,79 +193,110 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return ignoredPackages;
         }
 
-        private void ParallelCallback(XElement packageXElement, List<Asset> assets, HashSet<string> ignoredPackages, UpdateResults results)
+        private void ParallelCallback(Asset asset, HashSet<string> packagesToIgnore, DefaultConfigUpdater configUpdater, UpdateResults results)
         {
             Stopwatch stopWatch = Stopwatch.StartNew();
-            string packageId = packageXElement.Attribute("id").Value;
 
-            if(ignoredPackages.Contains(packageId))
+            if (!TryGetPackageId(asset.Name, asset.Version, out string packageId))
             {
-                Trace.WriteLine($"Skipping {packageId} since it was ignored{Environment.NewLine}");
-                _metrics.AddMeasurement(Update.Ignored, stopWatch.ElapsedMilliseconds);
+                _metrics.AddMeasurement(Update.NotAPackage, stopWatch.ElapsedTicks);
                 return;
             }
 
-            List<Asset> matches = assets.Where(x => x.Name.Contains(packageId)).ToList();
-            if (!matches.Any())
+            if (packagesToIgnore.Contains(packageId))
             {
-                _metrics.AddMeasurement(Update.NoMatch, stopWatch.ElapsedMilliseconds);
+                _metrics.AddMeasurement(Update.Ignored, stopWatch.ElapsedTicks);
+                Trace.WriteLine($"Skipping {packageId} since it was requested to be ignored.");
                 return;
             }
-            
-            XAttribute versionAttribute = packageXElement.Attribute("version");
-            string version = string.Empty;
-            Update update = Update.VersionUnspecified;
 
-            if(versionAttribute == null)
+            if (!configUpdater.TryUpdatePackage(packageId, asset.Version, out string oldVersion))
             {
-                Trace.WriteLine($"Package id {packageId} lacked \"version\" attribute.");
-                update = Update.VersionUnspecified;
-            } 
-            else if(matches.FirstOrDefault(a => a.Name == packageId) is var exactMatch)
-            {
-                version = exactMatch.Version;
-                update = Update.ExactMatch;
-            }
-            else
-            {
-                int distincVersionsCount = matches.Select(x => x.Version).Distinct().Count();
-                
-                if (distincVersionsCount == 1)
-                {
-                    // We have multiple matches, but they all have the same version
-                    version = matches.First().Version;
-                    update = Update.CommonVersion;
-                }
-                else
-                {
-                    // There are multiple packages matching the same asset and they don't all have the same version
-                    Trace.WriteLine($"Package id {packageId} lacked \"version\" attribute.");
-                    update = Update.MultipleConflictingMatches;
-                }
+                _metrics.AddMeasurement(Update.NoMatch, stopWatch.ElapsedTicks);
+                return;
             }
 
-            _metrics.AddMeasurement(update, stopWatch.ElapsedMilliseconds);
-            if (update == Update.VersionUnspecified || update == Update.MultipleConflictingMatches)
+            _metrics.AddMeasurement(Update.ExactMatch, stopWatch.ElapsedTicks);
+
+            if(oldVersion != asset.Version)
             {
-                Trace.WriteLine($"{GetNugetMatchDetails(packageId, matches)}{packageId} version NOT set: {update}{Environment.NewLine}");
-            }
-            else
-            {
-                versionAttribute.Value = version;
-                Trace.WriteLine($"{GetNugetMatchDetails(packageId, matches)}Set {packageId} version to {version}{Environment.NewLine}Update type: {update}.{Environment.NewLine}");
-                results.AddPackage(packageId, version);
+                results.AddPackage(packageId, asset.Version);
+                Trace.WriteLine($"Package {packageId} was updated to version {asset.Version}");
             }
         }
-        
-        private string GetNugetMatchDetails(string packageId, IEnumerable<Asset> assets)
+
+        private bool TryGetPackageId(string assetName, string version, out string packageId)
         {
-            StringBuilder txt = new StringBuilder();
-            _ = txt.AppendLine($"Found match(es) for package {packageId}. Asset {assets.Count()}-match(es): ");
-            foreach (var asset in assets)
+            packageId = null;
+
+            if (!assetName.EndsWith(".nupkg"))
             {
-                _ = txt.AppendLine(asset.ToString());
+                // Anything that is not a nupkg must be an exact match
+                if (assetName.Contains('/') || assetName.Contains('\\'))
+                {
+                    // Exact matches can't have paths.
+                    return false;
+                }
+
+                packageId = assetName;
+                return true;
             }
-            return txt.ToString();
+
+            if (assetName.EndsWith(".symbols.nupkg"))
+            {
+                // Symbol.nupkg files should never be matched
+                return false;
+            }
+
+            // We have a nupkg file path.
+            string filename = Path.GetFileNameWithoutExtension(assetName);
+
+            if (!string.IsNullOrWhiteSpace(version) &&
+                filename.EndsWith(version) && 
+                filename.Length > version.Length && 
+                filename[filename.Length - 1 - version.Length] == '.')
+            {
+                // Package id with a version suffix. Remove version including the dot inbetween.
+                packageId = filename.Substring(0, filename.Length - version.Length - 1);
+                return true;
+            }
+
+            int index = 0;
+            int versionNumberStart = -1;
+            while(index < filename.Length)
+            {
+                char c = filename[index++];
+                
+                if (c > '0' && c <= '9')
+                {
+                    continue;
+                }
+
+                if (c == '.')
+                {
+                    if (versionNumberStart == -1)
+                    {
+                        // This filename starts with version numbers.
+                        return false;
+                    }
+
+                    // Character block that contains only numericals. This is where the version number starts
+                    packageId = filename.Substring(0, versionNumberStart);
+                    return true;
+                }
+
+                // we found a letter. This cannot be the start of the version number. Skip ahead
+                while (index < filename.Length && filename[index] != '.')
+                {
+                    index++;
+                }
+
+                versionNumberStart = index++;
+            }
+
+            // This whole asset name doesn't contain version numbers
+            packageId = filename;
+            return true;
         }
 
         private ParallelOptions CreateParallelOptions(CancellationToken token)

@@ -1,0 +1,8 @@
+<corext>
+  <packages>
+    <package id="Microsoft.VisualStudio.Threading" version="16.6.5-alpha" tags="exapis" />
+    <package id="Microsoft.VisualStudio.Threading.Analyzers" version="16.6.5-alpha" tags="exapis,vsplatinsertion" />
+    <package id="Microsoft.VisualStudio.Threading.v15" version="15.8.192" tags="exapis" />
+    <package id="Microsoft.VisualStudio.Threading.VSInsertionMetadata" version="16.6.5-alpha" tags="exapis" />
+  </packages>
+</corext>

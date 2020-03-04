@@ -1,0 +1,5 @@
+<corext>
+  <packages>
+    <package id="Microsoft.VisualStudio.Validation" version="15.5.31" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Validation" />
+  </packages>
+</corext>

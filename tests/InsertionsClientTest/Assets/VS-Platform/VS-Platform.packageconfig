@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<corext>
+  <packages>
+    <package id="Microsoft.VisualStudio.ComponentModelHost" version="16.6.61" link="src\ExternalAPIs\Microsoft.VisualStudio.ComponentModelHost" tags="exapis" />
+    <package id="Microsoft.VisualStudio.CoreUtility" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.CoreUtility" />
+    <package id="Microsoft.VisualStudio.Editor" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Editor" />
+    <package id="Microsoft.VisualStudio.Editor.Implementation" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Editor.Implementation" />
+    <package id="Microsoft.VisualStudio.Editor.Internal.DesignTime" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Editor.Internal.DesignTime" />
+    <package id="Microsoft.VisualStudio.ExtensibilityHosting" version="16.6.61" link="src\ExternalAPIs\Microsoft.VisualStudio.ExtensibilityHosting" tags="exapis" />
+    <package id="Microsoft.VisualStudio.Language" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Language" />
+    <package id="Microsoft.VisualStudio.Language.CallHierarchy" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Language.CallHierarchy" />
+    <package id="Microsoft.VisualStudio.Language.Intellisense" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Language.Intellisense" />
+    <package id="Microsoft.VisualStudio.Language.NavigateTo.Implementation" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Language.NavigateTo.Implementation" />
+    <package id="Microsoft.VisualStudio.Language.NavigateTo.Interfaces" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Language.NavigateTo.Interfaces" />
+    <package id="Microsoft.VisualStudio.Language.StandardClassification" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Language.StandardClassification" />
+    <package id="Microsoft.VisualStudio.LicenseManagement.Interop" version="16.6.61" tags="exapis" />
+    <package id="Microsoft.VisualStudio.OnlineLicensing" version="16.6.61" tags="exapis" />
+    <package id="Microsoft.VisualStudio.Platform.VSEditor" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Platform.VSEditor" />
+    <package id="Microsoft.VisualStudio.Platform.VSEditor.Interop.DesignTime" version="15.6.244-preview-g9ced11a141" link="src\ExternalAPIs\Microsoft.VisualStudio.Platform.VSEditor.Interop.DesignTime" tags="exapis" />    
+    <package id="Microsoft.VisualStudio.Text.Data" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Text.Data" />
+    <package id="Microsoft.VisualStudio.Text.Implementation" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Text.Implementation" />
+    <package id="Microsoft.VisualStudio.Text.Internal" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Text.Internal" />
+    <package id="Microsoft.VisualStudio.Text.Logic" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Text.Logic" />
+    <package id="Microsoft.VisualStudio.Text.TextViewUnitTestHelper" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Text.TextViewUnitTestHelper" />
+    <package id="Microsoft.VisualStudio.Text.UI" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Text.UI" />
+    <package id="Microsoft.VisualStudio.Text.UI.Wpf" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Text.UI.Wpf" />
+    <package id="Microsoft.VisualStudio.Text.UnitTestHelper" version="16.6.61" tags="exapis" link="src\ExternalAPIs\Microsoft.VisualStudio.Text.UnitTestHelper" />
+  </packages>
+</corext>

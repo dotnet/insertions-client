@@ -1,0 +1,5 @@
+<corext>
+  <packages>
+    <package id="Microsoft.Bcl.AsyncInterfaces" version="1.0.0" tags="exapis" />
+  </packages>
+</corext>

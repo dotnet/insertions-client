@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<corext>
+  <packages>
+    <package id="MessagePack" version="2.1.90" tags="exapis" />
+    <package id="MessagePack.Annotations" version="2.1.90" tags="exapis" />
+    <package id="Nerdbank.Streams" version="2.4.60" tags="exapis" />
+    <package id="StreamJsonRpc" version="2.4.6-alpha" tags="exapis" />
+    <package id="StreamJsonRpc.v1.5" version="1.5.68" tags="exapis" />
+    <package id="StreamJsonRpc.VSInsertionMetadata" version="2.4.6-alpha" tags="exapis" />
+  </packages>
+</corext>

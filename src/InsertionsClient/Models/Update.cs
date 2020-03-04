@@ -4,11 +4,9 @@ namespace Microsoft.Net.Insertions.Models
 {
     internal enum Update
     {
-        CommonVersion,
         ExactMatch,
         NoMatch,
         Ignored,
-        MultipleConflictingMatches,
-        VersionUnspecified,
+        NotAPackage
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +12,7 @@ namespace Microsoft.Net.Insertions.Models
     /// </summary>
     public sealed class UpdateResults
     {
-        private readonly List<string> _updatedNugetsList = new List<string>();
+        private readonly ConcurrentBag<string> _updatedNugetsList = new ConcurrentBag<string>();
 
 
         /// <summary>
@@ -35,7 +36,15 @@ namespace Microsoft.Net.Insertions.Models
         /// </summary>
         public string OutcomeDetails { get; set; }
 
+        /// <summary>
+        /// All the files that were modified during the update or
+        /// the exceptions if there was an error while saving the file.
+        /// </summary>
+        public List<FileSaveResult> FileSaveResults { get; set; }
 
+        /// <summary>
+        /// Adds the given package to the updated nuget list.
+        /// </summary>
         public void AddPackage(string nugetId, string version)
         {
             _updatedNugetsList.Add($"{nugetId}, version: {version}");
@@ -43,7 +52,7 @@ namespace Microsoft.Net.Insertions.Models
 
         public override string ToString()
         {
-            return $"Validation {(Outcome? "succeeded" : "failed")} with {UpdatedNuGets.Count()} matched assets ({DurationMilliseconds:N0}-ms)";
+            return $"Validation {(Outcome ? "succeeded" : "failed")} with {UpdatedNuGets.Count()} matched assets ({DurationMilliseconds:N0}-ms)";
         }
     }
 }

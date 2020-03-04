@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<corext>
+  <packages>
+    <package id="Microsoft.Developer.IdentityService" version="1.2.225-alpha" link="src\redist\Microsoft.Developer.IdentityService" tags="exapis" />
+    <package id="Microsoft.Developer.IdentityService.Client" version="1.2.225-alpha" link="src\ExternalAPIs\Microsoft.Developer.IdentityService.Client" tags="exapis" />
+    <package id="Microsoft.Developer.IdentityService.Conversion" version="1.2.225-alpha" link="src\ExternalAPIs\Microsoft.Developer.IdentityService.Conversion" tags="exapis" />
+    <package id="Microsoft.IdentityModel.Clients.ActiveDirectory" version="3.19.8" link="src\ExternalAPIs\Microsoft.IdentityModel.Clients.ActiveDirectory" tags="exapis" />
+    <package id="Microsoft.IdentityService.Clients.ActiveDirectory" version="3.17.2-gfa97f253fb" link="src\Redist\Microsoft.IdentityService.Clients.ActiveDirectory" tags="redist" />
+    <package id="VS.ExternalAPIs.IdentityDependencies" version="1.0.0-CI-20191204-225049" link="src\ExternalAPIs\VSIdentityDependencies" tags="exapis" />
+  </packages>
+</corext>

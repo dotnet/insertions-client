@@ -1,0 +1,5 @@
+<corext>
+  <packages>
+    <package id="NET_Framework_472_TargetingPack" version="4.7.03081.00" tags="exapis" />
+  </packages>
+</corext>
