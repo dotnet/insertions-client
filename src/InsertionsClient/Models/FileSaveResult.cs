@@ -6,10 +6,10 @@ namespace Microsoft.Net.Insertions.Models
     public struct FileSaveResult : IEquatable<FileSaveResult>
     {
         /// <summary> Path to the file that was saved. </summary>
-        public readonly string Path;
+        public string Path { get; private set; }
 
         /// <summary> Exception that was thrown when saving the file, if exists. </summary>
-        public readonly Exception Exception;
+        public Exception Exception { get; private set; }
 
         /// <summary> Was file save operation successful? If yes, <see cref="Exception"/>
         /// property holds a reference to the exception that was thrown. </summary>
