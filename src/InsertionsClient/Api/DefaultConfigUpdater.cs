@@ -1,4 +1,6 @@
-﻿using Microsoft.Net.Insertions.Common.Constants;
+﻿// Copyright (c) Microsoft. All rights reserved.
+
+using Microsoft.Net.Insertions.Common.Constants;
 using Microsoft.Net.Insertions.Models;
 using System;
 using System.Collections.Generic;
@@ -166,9 +168,10 @@ namespace Microsoft.Net.Insertions.Api
         /// </summary>
         /// <returns> Results of the save operations. </returns>
         /// <remarks>This method is not thread-safe.</remarks>
-        public List<FileSaveResult> Save()
+        public FileSaveResult[] Save()
         {
-            List<FileSaveResult> results = new List<FileSaveResult>(_modifiedDocuments.Count);
+            FileSaveResult[] results = new FileSaveResult[_modifiedDocuments.Count];
+            int arraySaveIndex = 0;
 
             foreach(var document in _modifiedDocuments.Keys)
             {
@@ -180,12 +183,12 @@ namespace Microsoft.Net.Insertions.Api
                     {
                         document.Save(writer);
                     }
-                    results.Add(new FileSaveResult(savePath));
+                    results[arraySaveIndex++] = new FileSaveResult(savePath);
                     Trace.WriteLine("Save success.");
                 }
                 catch(Exception e)
                 {
-                    results.Add(new FileSaveResult(savePath, e));
+                    results[arraySaveIndex++] = new FileSaveResult(savePath, e);
                     Trace.WriteLine($"Save failed with exception:{e.ToString()}");
                 }
             }

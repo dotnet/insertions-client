@@ -19,6 +19,21 @@ namespace DefaultConfigClientTest
             return Path.Combine(Environment.CurrentDirectory, "Assets", "manifest.json");
         }
 
+        private List<Asset> LoadManifestAssets()
+        {
+            InsertionApi insertionApi = new InsertionApi();
+            bool result = insertionApi.TryExtractManifestAssets(GetManifestFilePath(), out List<Asset> assets, out string error);
+            Assert.IsTrue(result, error);
+            Assert.IsTrue(string.IsNullOrWhiteSpace(error), error);
+            Assert.IsNotNull(assets);
+            Assert.AreNotEqual(assets.Count, 0);
+
+            return assets;
+        }
+
+        /// <summary>
+        /// Test existence and format of manifest.json file that will be used in other test cases
+        /// </summary>
         [TestMethod]
         public void TestIfValidJson()
         {
@@ -30,22 +45,23 @@ namespace DefaultConfigClientTest
             Assert.IsFalse(string.IsNullOrWhiteSpace(json));
         }
 
+        /// <summary>
+        /// Tests the behaviour when manifest file path is wrong.
+        /// </summary>
+        /// <param name="manifestPath">Path to manifest.json file</param>
         [TestMethod]
-        public void TestTryValidate()
+        [DataRow(null, DisplayName = "Validate null manifest path")]
+        [DataRow("some nonexisent file.png", DisplayName = "Validate nonexistent manifest file")]
+        public void TestTryValidate(string manifestPath)
         {
             InsertionApi insertionApi = new InsertionApi();
-            Assert.IsFalse(insertionApi.TryValidateManifestFile(null, out string details));
-            Assert.IsNotNull(details);
+            Assert.IsFalse(insertionApi.TryValidateManifestFile(manifestPath, out string details));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(details));
         }
 
-        [TestMethod]
-        public void TestTryValidate2()
-        {
-            InsertionApi insertionApi = new InsertionApi();
-            Assert.IsFalse(insertionApi.TryValidateManifestFile("some nonexistant file.png", out string details));
-            Assert.IsNotNull(details);
-        }
-
+        /// <summary>
+        /// Tests the behaviour when content of manifest file is not a valid JSON.
+        /// </summary>
         [TestMethod]
         public void TestLoadNonJsonFile()
         {
@@ -54,31 +70,27 @@ namespace DefaultConfigClientTest
             InsertionApi insertionApi = new InsertionApi();
             bool result = insertionApi.TryExtractManifestAssets(fakeManifestPath, out List<Asset> assets, out string error);
             Assert.IsFalse(result);
-            Assert.IsFalse(string.IsNullOrEmpty(error));
+            Assert.IsFalse(string.IsNullOrWhiteSpace(error));
             Assert.IsNotNull(assets);
-            Assert.AreEqual(assets.Count, 0);
+            Assert.AreEqual(0, assets.Count);
         }
 
+        /// <summary>
+        /// Attempts to read and load the contents of a sample manifest file.
+        /// </summary>
         [TestMethod]
         public void TestLoad()
         {
-            InsertionApi insertionApi = new InsertionApi();
-            bool result = insertionApi.TryExtractManifestAssets(GetManifestFilePath(), out List<Asset> assets, out string error);
-            Assert.IsTrue(result);
-            Assert.IsTrue(string.IsNullOrEmpty(error), error);
-            Assert.IsNotNull(assets);
-            Assert.AreNotEqual(assets.Count, 0);
+            LoadManifestAssets();
         }
 
+        /// <summary>
+        /// Tests if names of the assets from sample manifest file were loaded correctly
+        /// </summary>
         [TestMethod]
         public void TestLoadedContent()
         {
-            InsertionApi insertionApi = new InsertionApi();
-            bool result = insertionApi.TryExtractManifestAssets(GetManifestFilePath(), out List<Asset> assets, out string error);
-            Assert.IsTrue(result, error);
-            Assert.IsTrue(string.IsNullOrEmpty(error), error);
-            Assert.IsNotNull(assets);
-            Assert.AreNotEqual(assets.Count, 0);
+            List<Asset> assets = LoadManifestAssets();
 
             Assert.IsTrue(assets.Any(a => a.Name == "Microsoft.NETCore.Jit"));
             Assert.IsTrue(assets.All(a => a.Name != null), "Asset name was not loaded correctly and is null");

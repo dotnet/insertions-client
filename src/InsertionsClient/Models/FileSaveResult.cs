@@ -13,7 +13,7 @@ namespace Microsoft.Net.Insertions.Models
 
         /// <summary> Was file save operation successful? If yes, <see cref="Exception"/>
         /// property holds a reference to the exception that was thrown. </summary>
-        public bool DidSucceed => Exception == null;
+        public bool Succeeded => Exception == null;
 
         /// <summary> Creates an instance of FileSaveResult </summary>
         public FileSaveResult(string path, Exception exception = null)
