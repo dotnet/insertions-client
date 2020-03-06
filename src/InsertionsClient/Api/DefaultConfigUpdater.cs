@@ -192,10 +192,8 @@ namespace Microsoft.Net.Insertions.Api
                         ? _packageconfigWriteSettings
                         : _defaultconfigWriteSettings;
 
-                    using(XmlWriter writer = XmlWriter.Create(savePath, writeSettings))
-                    {
-                        document.Save(writer);
-                    }
+                    using XmlWriter writer = XmlWriter.Create(savePath, writeSettings);
+                    document.Save(writer);
                     results.Add(new FileSaveResult(savePath));
                     Trace.WriteLine("Save success.");
                 }
