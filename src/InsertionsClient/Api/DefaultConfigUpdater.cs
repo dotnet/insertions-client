@@ -11,6 +11,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Text;
 
 namespace Microsoft.Net.Insertions.Api
 {
@@ -31,6 +32,8 @@ namespace Microsoft.Net.Insertions.Api
 
         private readonly ConcurrentDictionary<string, XElement> _packageXElements;
 
+        private readonly XmlWriterSettings _defaultconfigWriteSettings;
+
         private readonly XmlWriterSettings _packageconfigWriteSettings;
 
         /// <summary>
@@ -49,10 +52,17 @@ namespace Microsoft.Net.Insertions.Api
             _modifiedDocuments = new ConcurrentDictionary<XDocument, byte>(concurrencyLevel, 17);
             _packageXElements = new ConcurrentDictionary<string, XElement>(concurrencyLevel, 1021);
 
+            _defaultconfigWriteSettings = new XmlWriterSettings()
+            {
+                Indent = true,
+                Encoding = Encoding.ASCII
+            };
+
             _packageconfigWriteSettings = new XmlWriterSettings()
             {
                 OmitXmlDeclaration = true,
-                Indent = true
+                Indent = true,
+                Encoding = Encoding.ASCII
             };
         }
 
@@ -179,10 +189,14 @@ namespace Microsoft.Net.Insertions.Api
                 Trace.WriteLine($"Saving modified config file: {savePath}");
                 try
                 {
-                    using(XmlWriter writer = XmlWriter.Create(savePath, _packageconfigWriteSettings))
-                    {
-                        document.Save(writer);
-                    }
+                    string extension = Path.GetExtension(savePath).ToLowerInvariant();
+                    
+                    XmlWriterSettings writeSettings = extension == ".packageconfig"
+                        ? _packageconfigWriteSettings
+                        : _defaultconfigWriteSettings;
+
+                    using XmlWriter writer = XmlWriter.Create(savePath, writeSettings);
+                    document.Save(writer);
                     results[arraySaveIndex++] = new FileSaveResult(savePath);
                     Trace.WriteLine("Save success.");
                 }
