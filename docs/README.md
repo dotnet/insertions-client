@@ -45,20 +45,17 @@ The example below details staring the application for the following conditions..
 1. _InsertionsClient.exe_ located on \tools
 1. _default.config_ located in \repos\Assets
 1. _manifest.json_ located in \repos\Assets
+1. _ignored.txt_ located in \repos\Assets
 <pre>
-$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json
+$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -i:\repos\Assets\ignored.txt
 </pre>
 
 ## Output
-The output of _InsertionsClient.exe_ runs is both persisted on console and log.
-**Successful NuGet vesrion update** Every successfully updated NuGet version in _default.config_ has a corresponding message such as:
+_InsertionsClient.exe_ outputs the results of running operations to both a persistent log file and to console.
+
+**Successful NuGet version update** Every successfully updated NuGet version in _default.config_ has a corresponding message such as:
 <pre>
 16-2-2020 09:04:32.696289 (thread:10) Succeeded to update VS.Redist.Common.NetCore.HostFXR.x64.3.1.
-</pre>
-
-**Failed NuGet lookups** _manifest.json_ assets without matching NuGet packages in _default.config_ result in messages such as:
-<pre>
-16-2-2020 09:04:32.717231 (thread:1) Failed to update assets/symbols/runtime.linux-arm.Microsoft.NETCore.DotNetAppHost.3.1.2.symbols.nupkg.  Reason: Sequence contains no matching element.
 </pre>
 
 **Completion statistics** update duration statistics are summarized
