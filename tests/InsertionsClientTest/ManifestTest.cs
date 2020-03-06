@@ -14,23 +14,6 @@ namespace DefaultConfigClientTest
     [TestClass]
     public class ManifestTest
     {
-        private string GetManifestFilePath()
-        {
-            return Path.Combine(Environment.CurrentDirectory, "Assets", "manifest.json");
-        }
-
-        private List<Asset> LoadManifestAssets()
-        {
-            InsertionApi insertionApi = new InsertionApi();
-            bool result = insertionApi.TryExtractManifestAssets(GetManifestFilePath(), out List<Asset> assets, out string error);
-            Assert.IsTrue(result, error);
-            Assert.IsTrue(string.IsNullOrWhiteSpace(error), error);
-            Assert.IsNotNull(assets);
-            Assert.AreNotEqual(assets.Count, 0);
-
-            return assets;
-        }
-
         /// <summary>
         /// Test existence and format of manifest.json file that will be used in other test cases
         /// </summary>
@@ -39,7 +22,7 @@ namespace DefaultConfigClientTest
         {
             string manifestFile = GetManifestFilePath();
             Assert.IsTrue(File.Exists(manifestFile));
-            var instance = Serializer.Deserialize<Manifest>(File.ReadAllText(manifestFile));
+            Manifest instance = Serializer.Deserialize<Manifest>(File.ReadAllText(manifestFile));
             Assert.IsNotNull(instance);
             string json = Serializer.Serialize(instance);
             Assert.IsFalse(string.IsNullOrWhiteSpace(json));
@@ -94,6 +77,23 @@ namespace DefaultConfigClientTest
 
             Assert.IsTrue(assets.Any(a => a.Name == "Microsoft.NETCore.Jit"));
             Assert.IsTrue(assets.All(a => a.Name != null), "Asset name was not loaded correctly and is null");
+        }
+
+        private string GetManifestFilePath()
+        {
+            return Path.Combine(Environment.CurrentDirectory, "Assets", "manifest.json");
+        }
+
+        private List<Asset> LoadManifestAssets()
+        {
+            InsertionApi insertionApi = new InsertionApi();
+            bool result = insertionApi.TryExtractManifestAssets(GetManifestFilePath(), out List<Asset> assets, out string error);
+            Assert.IsTrue(result, error);
+            Assert.IsTrue(string.IsNullOrWhiteSpace(error), error);
+            Assert.IsNotNull(assets);
+            Assert.AreNotEqual(assets.Count, 0);
+
+            return assets;
         }
     }
 }

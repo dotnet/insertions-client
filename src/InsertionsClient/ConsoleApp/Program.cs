@@ -179,7 +179,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 }
             }
 
-            foreach (var arg in args)
+            foreach (string arg in args)
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
                 {

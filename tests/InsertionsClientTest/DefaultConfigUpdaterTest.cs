@@ -11,17 +11,6 @@ namespace InsertionsClientTest
 	[TestClass]
 	public class DefaultConfigUpdaterTest
 	{
-		private DefaultConfigUpdater CreateAndLoadDefaultConfigUpdater()
-		{
-			DefaultConfigUpdater updater = new DefaultConfigUpdater();
-			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets", "default.config");
-			Assert.IsTrue(File.Exists(defaultConfigPath));
-			Assert.IsTrue(updater.TryLoad(defaultConfigPath, out string error), error);
-			Assert.IsNull(error);
-
-			return updater;
-		}
-
 		/// <summary>
 		/// Tests the behaviour when config file path is null or points to a nonexistent file.
 		/// </summary>
@@ -110,6 +99,17 @@ namespace InsertionsClientTest
 
 			Assert.IsTrue(saveResults[0].Succeeded);
 			Assert.IsTrue(File.ReadAllText(saveResults[0].Path).Contains(versionNumber), "Written version number was not found in the saved file.");
+		}
+
+		private DefaultConfigUpdater CreateAndLoadDefaultConfigUpdater()
+		{
+			DefaultConfigUpdater updater = new DefaultConfigUpdater();
+			string defaultConfigPath = Path.Combine(Environment.CurrentDirectory, "Assets", "default.config");
+			Assert.IsTrue(File.Exists(defaultConfigPath));
+			Assert.IsTrue(updater.TryLoad(defaultConfigPath, out string error), error);
+			Assert.IsTrue(string.IsNullOrEmpty(error));
+
+			return updater;
 		}
 	}
 }
