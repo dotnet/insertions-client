@@ -1,0 +1,6 @@
+<corext>
+  <packages>
+    <package id="VS.Redist.Common.AspNetCore.SharedFramework.x64.2.2" version="2.2.8" link="src\Redist\common\NetCoreSDK\AspNetCoreSharedFramework_2.2\x64" tags="redist" />
+    <package id="VS.Redist.Common.AspNetCore.SharedFramework.x86.2.2" version="2.2.8" link="src\Redist\common\NetCoreSDK\AspNetCoreSharedFramework_2.2\x86" tags="redist" />
+  </packages>
+</corext>

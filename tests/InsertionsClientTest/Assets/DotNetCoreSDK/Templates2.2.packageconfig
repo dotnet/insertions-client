@@ -1,0 +1,8 @@
+<corext>
+  <packages>
+    <!-- .NET Core 2.2 is now out of support. The last release that contained
+         templates for 2.2 was 3.1.100, so they're frozen to that release. -->
+    <package id="VS.Redist.Common.NetCore.Templates.x64.2.2" version="3.1.100-rtm-014727" link="src\Redist\common\NetCoreSDK\NetCoreTemplates_2.2\x64" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.Templates.x86.2.2" version="3.1.100-rtm-014727" link="src\Redist\common\NetCoreSDK\NetCoreTemplates_2.2\x86" tags="redist" />
+  </packages>
+</corext>

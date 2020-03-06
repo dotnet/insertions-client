@@ -83,7 +83,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
             Trace.WriteLine($"Statistics: {update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
         }
 
-        private bool TryValidateManifestFile(string manifestFile, out string details)
+        internal bool TryValidateManifestFile(string manifestFile, out string details)
         {
             details = string.Empty;
             if (string.IsNullOrWhiteSpace(manifestFile))
@@ -97,7 +97,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return string.IsNullOrWhiteSpace(details);
         }
 
-        private bool TryExtractManifestAssets(string manifestFile, out List<Asset> assets, out string details)
+        internal bool TryExtractManifestAssets(string manifestFile, out List<Asset> assets, out string details)
         {
             details = string.Empty;
 
@@ -115,7 +115,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 ConcurrentDictionary<string, Asset> map = new ConcurrentDictionary<string, Asset>();
                 foreach (Build build in buildManifest.Builds.AsParallel())
                 {
-                    foreach (var asset in build.Assets.AsParallel())
+                    foreach (Asset asset in build.Assets.AsParallel())
                     {
                         if (!map.TryAdd(asset.Name, asset))
                         {
@@ -132,7 +132,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 }
 
                 assets = new List<Asset>(map.Count);
-                foreach (var value in map.Values.OrderBy(x => x.Name))
+                foreach (Asset value in map.Values.OrderBy(x => x.Name))
                 {
                     assets.Add(value);
                 }
@@ -183,9 +183,9 @@ namespace Microsoft.Net.Insertions.Api.Providers
             }
 
             HashSet<string> ignoredPackages = new HashSet<string>();
-            var fileLines = File.ReadAllLines(ignoredPackagesFile);
+            string[] fileLines = File.ReadAllLines(ignoredPackagesFile);
 
-            foreach(var line in fileLines)
+            foreach(string line in fileLines)
             {
                 ignoredPackages.Add(line);
             }

@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using Microsoft.Net.Insertions.Models;
+using System.Runtime.CompilerServices;
 
+[assembly:InternalsVisibleTo("InsertionsClientTest")]
 namespace Microsoft.Net.Insertions.Api
 {
     /// <summary>
