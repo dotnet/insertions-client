@@ -1,0 +1,12 @@
+<corext>
+  <packages>
+    <package id="VS.Redist.Common.NetCore.AppHostPack.x64.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreAppHostPack_3.1\x64" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.AppHostPack.x64_arm.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreAppHostPack_3.1\x64_arm" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.AppHostPack.x64_arm64.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreAppHostPack_3.1\x64_arm64" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.AppHostPack.x64_x86.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreAppHostPack_3.1\x64_x86" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.AppHostPack.x86.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreAppHostPack_3.1\x86" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.AppHostPack.x86_arm.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreAppHostPack_3.1\x86_arm" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.AppHostPack.x86_arm64.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreAppHostPack_3.1\x86_arm64" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.AppHostPack.x86_x64.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreAppHostPack_3.1\x86_x64" tags="redist" />
+  </packages>
+</corext>

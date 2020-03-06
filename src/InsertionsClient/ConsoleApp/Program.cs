@@ -159,27 +159,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 ShowErrorHelpAndExit("incorrect # of parameters specified");
             }
 
-            static void ProcessArgument(string argument, string appSwitch, string cmdLineMessage, ref string target)
-            {
-                target = argument.Replace(appSwitch, string.Empty);
-                Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
-            }
-
-            static void ProcessArgumentInt(string argument, string appSwitch, string cmdLineMessage, ref int target)
-            {
-                string trimmedArg = argument.Replace(appSwitch, string.Empty);
-                if(int.TryParse(trimmedArg, out target))
-                {
-                    Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
-                }
-                else
-                {
-                    target = -1;
-                    Trace.WriteLine("Specified value is not an integer. Default value will be used.");
-                }
-            }
-
-            foreach (var arg in args)
+            foreach (string arg in args)
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
                 {
@@ -210,6 +190,26 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             if (string.IsNullOrWhiteSpace(ManifestFile))
             {
                 ShowErrorHelpAndExit($"{InsertionConstants.ManifestFile} path not set.");
+            }
+        }
+
+        private static void ProcessArgument(string argument, string appSwitch, string cmdLineMessage, ref string target)
+        {
+            target = argument.Replace(appSwitch, string.Empty);
+            Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
+        }
+
+        private static void ProcessArgumentInt(string argument, string appSwitch, string cmdLineMessage, ref int target)
+        {
+            string trimmedArg = argument.Replace(appSwitch, string.Empty);
+            if (int.TryParse(trimmedArg, out target))
+            {
+                Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
+            }
+            else
+            {
+                target = -1;
+                Trace.WriteLine("Specified value is not an integer. Default value will be used.");
             }
         }
     }

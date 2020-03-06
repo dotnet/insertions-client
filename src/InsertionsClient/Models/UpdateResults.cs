@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +39,7 @@ namespace Microsoft.Net.Insertions.Models
         /// All the files that were modified during the update or
         /// the exceptions if there was an error while saving the file.
         /// </summary>
-        public List<FileSaveResult> FileSaveResults { get; set; }
+        public FileSaveResult[] FileSaveResults { get; set; }
 
         /// <summary>
         /// Adds the given package to the updated nuget list.

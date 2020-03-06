@@ -1,4 +1,6 @@
-﻿using Microsoft.Net.Insertions.Common.Constants;
+﻿// Copyright (c) Microsoft. All rights reserved.
+
+using Microsoft.Net.Insertions.Common.Constants;
 using Microsoft.Net.Insertions.Models;
 using System;
 using System.Collections.Generic;
@@ -103,7 +105,7 @@ namespace Microsoft.Net.Insertions.Api
             {
                 string configsDirectory = Path.GetDirectoryName(defaultConfigPath);
 
-                foreach(var packageconfigXElement in additionalConfigParents.SelectMany(p => p.Elements(ElementNameAdditionalConfig)))
+                foreach(XElement packageconfigXElement in additionalConfigParents.SelectMany(p => p.Elements(ElementNameAdditionalConfig)))
                 {
                     string configFileRelativePath = packageconfigXElement.Attribute("name")?.Value;
 
@@ -151,7 +153,7 @@ namespace Microsoft.Net.Insertions.Api
         /// <remarks>This method is safe to call simultaneously from multiple threads.</remarks>
         public bool TryUpdatePackage(string packageId, string version, out string existingVersion)
         {
-            if (!_packageXElements.TryGetValue(packageId, out var xElement))
+            if (!_packageXElements.TryGetValue(packageId, out XElement xElement))
             {
                 existingVersion = null;
                 return false;
@@ -176,13 +178,14 @@ namespace Microsoft.Net.Insertions.Api
         /// </summary>
         /// <returns> Results of the save operations. </returns>
         /// <remarks>This method is not thread-safe.</remarks>
-        public List<FileSaveResult> Save()
+        public FileSaveResult[] Save()
         {
-            List<FileSaveResult> results = new List<FileSaveResult>(_modifiedDocuments.Count);
+            FileSaveResult[] results = new FileSaveResult[_modifiedDocuments.Count];
+            int arraySaveIndex = 0;
 
-            foreach(var document in _modifiedDocuments.Keys)
+            foreach(XDocument document in _modifiedDocuments.Keys)
             {
-                var savePath = _documentPaths[document];
+                string savePath = _documentPaths[document];
                 Trace.WriteLine($"Saving modified config file: {savePath}");
                 try
                 {
@@ -194,12 +197,12 @@ namespace Microsoft.Net.Insertions.Api
 
                     using XmlWriter writer = XmlWriter.Create(savePath, writeSettings);
                     document.Save(writer);
-                    results.Add(new FileSaveResult(savePath));
+                    results[arraySaveIndex++] = new FileSaveResult(savePath);
                     Trace.WriteLine("Save success.");
                 }
                 catch(Exception e)
                 {
-                    results.Add(new FileSaveResult(savePath, e));
+                    results[arraySaveIndex++] = new FileSaveResult(savePath, e);
                     Trace.WriteLine($"Save failed with exception:{e.ToString()}");
                 }
             }
@@ -209,7 +212,7 @@ namespace Microsoft.Net.Insertions.Api
     
         private void LoadPackagesFromXml(XDocument xDocument)
         {
-            foreach (var packageXElement in xDocument.Descendants(ElementNamePackage))
+            foreach (XElement packageXElement in xDocument.Descendants(ElementNamePackage))
             {
                 string packageId = packageXElement.Attribute("id")?.Value;
 
@@ -219,7 +222,7 @@ namespace Microsoft.Net.Insertions.Api
                     continue;
                 }
 
-                if (_packageXElements.TryGetValue(packageId, out var pElement))
+                if (_packageXElements.TryGetValue(packageId, out XElement pElement))
                 {
                     Trace.WriteLine($"Duplicate entries were found for package: {packageId}{Environment.NewLine}\t1-Line {((IXmlLineInfo)pElement).LineNumber} at {_documentPaths[pElement.Document]}{Environment.NewLine}\t2-Line {((IXmlLineInfo)packageXElement).LineNumber} at {_documentPaths[xDocument]}");
                     continue;

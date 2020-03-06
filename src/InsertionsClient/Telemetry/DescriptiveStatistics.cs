@@ -32,7 +32,7 @@ namespace Microsoft.Net.Insertions.Telemetry
 
         public override string ToString()
         {
-            var txt = new StringBuilder();
+            StringBuilder txt = new StringBuilder();
             _ = txt.AppendLine($"No. Items: {N}");
             _ = txt.AppendLine($"Average: {Average:N4}-ms");
             _ = txt.AppendLine($"Minimum: {Minimum:N4}-ms");

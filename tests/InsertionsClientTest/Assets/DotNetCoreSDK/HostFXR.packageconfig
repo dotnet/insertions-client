@@ -1,0 +1,6 @@
+<corext>
+  <packages>
+    <package id="VS.Redist.Common.NetCore.HostFXR.x64.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreHostFXR\x64" tags="redist" />
+    <package id="VS.Redist.Common.NetCore.HostFXR.x86.3.1" version="3.1.2-servicing.20067.4" link="src\Redist\common\NetCoreSDK\NetCoreHostFXR\x86" tags="redist" />
+  </packages>
+</corext>
