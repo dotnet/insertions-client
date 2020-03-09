@@ -2,28 +2,28 @@
 
 using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace Microsoft.Net.Insertions.Common.Logging
 {
     internal sealed class InsertionsTextWriterTraceListener : TextWriterTraceListener
     {
-        private readonly MessageProcessor _messageProcessor;
-
+        private StringBuilder _stringBuilder = new StringBuilder(512);
 
         internal InsertionsTextWriterTraceListener(string fileName, string listenerName)
-            : base(fileName, listenerName)
+            : base(fileName, listenerName) 
         {
-            _messageProcessor = new MessageProcessor(x =>
-            {
-                base.WriteLine(x.ToString());
-                base.Flush();
-            });
-        }
 
+        }
 
         public override void WriteLine(string message)
         {
-            _messageProcessor.Enqueue(new MessageQueueItem(message, Environment.CurrentManagedThreadId));
+            _stringBuilder.Clear();
+            _stringBuilder.Append(DateTime.Now.ToString("dd-M-yyyy hh:mm:ss.ffffff"));
+            _stringBuilder.Append("|thread:").Append(Environment.CurrentManagedThreadId);
+            _stringBuilder.Append("|").Append(message);
+
+            base.WriteLine(_stringBuilder.ToString());
         }
     }
 }
