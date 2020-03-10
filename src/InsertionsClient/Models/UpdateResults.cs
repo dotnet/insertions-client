@@ -22,8 +22,7 @@ namespace Microsoft.Net.Insertions.Models
         /// <summary>
         /// Updated default.config NuGet package versions.
         /// </summary>
-        public IEnumerable<string> UpdatedNuGets =>
-            _updatedNugetsList.ToArray();
+        public IEnumerable<string> UpdatedNuGets => _updatedNugetsList;
 
         /// <summary>
         /// Duration in ms of <see cref="IInsertionApi.UpdateVersions(string, string, string)"/> attempt.
