@@ -69,18 +69,19 @@ namespace Microsoft.Net.Insertions.Api.Providers
             finally
             {
                 results.DurationMilliseconds = overallRunStopWatch.ElapsedMilliseconds;
-                foreach(string item in Enum.GetNames(typeof(Update)))
-                {
-                    LogStatistics(Enum.Parse<Update>(item));
-                }
+                LogStatistics();
             }
             return results;
         }
         #endregion
 
-        private void LogStatistics(Update update)
+        private void LogStatistics()
         {
-            Trace.WriteLine($"Statistics: {update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
+            Trace.WriteLine("Statistics:");
+            foreach(Update update in Enum.GetValues(typeof(Update)))
+            {
+                Trace.WriteLine($"{update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
+            }
         }
 
         internal bool TryValidateManifestFile(string manifestFile, out string details)

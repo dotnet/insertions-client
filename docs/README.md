@@ -8,11 +8,16 @@
 1. The updated _default.config_ and _.packageconfig_'s are saved on disk
 
 ## Input
-1. **-d:** Path to the default.config.  Example: _-d:[c:\default.config]_
-1. **-m:** Path to the manifest.json.  Example: _-m:[c:\files\manifest.json]_
-1. **-i:** Path to ignored packages file [**optional**]. Example: _-i:[c:\files\ignore.txt]_
-1. **-w:** Maximum allowed duration in seconds [**optional**].  Example: _-w:60_
-1. **-c:** Maximum concurrency of default.config version updates [**optional**].  Example: _-c:10_
+1. **-d:** Path to the default.config.  Example: 
+    > _-d:c:\default.config_
+1. **-m:** Path to the manifest.json.  Example:
+    > _-m:c:\files\manifest.json_
+1. **-i:** Path to ignored packages file [**optional**]. Example: 
+    > _-i:c:\files\ignore.txt_
+1. **-w:** Maximum allowed duration in seconds [**optional**].  Example: 
+    > _-w:60_
+1. **-c:** Maximum concurrency of default.config version updates [**optional**].  Example:
+    > _-c:10_
 
 _Warnings_
 1. NO SPACES ALLOWED IN EITHER default.config OR manifest.json FILE PATHS
@@ -21,18 +26,23 @@ _Warnings_
 ## Log
 * **InsertionsClient** creates a log detailing every step taken
 * The logs are placed in the **Logs** folder relative to the location of the _InsertionsClient.exe_
+* Full path to log file is display at the end of the program as well.
+
 ### Log Format
 Each log line details...
 1. The time stamp when the message was logged
 1. the id of the thread where the message was logged
 1. the message logged
+
 ### Sample Log Lines
 <pre>
-16-2-2020 09:03:43.964561 (thread:1) Set max wait seconds to 75
-16-2-2020 09:03:43.966524 (thread:1) Set max concurrency to 10
-16-2-2020 09:03:44.016178 (thread:1) Loading default.config content onto memory from C:\Users\joaguila\source\repos\DeafultConfigClient\tests\DefaultConfigClientTest\Assets\default.config.
-16-2-2020 09:03:44.026415 (thread:1) Loaded default.config content onto memory.
-16-2-2020 09:03:44.466310 (thread:1) De-serialized 19 builds from manifest.json.
+12-3-2020 11:59:16.114133|thread:1|CMD line param. Specified default.config: C:\Users\bozturk\source\repos\VS\.corext\Configs\default.config
+12-3-2020 11:59:16.122993|thread:1|CMD line param. Specified manifest.json: C:\Users\bozturk\source\repos\InsertionsClient\tests\InsertionsClientTest\Assets\manifest.json
+12-3-2020 11:59:16.349088|thread:1|De-serialized 19 builds from manifest.json.
+12-3-2020 11:59:16.380310|thread:1|Loading default.config content from C:\Users\bozturk\source\repos\VS\.corext\Configs\default.config.
+12-3-2020 11:59:16.412066|thread:1|Loaded default.config content.
+12-3-2020 11:59:16.419213|thread:1|Loading content of .packageconfig at C:\Users\bozturk\source\repos\VS\.corext\Configs\Microsoft.Developer.IdentityService\IdentityService.packageconfig.
+12-3-2020 11:59:16.421827|thread:1|Loaded .packageconfig content.
 </pre>
 
 ## Use
@@ -41,7 +51,7 @@ Each log line details...
 1. Alternative, if on WINDOWS, set **InsertionsClient** on the %path% variable to run the application from any location
 1. Launch _InsertionsClient.exe_ with the proper parameters
 ### Example
-The example below details staring the application for the following conditions...
+The example below details starting the application for the following conditions...
 1. _InsertionsClient.exe_ located on \tools
 1. _default.config_ located in \repos\Assets
 1. _manifest.json_ located in \repos\Assets
@@ -55,27 +65,33 @@ _InsertionsClient.exe_ outputs the results of running operations to both a persi
 
 **Successful NuGet version update** Every successfully updated NuGet version in _default.config_ has a corresponding message such as:
 <pre>
-16-2-2020 09:04:32.696289 (thread:10) Succeeded to update VS.Redist.Common.NetCore.HostFXR.x64.3.1.
+12-3-2020 11:59:16.694366|thread:6|Package VS.Redist.Common.WindowsDesktop.SharedFramework.x64.3.1 was updated to version 3.1.2-servicing.20067.4
 </pre>
 
 **Completion statistics** update duration statistics are summarized
 <pre>
-16-2-2020 02:16:57.236372 (thread:1) Statistics
-Successful Outcomes: No. Items: 28
-Average: 0.1429-ms
-Minimum: 0.0000-ms
-Maximum: 1.0000-ms
+Statistics:
 
-Failed Outcomes: No. Items: 2138
-Average: 1.3241-ms
-Minimum: 0.0000-ms
-Maximum: 44.0000-ms
+ExactMatch - Update for case of matching manifest.json assets with multiple verions; where version of the exact matching NuGet asset was selected
+No. Items: 31
+Average: 41.4194-ms
+Minimum: 5.0000-ms
+Maximum: 269.0000-ms
+
+NoMatch - No matching manifest.json assets for a given default.config NuGet
+No. Items: 528
+Average: 42.9811-ms
+Minimum: 3.0000-ms
+Maximum: 10,612.0000-ms
 </pre>
 
 
 **Completion Summary** Upon completion, _InsertionsClient.exe_ summarizes the duration & updated NuGet versions, as follows...
 <pre>
-16-2-2020 02:16:57.249150 (thread:1) Duration: 46,321.00-ms.
-16-2-2020 02:16:57.279854 (thread:1) Successful matches: 28.
-16-2-2020 02:16:57.283320 (thread:1) Failed matches: 2,138.
+Duration: 480.00-ms.
+Successful updates: 27.
+Updated default.config NuGet package versions...
+        VS.Redist.Common.AspNetCore.SharedFramework.x64.3.1, version: 3.1.2-servicing.20068.1
+        VS.Redist.Common.AspNetCore.SharedFramework.x86.3.1, version: 3.1.2-servicing.20068.1
+        ...
 </pre>
