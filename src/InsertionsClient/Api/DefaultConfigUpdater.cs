@@ -120,6 +120,9 @@ namespace Microsoft.Net.Insertions.Api
                     if(!File.Exists(configFileAbsolutePath))
                     {
                         Trace.WriteLine($"File for the .packageconfig listed under {InsertionConstants.DefaultConfigFile} was not found on disk. Path: {configFileAbsolutePath}");
+
+                        string separatorFixedPath = configFileAbsolutePath.Replace( '\\', '/');
+                        Trace.WriteLine($"Alternative file path: {separatorFixedPath} exists: {File.Exists(separatorFixedPath)}");
                         continue;
                     }
 
