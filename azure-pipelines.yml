@@ -10,8 +10,6 @@ pr:
 - master
 
 steps:
-- script: dotnet --version
-  displayName: 'dotnet version'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
