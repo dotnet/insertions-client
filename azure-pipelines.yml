@@ -1,0 +1,22 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pr:
+- master
+
+steps:
+- script: dotnet --version
+  displayName: 'dotnet version'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+  displayName: 'build'
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'test'
+  displayName: 'run tests'
