@@ -115,8 +115,8 @@ namespace Microsoft.Net.Insertions.Api
                         continue;
                     }
 
-                    string configFileAbsolutePath = Path.Combine(configsDirectory, configFileRelativePath);
-
+                    string configFileAbsolutePath = Path.Combine(configsDirectory, configFileRelativePath).Replace('\\', '/');
+                    
                     if(!File.Exists(configFileAbsolutePath))
                     {
                         Trace.WriteLine($"File for the .packageconfig listed under {InsertionConstants.DefaultConfigFile} was not found on disk. Path: {configFileAbsolutePath}");
