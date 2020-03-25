@@ -34,6 +34,13 @@ namespace InsertionsClientTest
 			CreateAndLoadDefaultConfigUpdater();
 		}
 
+		[TestMethod]
+		public void TestLastFileLineIsBlankCheck()
+		{
+			string path = Path.Combine(Environment.CurrentDirectory, "Assets", "default.config");
+			Assert.IsTrue(DefaultConfigUpdater.CheckIfLastFileLineIsBlank(path), "Check the default.config test asset ends in CRCL");
+		}
+
 		/// <summary>
 		/// Attempts to change only 1 of the package versions, then saves the results.
 		/// Checks if one and only one file was modified.

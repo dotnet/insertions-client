@@ -197,6 +197,14 @@ namespace Microsoft.Net.Insertions.Api
 
                     using XmlWriter writer = XmlWriter.Create(savePath, writeSettings);
                     document.Save(writer);
+                    writer.Close();
+                    if (extension == ".config")
+                    {
+                        if (!CheckIfLastFileLineIsBlank(savePath))
+                        {
+                            File.AppendAllLines(savePath, new string[] { string.Empty });
+                        }
+                    }
                     results[arraySaveIndex++] = new FileSaveResult(savePath);
                     Trace.WriteLine("Save success.");
                 }
@@ -209,7 +217,20 @@ namespace Microsoft.Net.Insertions.Api
 
             return results;
         }
-    
+
+        /// <summary>
+        /// Adds a blank line at the end of default.config, if needed.
+        /// </summary>
+        /// <param name="filePath">full path to default.config.</param>
+        /// <returns>true if the last characters are carriage return &amp; line feed.</returns>
+        /// <remarks>Calling <see cref="Object.ToString"/> on <see cref="XDocument"/> eliminates blank lines.</remarks>
+        internal static bool CheckIfLastFileLineIsBlank(string filePath)
+        {
+            byte[] bytes = File.ReadAllBytes(filePath);
+            return bytes[^2] == 13 && bytes[^1] == 10;
+        }
+
+
         private void LoadPackagesFromXml(XDocument xDocument)
         {
             foreach (XElement packageXElement in xDocument.Descendants(ElementNamePackage))
