@@ -227,9 +227,13 @@ namespace Microsoft.Net.Insertions.Api
         internal static bool CheckIfLastFileLineIsBlank(string filePath)
         {
             byte[] bytes = File.ReadAllBytes(filePath);
-            return bytes[^2] == 13 && bytes[^1] == 10;
+            return Environment.OSVersion.Platform switch
+            {
+                PlatformID.Unix => bytes[^1] == 10,
+                PlatformID.MacOSX => bytes[^1] == 10,
+                _ => bytes[^2] == 13 && bytes[^1] == 10
+            };
         }
-
 
         private void LoadPackagesFromXml(XDocument xDocument)
         {
