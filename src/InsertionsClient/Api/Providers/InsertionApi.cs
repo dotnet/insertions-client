@@ -37,7 +37,17 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
 
         #region IInsertionApi API
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile = null)
+        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile)
+        {
+            return UpdateVersions(manifestFile, defaultConfigFile, default(HashSet<string>));
+        }
+
+        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile)
+        {
+            return UpdateVersions(manifestFile, defaultConfigFile, LoadPackagesToIgnore(ignoredPackagesFile));
+        }
+
+        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, HashSet<string> packagesToIgnore)
         {
             List<Asset> assets = null;
             DefaultConfigUpdater configUpdater;
@@ -49,9 +59,10 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 return new UpdateResults { OutcomeDetails = details };
             }
 
-            HashSet<string> packagesToIgnore = LoadPackagesToIgnore(ignoredPackagesFile);
-
-            UpdateResults results = new UpdateResults();
+            UpdateResults results = new UpdateResults
+            {
+                IgnoreNuGets = packagesToIgnore
+            };
             Stopwatch overallRunStopWatch = Stopwatch.StartNew();
             using CancellationTokenSource source = new CancellationTokenSource(TimeSpan.FromSeconds(_maxWaitSeconds));
             try
@@ -204,7 +215,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 return;
             }
 
-            if (packagesToIgnore.Contains(packageId))
+            if (packagesToIgnore != null && packagesToIgnore.Contains(packageId))
             {
                 _metrics.AddMeasurement(Update.Ignored, stopWatch.ElapsedTicks);
                 Trace.WriteLine($"Skipping {packageId} since it was requested to be ignored.");
