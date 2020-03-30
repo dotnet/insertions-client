@@ -24,6 +24,8 @@ namespace Microsoft.Net.Insertions.Models
         /// </summary>
         public IEnumerable<string> UpdatedNuGets => _updatedNugetsList;
 
+        public HashSet<string> IgnoredNuGets { get; set; }
+
         /// <summary>
         /// Duration in ms of <see cref="IInsertionApi.UpdateVersions(string, string, string)"/> attempt.
         /// </summary>

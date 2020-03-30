@@ -14,6 +14,7 @@
     > _-m:c:\files\manifest.json_
 1. **-i:** Path to ignored packages file [**optional**]. Example: 
     > _-i:c:\files\ignore.txt_
+1. **-idut** Indicates that packages relevant to the .NET Dev UX team are ignored [**optional**].  If **-i:** is also set, the file specified with that option is used, superceding **-idut**.
 1. **-w:** Maximum allowed duration in seconds [**optional**].  Example: 
     > _-w:60_
 1. **-c:** Maximum concurrency of default.config version updates [**optional**].  Example:
@@ -50,14 +51,25 @@ Each log line details...
 1. Navigate to the location of _InsertionsClient.exe_
 1. Alternative, if on WINDOWS, set **InsertionsClient** on the %path% variable to run the application from any location
 1. Launch _InsertionsClient.exe_ with the proper parameters
-### Example
-The example below details starting the application for the following conditions...
+### Examples
+The examples below rely on the following conditions...
 1. _InsertionsClient.exe_ located on \tools
 1. _default.config_ located in \repos\Assets
 1. _manifest.json_ located in \repos\Assets
+
+#### Opting to Specify File with NuGet Packages to Ignore
+Location of additional needed resources...
 1. _ignored.txt_ located in \repos\Assets
 <pre>
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -i:\repos\Assets\ignored.txt
+</pre>
+#### Opting to Ignore .NET Dev UX NuGet Packages
+<pre>
+$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -idut
+</pre>
+#### Opting Not to Ignore any NuGet Packages
+<pre>
+$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json
 </pre>
 
 ## Output

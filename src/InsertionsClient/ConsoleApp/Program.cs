@@ -22,6 +22,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private const string SwitchIgnorePackages = "-i:";
 
+        private const string SwitchIgnoreDevUxTeamPackages = "-idut";
+
         private const string SwitchMaxWaitSeconds = "-w:";
 
         private const string SwitchMaxConcurrency = "-c:";
@@ -50,6 +52,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
         private static string ManifestFile = string.Empty;
 
         private static string IgnoredPackagesFile = string.Empty;
+
+        private static bool IgnoreDevUxTeamPackagesScenario;
 
         private static int MaxWaitSeconds = 75;
 
@@ -86,8 +90,21 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
             IInsertionApi api = apiFactory.Create(MaxWaitSeconds, MaxConcurrency);
-            UpdateResults results = api.UpdateVersions(ManifestFile, DefaultConfigFile, IgnoredPackagesFile);
-            
+
+            UpdateResults results;
+            if (!string.IsNullOrWhiteSpace(IgnoredPackagesFile))
+            {
+                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, IgnoredPackagesFile);
+            }
+            else if (IgnoreDevUxTeamPackagesScenario)
+            {
+                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, InsertionConstants.DefaultDevUxTeamPackages);
+            }
+            else
+            {
+                results = api.UpdateVersions(ManifestFile, DefaultConfigFile);
+            }
+
             ShowResults(results);
 
             Trace.WriteLine($"Log: {LogFile}{Environment.NewLine}");
@@ -180,6 +197,10 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 else if (arg.StartsWith(SwitchMaxConcurrency))
                 {
                     ProcessArgumentInt(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", ref MaxConcurrency);
+                }
+                else if (arg.StartsWith(SwitchIgnoreDevUxTeamPackages))
+                {
+                    IgnoreDevUxTeamPackagesScenario = true;
                 }
             }
 
