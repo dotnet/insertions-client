@@ -14,12 +14,12 @@ namespace InsertionsClientTest
     [TestClass]
     public class InsertionApiTest
     {
-		[TestMethod]
+        [TestMethod]
         [DataRow(IgnoreCase.None)]
         [DataRow(IgnoreCase.DefaultDevUxTeamPackages)]
         [DataRow(IgnoreCase.SpecifiedFile)]
         public void TestLoadFile(IgnoreCase ignoreCase)
-		{
+        {
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
             IInsertionApi api = apiFactory.Create(75, 4);
 
@@ -35,7 +35,7 @@ namespace InsertionsClientTest
                 _ => api.UpdateVersions(manifestFile, defaultConfigFile),
             };
 
-            Assert.IsTrue(ListsAreEquivalent(ignoreCase, results?.IgnoreNuGets), $"Mismatched ignore packages for {ignoreCase}");
+            Assert.IsTrue(ListsAreEquivalent(ignoreCase, results?.IgnoredNuGets), $"Mismatched ignore packages for {ignoreCase}");
         }
 
         private bool ListsAreEquivalent(IgnoreCase ignoreCase, HashSet<string> results)

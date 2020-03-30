@@ -53,7 +53,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private static string IgnoredPackagesFile = string.Empty;
 
-        private static bool IgnoreDevUxTeamPackagesCase;
+        private static bool IgnoreDevUxTeamPackagesScenario;
 
         private static int MaxWaitSeconds = 75;
 
@@ -96,7 +96,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             {
                 results = api.UpdateVersions(ManifestFile, DefaultConfigFile, IgnoredPackagesFile);
             }
-            else if (IgnoreDevUxTeamPackagesCase)
+            else if (IgnoreDevUxTeamPackagesScenario)
             {
                 results = api.UpdateVersions(ManifestFile, DefaultConfigFile, InsertionConstants.DefaultDevUxTeamPackages);
             }
@@ -200,7 +200,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 }
                 else if (arg.StartsWith(SwitchIgnoreDevUxTeamPackages))
                 {
-                    IgnoreDevUxTeamPackagesCase = true;
+                    IgnoreDevUxTeamPackagesScenario = true;
                 }
             }
 

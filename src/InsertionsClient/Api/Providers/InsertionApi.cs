@@ -61,7 +61,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
             UpdateResults results = new UpdateResults
             {
-                IgnoreNuGets = packagesToIgnore
+                IgnoredNuGets = packagesToIgnore
             };
             Stopwatch overallRunStopWatch = Stopwatch.StartNew();
             using CancellationTokenSource source = new CancellationTokenSource(TimeSpan.FromSeconds(_maxWaitSeconds));
