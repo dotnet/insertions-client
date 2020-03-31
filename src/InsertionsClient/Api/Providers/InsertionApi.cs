@@ -11,10 +11,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Xml.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using System.Text;
 
 namespace Microsoft.Net.Insertions.Api.Providers
 {
@@ -47,9 +45,9 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return UpdateVersions(manifestFile, defaultConfigFile, LoadPackagesToIgnore(ignoredPackagesFile));
         }
 
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, HashSet<string> packagesToIgnore)
+        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, HashSet<string>? packagesToIgnore)
         {
-            List<Asset> assets = null;
+            List<Asset> assets = null!;
             DefaultConfigUpdater configUpdater;
 
             if (!TryValidateManifestFile(manifestFile, out string details)
@@ -89,7 +87,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
         private void LogStatistics()
         {
             Trace.WriteLine("Statistics:");
-            foreach(Update update in Enum.GetValues(typeof(Update)))
+            foreach(Update update in Enum.GetValues(typeof(Update)).OfType<Update>())
             {
                 Trace.WriteLine($"{update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
             }
@@ -115,13 +113,29 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
             try
             {
-                Manifest buildManifest = DeserializeManifest(manifestFile);
+                Manifest? buildManifest = DeserializeManifest(manifestFile);
+
+                if(buildManifest == null)
+                {
+                    assets = new List<Asset>();
+                    details = "Failed to read/deserialize manifest file";
+                    return false;
+                }
+
                 if (!buildManifest.Validate())
                 {
                     assets = new List<Asset>();
                     details = $"Validation of de-serialized {InsertionConstants.ManifestFile} file content failed.";
                     return false;
                 }
+
+                if (buildManifest.Builds == null || buildManifest.Builds.Count == 0)
+                {
+                    assets = new List<Asset>();
+                    details = $"Manifest file contains no builds.";
+                    return false;
+                }
+
                 Trace.WriteLine($"De-serialized {buildManifest.Builds.Count} builds from {InsertionConstants.ManifestFile}.");
 
                 ConcurrentDictionary<string, Asset> map = new ConcurrentDictionary<string, Asset>();
@@ -129,16 +143,15 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 {
                     foreach (Asset asset in build.Assets.AsParallel())
                     {
+                        if(string.IsNullOrWhiteSpace(asset.Name))
+                        {
+                            Trace.WriteLine($"Manifest file contains an asset with null/empty name: {InsertionConstants.ManifestFile}");
+                            continue;
+                        }
+
                         if (!map.TryAdd(asset.Name, asset))
                         {
-                            if (map.ContainsKey(asset.Name))
-                            {
-                                Trace.WriteLine($"Duplicate entry in the specified {InsertionConstants.ManifestFile} for asset {asset.Name}.");
-                            }
-                            else
-                            {
-                                Trace.WriteLine($"Problem processing {asset.Name} in the specified {InsertionConstants.ManifestFile}.");
-                            }
+                            Trace.WriteLine($"Duplicate entry in the specified {InsertionConstants.ManifestFile} for asset {asset.Name}.");
                         }
                     }
                 }
@@ -162,7 +175,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return string.IsNullOrWhiteSpace(details);
         }
 
-        private Manifest DeserializeManifest(string manifestFile)
+        private Manifest? DeserializeManifest(string manifestFile)
         {
             string json = File.ReadAllText(manifestFile);
             if (string.IsNullOrWhiteSpace(json))
@@ -205,11 +218,11 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return ignoredPackages;
         }
 
-        private void ParallelCallback(Asset asset, HashSet<string> packagesToIgnore, DefaultConfigUpdater configUpdater, UpdateResults results)
+        private void ParallelCallback(Asset asset, HashSet<string>? packagesToIgnore, DefaultConfigUpdater configUpdater, UpdateResults results)
         {
             Stopwatch stopWatch = Stopwatch.StartNew();
 
-            if (!TryGetPackageId(asset.Name, asset.Version, out string packageId))
+            if (!TryGetPackageId(asset.Name!, asset.Version!, out string packageId))
             {
                 _metrics.AddMeasurement(Update.NotAPackage, stopWatch.ElapsedTicks);
                 return;
@@ -222,7 +235,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 return;
             }
 
-            if (!configUpdater.TryUpdatePackage(packageId, asset.Version, out string oldVersion))
+            if (!configUpdater.TryUpdatePackage(packageId, asset.Version!, out string oldVersion))
             {
                 _metrics.AddMeasurement(Update.NoMatch, stopWatch.ElapsedTicks);
                 return;
@@ -232,14 +245,14 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
             if(oldVersion != asset.Version)
             {
-                results.AddPackage(packageId, asset.Version);
+                results.AddPackage(new PackageUpdateResult(packageId, oldVersion, asset.Version!));
                 Trace.WriteLine($"Package {packageId} was updated to version {asset.Version}");
             }
         }
 
         private bool TryGetPackageId(string assetName, string version, out string packageId)
         {
-            packageId = null;
+            packageId = string.Empty;
 
             if (!assetName.EndsWith(".nupkg"))
             {

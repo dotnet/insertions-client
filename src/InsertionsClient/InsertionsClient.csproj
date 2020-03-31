@@ -5,6 +5,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Microsoft.Net.Insertions</RootNamespace>
     <AssemblyName>InsertionsClient</AssemblyName>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
 
 </Project>

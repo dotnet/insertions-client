@@ -45,7 +45,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             return txt.ToString();
         });
 
-        private static readonly Lazy<string> ProgramName = new Lazy<string>(() => Assembly.GetExecutingAssembly().GetName().Name);
+        private static readonly Lazy<string> ProgramName = new Lazy<string>(() => Assembly.GetExecutingAssembly().GetName().Name!);
 
         private static string DefaultConfigFile = string.Empty;
 
@@ -122,9 +122,9 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Trace.WriteLine($"Duration: {results.DurationMilliseconds:N2}-ms.");
             Trace.WriteLine($"Successful updates: {results.UpdatedNuGets.Count():N0}.");
             Trace.WriteLine("Updated default.config NuGet package versions...");
-            foreach (string updatedNuget in results.UpdatedNuGets.OrderBy(r => r))
+            foreach (PackageUpdateResult updatedNuget in results.UpdatedNuGets.OrderBy(r => r.PackageId))
             {
-                Trace.WriteLine($"           {updatedNuget}");
+                Trace.WriteLine($"           {updatedNuget.PackageId}: {updatedNuget.NewVersion}");
             }
         }
 
@@ -176,7 +176,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 ShowErrorHelpAndExit("incorrect # of parameters specified");
             }
 
-            foreach (string arg in args)
+            foreach (string arg in args!)
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
                 {

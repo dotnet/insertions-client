@@ -15,31 +15,31 @@ namespace Microsoft.Net.Insertions.Models
         /// Repository URL for which member <see cref="Asset"/> items are relevant.
         /// </summary>
         [DataMember(Name = "repo", IsRequired = true)]
-        public string Repository { get; set; }
+        public string? Repository { get; set; }
 
         /// <summary>
         /// Relevant Commit id.
         /// </summary>
         [DataMember(Name = "commit", IsRequired = true)]
-        public string Commit { get; set; }
+        public string? Commit { get; set; }
 
         /// <summary>
         /// Build GIT branch.
         /// </summary>
         [DataMember(Name = "branch", IsRequired = true)]
-        public string Branch { get; set; }
+        public string? Branch { get; set; }
 
         /// <summary>
         /// Boxed timestamp for build creation.
         /// </summary>
         [DataMember(Name = "produced", IsRequired = true)]
-        public string Produced { get; set; }
+        public string? Produced { get; set; }
 
         /// <summary>
         /// Build number.
         /// </summary>
         [DataMember(Name = "buildNumber", IsRequired = true)]
-        public string BuildNumber { get; set; }
+        public string? BuildNumber { get; set; }
 
         /// <summary>
         /// Build ID.
@@ -51,7 +51,7 @@ namespace Microsoft.Net.Insertions.Models
         /// Collection of build assets (i.e. NuGets)
         /// </summary>
         [DataMember(Name = "assets", IsRequired = true)]
-        public List<Asset> Assets { get; set; }
+        public List<Asset>? Assets { get; set; }
 
 
         public override string ToString()

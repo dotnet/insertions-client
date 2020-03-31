@@ -14,13 +14,13 @@ namespace Microsoft.Net.Insertions.Models
         /// NuGet name.
         /// </summary>
         [DataMember(Name = "name", IsRequired = true)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// NuGet name.
         /// </summary>
         [DataMember(Name = "version", IsRequired = true)]
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
 
         public override string ToString()

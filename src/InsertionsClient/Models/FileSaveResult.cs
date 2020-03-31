@@ -9,14 +9,14 @@ namespace Microsoft.Net.Insertions.Models
         public string Path { get; private set; }
 
         /// <summary> Exception that was thrown when saving the file, if exists. </summary>
-        public Exception Exception { get; private set; }
+        public Exception? Exception { get; private set; }
 
         /// <summary> Was file save operation successful? If yes, <see cref="Exception"/>
         /// property holds a reference to the exception that was thrown. </summary>
         public bool Succeeded => Exception == null;
 
         /// <summary> Creates an instance of FileSaveResult </summary>
-        public FileSaveResult(string path, Exception exception = null)
+        public FileSaveResult(string path, Exception? exception = null)
         {
             Path = path;
             Exception = exception;

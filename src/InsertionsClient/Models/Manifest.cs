@@ -15,7 +15,7 @@ namespace Microsoft.Net.Insertions.Models
         /// Collection of <see cref="Build"/> instances detailed in manifest.json.
         /// </summary>
         [DataMember(Name = "builds", IsRequired = true)]
-        public List<Build> Builds { get; set; }
+        public List<Build>? Builds { get; set; }
 
 
         public override string ToString()
