@@ -6,7 +6,7 @@ namespace Microsoft.Net.Insertions.Models
 {
     internal sealed class AssetEqualityComparer : IEqualityComparer<Asset>
     {
-        public bool Equals(Asset x, Asset y)
+        public bool Equals(Asset? x, Asset? y)
         {
             if (x == null)
             {
@@ -21,7 +21,7 @@ namespace Microsoft.Net.Insertions.Models
 
         public int GetHashCode(Asset obj)
         {
-            return obj == null ? -1 : obj.Name.GetHashCode() ^ obj.Version.GetHashCode();
+            return obj == null ? -1 : (obj.Name?.GetHashCode() ?? -1) ^ (obj.Version?.GetHashCode() ?? -1);
         }
     }
 }

@@ -74,7 +74,7 @@ namespace Microsoft.Net.Insertions.Api
         /// <remarks>This method is not thread-safe.</remarks>
         public bool TryLoad(string defaultConfigPath, out string error)
         {
-            error = null;
+            error = string.Empty;
 
             if (!File.Exists(defaultConfigPath))
             {
@@ -102,11 +102,11 @@ namespace Microsoft.Net.Insertions.Api
             IEnumerable<XElement> additionalConfigParents = defaultConfigXml.Descendants(ElementNameAdditionalConfigsParent);
             if(additionalConfigParents != null)
             {
-                string configsDirectory = Path.GetDirectoryName(defaultConfigPath);
+                string configsDirectory = Path.GetDirectoryName(defaultConfigPath) ?? string.Empty;
 
                 foreach(XElement packageconfigXElement in additionalConfigParents.SelectMany(p => p.Elements(ElementNameAdditionalConfig)))
                 {
-                    string configFileRelativePath = packageconfigXElement.Attribute("name")?.Value;
+                    string? configFileRelativePath = packageconfigXElement.Attribute("name")?.Value;
 
                     if(string.IsNullOrWhiteSpace(configFileRelativePath))
                     {
@@ -152,9 +152,9 @@ namespace Microsoft.Net.Insertions.Api
         /// <remarks>This method is safe to call simultaneously from multiple threads.</remarks>
         public bool TryUpdatePackage(string packageId, string version, out string existingVersion)
         {
-            if (!_packageXElements.TryGetValue(packageId, out XElement xElement))
+            if (!_packageXElements.TryGetValue(packageId, out XElement? xElement))
             {
-                existingVersion = null;
+                existingVersion = string.Empty;
                 return false;
             }
 
@@ -213,7 +213,7 @@ namespace Microsoft.Net.Insertions.Api
         {
             foreach (XElement packageXElement in xDocument.Descendants(ElementNamePackage))
             {
-                string packageId = packageXElement.Attribute("id")?.Value;
+                string? packageId = packageXElement.Attribute("id")?.Value;
 
                 if (string.IsNullOrWhiteSpace(packageId))
                 {
@@ -221,7 +221,7 @@ namespace Microsoft.Net.Insertions.Api
                     continue;
                 }
 
-                if (_packageXElements.TryGetValue(packageId, out XElement pElement))
+                if (_packageXElements.TryGetValue(packageId, out XElement? pElement))
                 {
                     Trace.WriteLine($"Duplicate entries were found for package: {packageId}{Environment.NewLine}\t1-Line {((IXmlLineInfo)pElement).LineNumber} at {_documentPaths[pElement.Document]}{Environment.NewLine}\t2-Line {((IXmlLineInfo)packageXElement).LineNumber} at {_documentPaths[xDocument]}");
                     continue;

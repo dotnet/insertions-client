@@ -11,7 +11,7 @@ namespace Microsoft.Net.Insertions.Models
     /// </summary>
     public sealed class UpdateResults
     {
-        private readonly ConcurrentBag<string> _updatedNugetsList = new ConcurrentBag<string>();
+        private readonly ConcurrentBag<PackageUpdateResult> _updatedNugetsList = new ConcurrentBag<PackageUpdateResult>();
 
 
         /// <summary>
@@ -22,9 +22,12 @@ namespace Microsoft.Net.Insertions.Models
         /// <summary>
         /// Updated default.config NuGet package versions.
         /// </summary>
-        public IEnumerable<string> UpdatedNuGets => _updatedNugetsList;
+        public IEnumerable<PackageUpdateResult> UpdatedNuGets => _updatedNugetsList;
 
-        public HashSet<string> IgnoredNuGets { get; set; }
+        /// <summary>
+        /// Ids of ignored nuget packages.
+        /// </summary>
+        public HashSet<string>? IgnoredNuGets { get; set; }
 
         /// <summary>
         /// Duration in ms of <see cref="IInsertionApi.UpdateVersions(string, string, string)"/> attempt.
@@ -34,20 +37,20 @@ namespace Microsoft.Net.Insertions.Models
         /// <summary>
         /// Describes the outcome of failed <see cref="IInsertionApi.UpdateVersions(string, string, string)"/> attempts.
         /// </summary>
-        public string OutcomeDetails { get; set; }
+        public string? OutcomeDetails { get; set; }
 
         /// <summary>
         /// All the files that were modified during the update or
         /// the exceptions if there was an error while saving the file.
         /// </summary>
-        public FileSaveResult[] FileSaveResults { get; set; }
+        public FileSaveResult[]? FileSaveResults { get; set; }
 
         /// <summary>
         /// Adds the given package to the updated nuget list.
         /// </summary>
-        public void AddPackage(string nugetId, string version)
+        public void AddPackage(PackageUpdateResult packageUpdateResult)
         {
-            _updatedNugetsList.Add($"{nugetId}, version: {version}");
+            _updatedNugetsList.Add(packageUpdateResult);
         }
 
         public override string ToString()
