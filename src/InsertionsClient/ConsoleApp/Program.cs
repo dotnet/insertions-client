@@ -152,10 +152,13 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 					}
 				}
 
-				Trace.WriteLine($"{results.PropsFileUpdateResults.UnrecognizedVariables.Count} variables were not found in props files:");
-				foreach (var variable in results.PropsFileUpdateResults.UnrecognizedVariables)
+				if(results.PropsFileUpdateResults.UnrecognizedVariables.Count != 0)
 				{
-					Trace.WriteLine($"        {variable.Name} in {variable.ReferencedFilePath}");
+					Trace.WriteLine($"{results.PropsFileUpdateResults.UnrecognizedVariables.Count} variables were not found in props files:");
+					foreach (var variable in results.PropsFileUpdateResults.UnrecognizedVariables)
+					{
+						Trace.WriteLine($"        {variable.Name} in {variable.ReferencedFilePath}");
+					}
 				}
 			}
 		}

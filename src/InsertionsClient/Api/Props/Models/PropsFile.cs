@@ -85,9 +85,7 @@ namespace Microsoft.Net.Insertions.Props.Models
 						}
 
 						isDirty = true;
-						textNode.Value = textValue.Substring(0, match.Index) +
-							variableName + "=" + value +
-							textValue.Substring(match.Index + match.Length);
+						textNode.Value = $"{textValue.Substring(0, match.Index)}{variableName}={value};{textValue.Substring(match.Index + match.Length)}";
 						return true;
 					}
 				}
