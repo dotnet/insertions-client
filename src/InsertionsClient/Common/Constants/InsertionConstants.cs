@@ -18,5 +18,7 @@ namespace Microsoft.Net.Insertions.Common.Constants
             "VS.Tools.Net.Core.SDK.Resolver",
             "VS.Tools.Net.Core.SDK.x86"
         };
+
+        internal const string DefaultNugetFeed = "https://pkgs.dev.azure.com/devdiv/_packaging/VS-CoreXtFeeds/nuget/v3/index.json";
     }
 }

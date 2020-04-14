@@ -1,7 +1,5 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Models;
-using Microsoft.Net.Insertions.Models.Extensions;
 using Microsoft.Net.Insertions.Common.Constants;
 using Microsoft.Net.Insertions.Common.Json;
 using Microsoft.Net.Insertions.Telemetry;
@@ -13,13 +11,17 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using Microsoft.Net.Insertions.Models;
+using Microsoft.Net.Insertions.Models.Extensions;
+using Microsoft.Net.Insertions.Api.Models;
+using Microsoft.Net.Insertions.Props.Models;
 
 namespace Microsoft.Net.Insertions.Api.Providers
 {
-    /// <summary>
-    /// <see cref="IInsertionApi"/> provider relying on <see cref="IDefaultConfigApi"/> instances to update NuGet versions.
-    /// </summary>
-    internal sealed class InsertionApi : IInsertionApi
+	/// <summary>
+	/// <see cref="IInsertionApi"/> provider relying on <see cref="IDefaultConfigApi"/> instances to update NuGet versions.
+	/// </summary>
+	internal sealed class InsertionApi : IInsertionApi
     {
         private readonly MeasurementsSession _metrics;
         
@@ -35,17 +37,13 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
 
         #region IInsertionApi API
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile)
+
+        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile, string? accessToken = null, string? propsFilesRootDirectory = null)
         {
-            return UpdateVersions(manifestFile, defaultConfigFile, default(HashSet<string>));
+            return UpdateVersions(manifestFile, defaultConfigFile, LoadPackagesToIgnore(ignoredPackagesFile),accessToken, propsFilesRootDirectory);
         }
 
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile)
-        {
-            return UpdateVersions(manifestFile, defaultConfigFile, LoadPackagesToIgnore(ignoredPackagesFile));
-        }
-
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, HashSet<string>? packagesToIgnore)
+        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, HashSet<string>? packagesToIgnore, string? accessToken = null, string? propsFilesRootDirectory = null)
         {
             List<Asset> assets = null!;
             DefaultConfigUpdater configUpdater;
@@ -70,6 +68,38 @@ namespace Microsoft.Net.Insertions.Api.Providers
                     asset => ParallelCallback(asset, packagesToIgnore, configUpdater, results));
 
                 results.FileSaveResults = configUpdater.Save();
+
+                if (string.IsNullOrWhiteSpace(propsFilesRootDirectory))
+                {
+                    if (FindPropsFileRootDirectory(defaultConfigFile, out propsFilesRootDirectory))
+                    {
+                        Trace.WriteLine($"The directory to search for .props files: {propsFilesRootDirectory}");
+                    }
+                    else
+                    {
+                        Trace.WriteLine("Failed to find an appropriate folder to search for .props files."
+                            + "Props file updating will be disabled.");
+                        
+                        results.PropsFileUpdateResults = new PropsUpdateResults()
+                        {
+                            Outcome = false,
+                            OutcomeDetails = "Failed to find an appropriate folder to search for .props files."
+                            + "Props file updating will be disabled."
+                        };
+                    }
+                }
+
+                if (!string.IsNullOrWhiteSpace(propsFilesRootDirectory))
+                {
+                    SwrFileReader swrFileReader = new SwrFileReader(_maxConcurrentWorkers);
+                    SwrFile[] swrFiles = swrFileReader.LoadSwrFiles(propsFilesRootDirectory);
+
+                    PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
+					List<PropsFileVariableReference> variables = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets, swrFiles);
+
+                    PropsFileUpdater propsFileUpdater = new PropsFileUpdater();
+                    results.PropsFileUpdateResults = propsFileUpdater.UpdatePropsFiles(variables, propsFilesRootDirectory);
+                }
             }
             catch (Exception e)
             {
@@ -332,6 +362,40 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 MaxDegreeOfParallelism = _maxConcurrentWorkers,
                 TaskScheduler = TaskScheduler.Default
             };
+        }
+
+        private static bool FindPropsFileRootDirectory(string defaultConfigPath, out string propsFileRootDirectory)
+        {
+            propsFileRootDirectory = string.Empty;
+
+            FileInfo defaultConfigInfo;
+            if (string.IsNullOrWhiteSpace(defaultConfigPath) || (defaultConfigInfo = new FileInfo(defaultConfigPath)).Exists == false)
+            {
+                Trace.WriteLine($"Cannot deduce root search directory for .props files: default.config was not found in path \"{defaultConfigPath}\"");
+                return false;
+            }
+
+            // Go up until repo root folder from .corext/Config/default.config
+            DirectoryInfo? vsRoot = defaultConfigInfo.Directory?.Parent?.Parent;
+
+            if (vsRoot == null)
+            {
+                Trace.WriteLine("Failed to deduce root search directory for .props files: given default.config is not in a VS repo.");
+                propsFileRootDirectory = string.Empty;
+                return false;
+            }
+
+            // Go down to src/SetupPackages from src folder
+            propsFileRootDirectory = Path.Combine(vsRoot.FullName, "src", "SetupPackages");
+
+            if(!Directory.Exists(propsFileRootDirectory))
+            {
+                Trace.WriteLine("Failed to deduce root search directory for .props files: given default.config is not in a VS repo.");
+                propsFileRootDirectory = string.Empty;
+                return false;
+            }
+
+            return true;
         }
     }
 }

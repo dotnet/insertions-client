@@ -14,10 +14,10 @@ using System.Text;
 
 namespace Microsoft.Net.Insertions.Api
 {
-    /// <summary>
-    /// Manages loading and updating &quot;default.config&quot; file and &quot;.packageconfig&quot; files listed in it.
-    /// </summary>
-    internal sealed class DefaultConfigUpdater
+	/// <summary>
+	/// Manages loading and updating &quot;default.config&quot; file and &quot;.packageconfig&quot; files listed in it.
+	/// </summary>
+	internal sealed class DefaultConfigUpdater
     {
         private const string ElementNamePackage = "package";
 
@@ -170,6 +170,33 @@ namespace Microsoft.Net.Insertions.Api
             // Store the document. Store a junk value (0) with it, because we have to.
             _modifiedDocuments[xElement.Document] = 0;
             return true;
+        }
+
+        /// <summary>
+        /// Returns the link attribute defined in the xml attributes of the package.
+        /// </summary>
+        /// <param name="packageId">Id of the package, link of which will be returned.</param>
+        /// <returns>Returns the value of the link attribute. 
+        /// Returns null, if attribute or package is not found.</returns>
+        /// <remarks>This method is safe to call simultaneously from multiple threads.</remarks>
+        public string? GetPackageLink(string packageId)
+        {
+            if(!_packageXElements.TryGetValue(packageId, out XElement? xElement))
+            {
+                // Package was not found.
+                Trace.WriteLine($"Package {packageId} was not found in default.config/.packageconfig files.");
+                return null;
+            }
+
+            XAttribute linkAttribute = xElement.Attribute("link");
+            if (linkAttribute == null)
+            {
+                // Attribute was not found
+                Trace.WriteLine($"Package {packageId} does not have a link attribute in {_documentPaths[xElement.Document]}:{((IXmlLineInfo)xElement).LineNumber}");
+                return null;
+            }
+
+            return linkAttribute.Value;
         }
 
         /// <summary>

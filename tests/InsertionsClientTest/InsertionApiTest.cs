@@ -30,17 +30,17 @@ namespace InsertionsClientTest
 
             results = ignoreCase switch
             {
-                IgnoreCase.DefaultDevUxTeamPackages => api.UpdateVersions(manifestFile, defaultConfigFile, InsertionConstants.DefaultDevUxTeamPackages),
-                IgnoreCase.SpecifiedFile => api.UpdateVersions(manifestFile, defaultConfigFile, Path.Combine(assetsDirectory, "ignored.txt")),
-                _ => api.UpdateVersions(manifestFile, defaultConfigFile),
+                IgnoreCase.DefaultDevUxTeamPackages => api.UpdateVersions(manifestFile, defaultConfigFile, InsertionConstants.DefaultDevUxTeamPackages, null, null),
+                IgnoreCase.SpecifiedFile => api.UpdateVersions(manifestFile, defaultConfigFile, Path.Combine(assetsDirectory, "ignored.txt"), null, null),
+                _ => api.UpdateVersions(manifestFile, defaultConfigFile, (HashSet<string>?)null, null, null),
             };
 
             Assert.IsTrue(ListsAreEquivalent(ignoreCase, results?.IgnoredNuGets), $"Mismatched ignore packages for {ignoreCase}");
         }
 
-        private bool ListsAreEquivalent(IgnoreCase ignoreCase, HashSet<string> results)
+        private bool ListsAreEquivalent(IgnoreCase ignoreCase, HashSet<string>? results)
         {
-            HashSet<string> expected = ignoreCase switch
+            HashSet<string>? expected = ignoreCase switch
             {
                 IgnoreCase.DefaultDevUxTeamPackages => InsertionConstants.DefaultDevUxTeamPackages,
                 IgnoreCase.SpecifiedFile =>
