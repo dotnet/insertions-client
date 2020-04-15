@@ -79,7 +79,7 @@ namespace Microsoft.Net.Insertions.Api
 
 			nugetDownloadBlock.LinkTo(filenameMatchBlock, new DataflowLinkOptions() { PropagateCompletion = true });
 
-			foreach (var package in updatedPackages)
+			foreach (PackageUpdateResult package in updatedPackages)
 			{
 				nugetDownloadBlock.Post(package);
 			}
@@ -109,9 +109,9 @@ namespace Microsoft.Net.Insertions.Api
 
 			try
 			{
-				var rep = Repository.Factory.GetCoreV3(_feed, FeedType.HttpV3);
+				SourceRepository? rep = Repository.Factory.GetCoreV3(_feed, FeedType.HttpV3);
 				rep.PackageSource.Credentials = _credentials;
-				var resource = await rep.GetResourceAsync<FindPackageByIdResource>();
+				FindPackageByIdResource? resource = await rep.GetResourceAsync<FindPackageByIdResource>();
 
 				Trace.WriteLine($"Downloading package {packageUpdate.PackageId}-{packageUpdate.NewVersion} into memory.");
 

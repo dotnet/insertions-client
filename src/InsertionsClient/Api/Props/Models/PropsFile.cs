@@ -71,7 +71,7 @@ namespace Microsoft.Net.Insertions.Props.Models
 				}
 
 				XText textNode = (XText)node;
-				var textValue = textNode.Value;
+				string textValue = textNode.Value;
 				foreach (Match? match in _variableAssignmentRegex.Matches(textNode.Value))
 				{
 					if(match!.Groups[1].Value == variableName)

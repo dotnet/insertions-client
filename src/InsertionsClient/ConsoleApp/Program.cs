@@ -5,6 +5,7 @@ using Microsoft.Net.Insertions.Api.Providers;
 using Microsoft.Net.Insertions.Common.Constants;
 using Microsoft.Net.Insertions.Common.Logging;
 using Microsoft.Net.Insertions.Models;
+using Microsoft.Net.Insertions.Props.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -143,19 +144,19 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 			if (results.PropsFileUpdateResults != null)
 			{
 				Trace.WriteLine($"Updated {results.PropsFileUpdateResults.UpdatedVariables.Count} .props files:");
-				foreach (var propsFile in results.PropsFileUpdateResults.UpdatedVariables.Where(r => r.Value.Count != 0).OrderBy(p => p.Key.Path))
+				foreach (KeyValuePair<PropsFile, List<PropsFileVariableReference>> propsFile in results.PropsFileUpdateResults.UpdatedVariables.Where(r => r.Value.Count != 0).OrderBy(p => p.Key.Path))
 				{
 					Trace.WriteLine($"        {propsFile.Key.Path}");
-					foreach (var variableChange in propsFile.Value)
+					foreach (PropsFileVariableReference? variableChange in propsFile.Value)
 					{
 						Trace.WriteLine($"                {variableChange.Name}={variableChange.Value}");
 					}
 				}
 
-				if(results.PropsFileUpdateResults.UnrecognizedVariables.Count != 0)
+				if (results.PropsFileUpdateResults.UnrecognizedVariables.Count != 0)
 				{
 					Trace.WriteLine($"{results.PropsFileUpdateResults.UnrecognizedVariables.Count} variables were not found in props files:");
-					foreach (var variable in results.PropsFileUpdateResults.UnrecognizedVariables)
+					foreach (PropsFileVariableReference? variable in results.PropsFileUpdateResults.UnrecognizedVariables)
 					{
 						Trace.WriteLine($"        {variable.Name} in {variable.ReferencedFilePath}");
 					}

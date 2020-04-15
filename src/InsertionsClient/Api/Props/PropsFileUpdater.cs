@@ -128,7 +128,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
 				if (_propsFiles.TryGetValue(searchDirectory, out List<PropsFile>? closestPropsFiles))
 				{
 					// Found some props in this directory. Lets try to update
-					foreach (var propFile in closestPropsFiles)
+					foreach (PropsFile propFile in closestPropsFiles)
 					{
 						if (propFile.TryUpdateVariable(variableName, newValue, out existingValue))
 						{
