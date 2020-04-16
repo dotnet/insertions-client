@@ -57,16 +57,16 @@ namespace Microsoft.Net.Insertions.Api
 				MaxDegreeOfParallelism = _maxConcurrency
 			};
 
-			_ = Parallel.For(0, files.Length, options, async i => swrFiles[i] = await LoadSwrFile(files[i]));
+			_ = Parallel.For(0, files.Length, options, i => swrFiles[i] = LoadSwrFile(files[i]));
 
 			return swrFiles;
 		}
 
-		private async Task<SwrFile> LoadSwrFile(FileInfo file)
+		private SwrFile LoadSwrFile(FileInfo file)
 		{
 			SwrFile swr = new SwrFile(file.FullName);
 
-			string fileContent = await File.ReadAllTextAsync(swr.Path);
+			string fileContent = File.ReadAllText(swr.Path);
 
 			foreach(Group matchedGroup in _payloadPattern.Matches(fileContent).Select(m => m.Groups[1]))
 			{
