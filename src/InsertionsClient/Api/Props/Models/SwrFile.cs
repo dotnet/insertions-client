@@ -50,7 +50,8 @@ namespace Microsoft.Net.Insertions.Api.Models
 		}
 
 		/// <summary>
-		/// Creates an instance of <see cref="SwrFile"/>
+		/// Creates an instance of <see cref="SwrFile"/>.
+		/// Doesn't access the file, only stores the path.
 		/// </summary>
 		/// <param name="path">Path to the file on disk</param>
 		public SwrFile(string path)

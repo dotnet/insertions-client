@@ -91,6 +91,7 @@ namespace Microsoft.Net.Insertions.Api
             }
             catch(Exception e)
             {
+                error = e.Message;
                 Trace.WriteLine($"Loading of {InsertionConstants.DefaultConfigFile} content has failed with exception:{Environment.NewLine} {e.ToString()}");
                 return false;
             }

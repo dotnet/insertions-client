@@ -38,8 +38,9 @@ namespace Microsoft.Net.Insertions.Api
 
 		/// <summary>
 		/// Credentials for the feed.
+		/// Null, if no access token was provided.
 		/// </summary>
-		private readonly PackageSourceCredential _credentials;
+		private readonly PackageSourceCredential? _credentials;
 
 		/// <summary>
 		/// Creates an instance of <see cref="PropsVariableDeducer"/>
@@ -50,7 +51,10 @@ namespace Microsoft.Net.Insertions.Api
 		{
 			_feed = feed;
 
-			_credentials = new PackageSourceCredential(feed, accessToken, accessToken, true, null);
+			if(accessToken != null)
+			{
+				_credentials = new PackageSourceCredential(feed, accessToken, accessToken, true, null);
+			}
 		}
 
 		/// <summary>
@@ -110,7 +114,11 @@ namespace Microsoft.Net.Insertions.Api
 			try
 			{
 				SourceRepository? rep = Repository.Factory.GetCoreV3(_feed, FeedType.HttpV3);
-				rep.PackageSource.Credentials = _credentials;
+				if(_credentials != null)
+				{
+					rep.PackageSource.Credentials = _credentials;
+				}
+
 				FindPackageByIdResource? resource = await rep.GetResourceAsync<FindPackageByIdResource>();
 
 				Trace.WriteLine($"Downloading package {packageUpdate.PackageId}-{packageUpdate.NewVersion} into memory.");

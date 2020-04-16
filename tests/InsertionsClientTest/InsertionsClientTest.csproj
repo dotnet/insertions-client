@@ -110,6 +110,9 @@
     <None Update="Assets\DotNetCoreSDK\Toolset.packageconfig">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Assets\dotNetCoreVersions.props">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Assets\ignored.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -141,6 +144,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Assets\Microsoft.VisualStudio.MinShell\vs-validation.packageconfig">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\msi.swr">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Assets\TargetingPacks.packageconfig">

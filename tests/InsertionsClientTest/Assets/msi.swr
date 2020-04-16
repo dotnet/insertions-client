@@ -1,0 +1,25 @@
+use vs
+
+package name=Microsoft.NetCore.AppHostPack.3.1.$(NetCoreAppHostPack31Version).x64
+        version=$(ProductsBuildVersion)
+        vs.package.type=msi
+        vs.package.branch=$(VsSingletonPackageBranch)
+        vs.package.chip=x86
+        license=https://github.com/dotnet/core-setup
+        vs.package.internalRevision=$(PackageInternalRevision)
+
+vs.installSize
+  SystemDrive=1269236
+  TargetDrive=0
+  SharedDrive=0
+
+vs.logFiles
+  vs.logFile pattern="dd_setup*Microsoft.NetCore.AppHostPack.3.1.x86_x64*.log"
+
+vs.msiProperties
+  vs.msiProperty name="DOTNETHOME" value="[ProgramFilesX86]dotnet"
+  vs.msiProperty Name="ALLOWMSIINSTALL" Value="True"
+
+vs.payloads
+  vs.payload source=!(bindpath.sources)\Redist\common\NetCoreSDK\NetCoreAppHostPack_3.1\x86_x64\dotnet-apphost-pack-$(NetCoreAppHostPack31Version)-win-x86_x64.msi
+  vs.payload source=path\to\extract\runtimes\win-x64\native\$(AspNetCoreTargetingPack30Version).exe
