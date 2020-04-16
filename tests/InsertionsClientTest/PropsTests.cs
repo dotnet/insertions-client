@@ -51,8 +51,8 @@ namespace InsertionsClientTest
 			SwrFile swrFile = loadedSwrFiles.First(s => s.Path == swrPath);
 
 			Assert.IsNotNull(swrFile.PayloadPaths, "Swr payload list is null");
-			Assert.AreEqual(1, swrFile.PayloadPaths.Count, "Loaded swr has wrong number of payload paths");
-			Assert.AreEqual("NetCoreAppHostPack31Version", swrFile.PayloadPaths[0].VariableName);
+			Assert.IsTrue(swrFile.PayloadPaths.Count > 0, "Loaded swr has no payload");
+			Assert.IsTrue(swrFile.PayloadPaths.Any(p => p.VariableName == "NetCoreAppHostPack31Version"));
 		}
 
 		/// <summary>
