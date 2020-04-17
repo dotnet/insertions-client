@@ -7,10 +7,10 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("InsertionsClientTest")]
 namespace Microsoft.Net.Insertions.Api
 {
-	/// <summary>
-	/// Defines features to manage default.config insertions from manifest.json.
-	/// </summary>
-	public interface IInsertionApi
+    /// <summary>
+    /// Defines features to manage default.config insertions from manifest.json.
+    /// </summary>
+    public interface IInsertionApi
     {
         /// <summary>
         /// Updates default.config NuGet package versions from matching manifest.json assets.

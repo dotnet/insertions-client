@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Microsoft.Net.Insertions.Telemetry
 {
-	internal sealed class MeasurementsSession
+    internal sealed class MeasurementsSession
     {
         private readonly ConcurrentBag<Measurement> _dataPoints = new ConcurrentBag<Measurement>();
 

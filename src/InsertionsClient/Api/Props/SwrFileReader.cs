@@ -8,93 +8,93 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Net.Insertions.Api
 {
-	/// <summary>
-	/// Finds and loads .swr files in a given directory.
-	/// </summary>
-	internal class SwrFileReader
-	{
-		private readonly int _maxConcurrency;
+    /// <summary>
+    /// Finds and loads .swr files in a given directory.
+    /// </summary>
+    internal class SwrFileReader
+    {
+        private readonly int _maxConcurrency;
 
-		/// <summary>
-		/// Pattern that finds payload path in swr file content.
-		/// </summary>
-		private Regex _payloadPattern = new Regex(@"\bvs.payload.*source=(.+?)($|\s)");
-		
-		/// <summary>
-		/// Pattern that finds variable name in payload path
-		/// </summary>
-		private Regex _variablePattern = new Regex(@".*\$\((.*)\).*");
+        /// <summary>
+        /// Pattern that finds payload path in swr file content.
+        /// </summary>
+        private Regex _payloadPattern = new Regex(@"\bvs.payload.*source=(.+?)($|\s)");
 
-		/// <summary>
-		/// Creates an instance of <see cref="SwrFileReader"/>
-		/// </summary>
-		/// <param name="maxConcurrency">Level of concurrency</param>
-		public SwrFileReader(int maxConcurrency)
-		{
-			_maxConcurrency = maxConcurrency;
-		}
+        /// <summary>
+        /// Pattern that finds variable name in payload path
+        /// </summary>
+        private Regex _variablePattern = new Regex(@".*\$\((.*)\).*");
 
-		/// <summary>
-		/// Loads all swr files under the given root.
-		/// </summary>
-		/// <param name="rootSearchDirectory">Directory that will be searched for swr files.
-		/// Contained folders will automatically be included in the search.
-		/// Path shouldn't be null, empty or whitespace.</param>
-		/// <returns>A list of <see cref="SwrFile"/>s found under the root.</returns>
-		public SwrFile[] LoadSwrFiles(string rootSearchDirectory)
-		{
-			DirectoryInfo rootDirectory = new DirectoryInfo(rootSearchDirectory);
-			if(!rootDirectory.Exists)
-			{
-				return new SwrFile[0];
-			}
+        /// <summary>
+        /// Creates an instance of <see cref="SwrFileReader"/>
+        /// </summary>
+        /// <param name="maxConcurrency">Level of concurrency</param>
+        public SwrFileReader(int maxConcurrency)
+        {
+            _maxConcurrency = maxConcurrency;
+        }
 
-			FileInfo[] files = rootDirectory.GetFiles("*.swr", SearchOption.AllDirectories);
-			SwrFile[] swrFiles = new SwrFile[files.Length];
+        /// <summary>
+        /// Loads all swr files under the given root.
+        /// </summary>
+        /// <param name="rootSearchDirectory">Directory that will be searched for swr files.
+        /// Contained folders will automatically be included in the search.
+        /// Path shouldn't be null, empty or whitespace.</param>
+        /// <returns>A list of <see cref="SwrFile"/>s found under the root.</returns>
+        public SwrFile[] LoadSwrFiles(string rootSearchDirectory)
+        {
+            DirectoryInfo rootDirectory = new DirectoryInfo(rootSearchDirectory);
+            if (!rootDirectory.Exists)
+            {
+                return new SwrFile[0];
+            }
 
-			ParallelOptions options = new ParallelOptions()
-			{
-				MaxDegreeOfParallelism = _maxConcurrency
-			};
+            FileInfo[] files = rootDirectory.GetFiles("*.swr", SearchOption.AllDirectories);
+            SwrFile[] swrFiles = new SwrFile[files.Length];
 
-			_ = Parallel.For(0, files.Length, options, i => swrFiles[i] = LoadSwrFile(files[i]));
+            ParallelOptions options = new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = _maxConcurrency
+            };
 
-			return swrFiles;
-		}
+            _ = Parallel.For(0, files.Length, options, i => swrFiles[i] = LoadSwrFile(files[i]));
 
-		private SwrFile LoadSwrFile(FileInfo file)
-		{
-			SwrFile swr = new SwrFile(file.FullName);
+            return swrFiles;
+        }
 
-			string fileContent = File.ReadAllText(swr.Path);
+        private SwrFile LoadSwrFile(FileInfo file)
+        {
+            SwrFile swr = new SwrFile(file.FullName);
 
-			foreach(Group matchedGroup in _payloadPattern.Matches(fileContent).Select(m => m.Groups[1]))
-			{
-				string variableInput = matchedGroup.Value;
+            string fileContent = File.ReadAllText(swr.Path);
 
-				// Replace known variable with actual value
-				variableInput = variableInput.Replace("!(bindpath.sources)", "src");
+            foreach (Group matchedGroup in _payloadPattern.Matches(fileContent).Select(m => m.Groups[1]))
+            {
+                string variableInput = matchedGroup.Value;
 
-				Match variableMatch = _variablePattern.Match(variableInput);
-				if(variableMatch.Success == false)
-				{
-					// This payload path contains no variables. Skip
-					continue;
-				}
+                // Replace known variable with actual value
+                variableInput = variableInput.Replace("!(bindpath.sources)", "src");
 
-				Group variableGroup = variableMatch.Groups[1];
-				string variableName = variableGroup.Value;
-				string variableValuePattern = variableInput.Substring(0, variableGroup.Index - 2) +
-					"(.*)" +
-					variableInput.Substring(variableGroup.Index + variableGroup.Length + 1);
+                Match variableMatch = _variablePattern.Match(variableInput);
+                if (variableMatch.Success == false)
+                {
+                    // This payload path contains no variables. Skip
+                    continue;
+                }
 
-				// Backslashes should be considered as literals in regex
-				variableValuePattern= variableValuePattern.Replace("\\", "\\\\");
+                Group variableGroup = variableMatch.Groups[1];
+                string variableName = variableGroup.Value;
+                string variableValuePattern = variableInput.Substring(0, variableGroup.Index - 2) +
+                    "(.*)" +
+                    variableInput.Substring(variableGroup.Index + variableGroup.Length + 1);
 
-				swr.PayloadPaths.Add(new SwrFile.PayloadPath(new Regex(variableValuePattern), variableName));
-			}
+                // Backslashes should be considered as literals in regex
+                variableValuePattern = variableValuePattern.Replace("\\", "\\\\");
 
-			return swr;
-		}
-	}
+                swr.PayloadPaths.Add(new SwrFile.PayloadPath(new Regex(variableValuePattern), variableName));
+            }
+
+            return swr;
+        }
+    }
 }

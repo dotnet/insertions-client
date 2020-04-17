@@ -67,25 +67,25 @@ The examples below rely on the following conditions...
 #### Opting to Specify File with NuGet Packages to Ignore
 Location of additional needed resources...
 1. _ignored.txt_ located in \repos\Assets
-<pre>
+```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -i:\repos\Assets\ignored.txt
-</pre>
+```
 #### Opting to Ignore .NET Dev UX NuGet Packages
-<pre>
+```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -idut
-</pre>
+```
 #### Opting Not to Ignore any NuGet Packages
-<pre>
+```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json
-</pre>
+```
 #### Specifying an Access Token to Update .props Files
-<pre>
+```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehroaq9k5zvvxstrqg2dzsedhlu757
-</pre>
+```
 #### Specifying a .props File Search Directory
-<pre>
+```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757 -p:C:\VS\src\SetupPackages\DotNetCoreSDK
-</pre>
+```
 
 ## Output
 _InsertionsClient.exe_ outputs the results of running operations to both a persistent log file and to console.
