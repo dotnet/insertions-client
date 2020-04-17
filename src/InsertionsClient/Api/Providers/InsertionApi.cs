@@ -1,7 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using Microsoft.Net.Insertions.Api.Models;
 using Microsoft.Net.Insertions.Common.Constants;
 using Microsoft.Net.Insertions.Common.Json;
+using Microsoft.Net.Insertions.Models;
+using Microsoft.Net.Insertions.Models.Extensions;
+using Microsoft.Net.Insertions.Props.Models;
 using Microsoft.Net.Insertions.Telemetry;
 using System;
 using System.Collections.Concurrent;
@@ -9,25 +13,21 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Threading;
-using Microsoft.Net.Insertions.Models;
-using Microsoft.Net.Insertions.Models.Extensions;
-using Microsoft.Net.Insertions.Api.Models;
-using Microsoft.Net.Insertions.Props.Models;
+using System.Threading.Tasks;
 
 namespace Microsoft.Net.Insertions.Api.Providers
 {
-	/// <summary>
-	/// <see cref="IInsertionApi"/> provider relying on <see cref="IDefaultConfigApi"/> instances to update NuGet versions.
-	/// </summary>
-	internal sealed class InsertionApi : IInsertionApi
+    /// <summary>
+    /// <see cref="IInsertionApi"/> provider relying on <see cref="IDefaultConfigApi"/> instances to update NuGet versions.
+    /// </summary>
+    internal sealed class InsertionApi : IInsertionApi
     {
         private readonly MeasurementsSession _metrics;
-        
+
         private readonly int _maxWaitSeconds = 75, _maxConcurrentWorkers = 15;
 
-        
+
         internal InsertionApi(int? maxWaitSeconds = null, int? maxConcurrency = null)
         {
             _metrics = new MeasurementsSession();
@@ -40,7 +40,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
         public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile, string? accessToken = null, string? propsFilesRootDirectory = null)
         {
-            return UpdateVersions(manifestFile, defaultConfigFile, LoadPackagesToIgnore(ignoredPackagesFile),accessToken, propsFilesRootDirectory);
+            return UpdateVersions(manifestFile, defaultConfigFile, LoadPackagesToIgnore(ignoredPackagesFile), accessToken, propsFilesRootDirectory);
         }
 
         public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, HashSet<string>? packagesToIgnore, string? accessToken = null, string? propsFilesRootDirectory = null)
@@ -79,7 +79,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                     {
                         Trace.WriteLine("Failed to find an appropriate folder to search for .props files."
                             + "Props file updating will be disabled.");
-                        
+
                         results.PropsFileUpdateResults = new PropsUpdateResults()
                         {
                             Outcome = false,
@@ -95,7 +95,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                     SwrFile[] swrFiles = swrFileReader.LoadSwrFiles(propsFilesRootDirectory);
 
                     PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
-					List<PropsFileVariableReference> variables = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets, swrFiles);
+                    List<PropsFileVariableReference> variables = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets, swrFiles);
 
                     PropsFileUpdater propsFileUpdater = new PropsFileUpdater();
                     results.PropsFileUpdateResults = propsFileUpdater.UpdatePropsFiles(variables, propsFilesRootDirectory);
@@ -117,7 +117,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
         private void LogStatistics()
         {
             Trace.WriteLine("Statistics:");
-            foreach(Update update in Enum.GetValues(typeof(Update)).OfType<Update>())
+            foreach (Update update in Enum.GetValues(typeof(Update)).OfType<Update>())
             {
                 Trace.WriteLine($"{update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
             }
@@ -145,7 +145,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
             {
                 Manifest? buildManifest = DeserializeManifest(manifestFile);
 
-                if(buildManifest == null)
+                if (buildManifest == null)
                 {
                     assets = new List<Asset>();
                     details = "Failed to read/deserialize manifest file";
@@ -173,7 +173,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 {
                     foreach (Asset asset in build.Assets.AsParallel())
                     {
-                        if(string.IsNullOrWhiteSpace(asset.Name))
+                        if (string.IsNullOrWhiteSpace(asset.Name))
                         {
                             Trace.WriteLine($"Manifest file contains an asset with null/empty name: {InsertionConstants.ManifestFile}");
                             continue;
@@ -240,7 +240,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
             HashSet<string> ignoredPackages = new HashSet<string>();
             string[] fileLines = File.ReadAllLines(ignoredPackagesFile);
 
-            foreach(string line in fileLines)
+            foreach (string line in fileLines)
             {
                 ignoredPackages.Add(line);
             }
@@ -273,7 +273,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
             _metrics.AddMeasurement(Update.ExactMatch, stopWatch.ElapsedTicks);
 
-            if(oldVersion != asset.Version)
+            if (oldVersion != asset.Version)
             {
                 results.AddPackage(new PackageUpdateResult(packageId, oldVersion, asset.Version!));
                 Trace.WriteLine($"Package {packageId} was updated to version {asset.Version}");
@@ -307,8 +307,8 @@ namespace Microsoft.Net.Insertions.Api.Providers
             string filename = Path.GetFileNameWithoutExtension(assetName);
 
             if (!string.IsNullOrWhiteSpace(version) &&
-                filename.EndsWith(version) && 
-                filename.Length > version.Length && 
+                filename.EndsWith(version) &&
+                filename.Length > version.Length &&
                 filename[filename.Length - 1 - version.Length] == '.')
             {
                 // Package id with a version suffix. Remove version including the dot inbetween.
@@ -318,10 +318,10 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
             int index = 0;
             int versionNumberStart = -1;
-            while(index < filename.Length)
+            while (index < filename.Length)
             {
                 char c = filename[index++];
-                
+
                 if (c > '0' && c <= '9')
                 {
                     continue;
@@ -388,7 +388,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
             // Go down to src/SetupPackages from src folder
             propsFileRootDirectory = Path.Combine(vsRoot.FullName, "src", "SetupPackages");
 
-            if(!Directory.Exists(propsFileRootDirectory))
+            if (!Directory.Exists(propsFileRootDirectory))
             {
                 Trace.WriteLine("Failed to deduce root search directory for .props files: given default.config is not in a VS repo.");
                 propsFileRootDirectory = string.Empty;

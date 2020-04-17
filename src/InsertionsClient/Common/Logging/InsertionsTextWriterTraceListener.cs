@@ -7,7 +7,7 @@ namespace Microsoft.Net.Insertions.Common.Logging
     internal sealed class InsertionsTextWriterTraceListener : TextWriterTraceListener
     {
         internal InsertionsTextWriterTraceListener(string fileName, string listenerName)
-            : base(fileName, listenerName) 
+            : base(fileName, listenerName)
         {
 
         }

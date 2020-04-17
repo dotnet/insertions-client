@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Models;
-using Microsoft.Net.Insertions.Common.Json;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO;
-using System;
 using Microsoft.Net.Insertions.Api.Providers;
+using Microsoft.Net.Insertions.Common.Json;
+using Microsoft.Net.Insertions.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace DefaultConfigClientTest

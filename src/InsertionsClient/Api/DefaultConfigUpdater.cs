@@ -3,21 +3,21 @@
 using Microsoft.Net.Insertions.Common.Constants;
 using Microsoft.Net.Insertions.Models;
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Xml;
-using System.Xml.Linq;
 using System.Linq;
 using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Microsoft.Net.Insertions.Api
 {
-	/// <summary>
-	/// Manages loading and updating &quot;default.config&quot; file and &quot;.packageconfig&quot; files listed in it.
-	/// </summary>
-	internal sealed class DefaultConfigUpdater
+    /// <summary>
+    /// Manages loading and updating &quot;default.config&quot; file and &quot;.packageconfig&quot; files listed in it.
+    /// </summary>
+    internal sealed class DefaultConfigUpdater
     {
         private const string ElementNamePackage = "package";
 
@@ -89,7 +89,7 @@ namespace Microsoft.Net.Insertions.Api
                 defaultConfigXml = XDocument.Load(defaultConfigPath, LoadOptions.SetLineInfo | LoadOptions.PreserveWhitespace);
                 Trace.WriteLine($"Loaded {InsertionConstants.DefaultConfigFile} content.");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 error = e.Message;
                 Trace.WriteLine($"Loading of {InsertionConstants.DefaultConfigFile} content has failed with exception:{Environment.NewLine} {e.ToString()}");
@@ -101,23 +101,23 @@ namespace Microsoft.Net.Insertions.Api
 
             // Find xml elements that define additional .packageconfig in them.
             IEnumerable<XElement> additionalConfigParents = defaultConfigXml.Descendants(ElementNameAdditionalConfigsParent);
-            if(additionalConfigParents != null)
+            if (additionalConfigParents != null)
             {
                 string configsDirectory = Path.GetDirectoryName(defaultConfigPath) ?? string.Empty;
 
-                foreach(XElement packageconfigXElement in additionalConfigParents.SelectMany(p => p.Elements(ElementNameAdditionalConfig)))
+                foreach (XElement packageconfigXElement in additionalConfigParents.SelectMany(p => p.Elements(ElementNameAdditionalConfig)))
                 {
                     string? configFileRelativePath = packageconfigXElement.Attribute("name")?.Value;
 
-                    if(string.IsNullOrWhiteSpace(configFileRelativePath))
+                    if (string.IsNullOrWhiteSpace(configFileRelativePath))
                     {
                         Trace.WriteLine($"{InsertionConstants.DefaultConfigFile} lists a .packageconfig under {ElementNameAdditionalConfigsParent} tag, but the .packageconfig has no name.");
                         continue;
                     }
 
                     string configFileAbsolutePath = Path.Combine(configsDirectory, configFileRelativePath).Replace('\\', '/');
-                    
-                    if(!File.Exists(configFileAbsolutePath))
+
+                    if (!File.Exists(configFileAbsolutePath))
                     {
                         Trace.WriteLine($"File for the .packageconfig listed under {InsertionConstants.DefaultConfigFile} was not found on disk. Path: {configFileAbsolutePath}");
                         continue;
@@ -129,8 +129,8 @@ namespace Microsoft.Net.Insertions.Api
                         Trace.WriteLine($"Loading content of .packageconfig at {configFileAbsolutePath}.");
                         packageConfigXDocument = XDocument.Load(configFileAbsolutePath);
                         Trace.WriteLine($"Loaded .packageconfig content.");
-                    } 
-                    catch(Exception e)
+                    }
+                    catch (Exception e)
                     {
                         Trace.WriteLine($"Loading of .packageconfig file has failed with exception{Environment.NewLine}{e.ToString()}");
                         continue;
@@ -182,7 +182,7 @@ namespace Microsoft.Net.Insertions.Api
         /// <remarks>This method is safe to call simultaneously from multiple threads.</remarks>
         public string? GetPackageLink(string packageId)
         {
-            if(!_packageXElements.TryGetValue(packageId, out XElement? xElement))
+            if (!_packageXElements.TryGetValue(packageId, out XElement? xElement))
             {
                 // Package was not found.
                 Trace.WriteLine($"Package {packageId} was not found in default.config/.packageconfig files.");
@@ -210,14 +210,14 @@ namespace Microsoft.Net.Insertions.Api
             FileSaveResult[] results = new FileSaveResult[_modifiedDocuments.Count];
             int arraySaveIndex = 0;
 
-            foreach(XDocument document in _modifiedDocuments.Keys)
+            foreach (XDocument document in _modifiedDocuments.Keys)
             {
                 string savePath = _documentPaths[document];
                 Trace.WriteLine($"Saving modified config file: {savePath}");
                 try
                 {
                     string extension = Path.GetExtension(savePath).ToLowerInvariant();
-                    
+
                     XmlWriterSettings writeSettings = extension == ".packageconfig"
                         ? _packageconfigWriteSettings
                         : _defaultconfigWriteSettings;
@@ -227,7 +227,7 @@ namespace Microsoft.Net.Insertions.Api
                     results[arraySaveIndex++] = new FileSaveResult(savePath);
                     Trace.WriteLine("Save success.");
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     results[arraySaveIndex++] = new FileSaveResult(savePath, e);
                     Trace.WriteLine($"Save failed with exception:{e.ToString()}");
