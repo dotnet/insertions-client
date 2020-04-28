@@ -141,10 +141,11 @@ namespace InsertionsClientTest
             SwrFile swrFile = loadedSwrFiles.First(s => s.Path == swrPath);
 
             PropsVariableDeducer variableDeducer = new PropsVariableDeducer("https://api.nuget.org/v3/index.json", null);
-            List<PropsFileVariableReference>? results = variableDeducer.DeduceVariableValues(defaultConfigUpdater,
+            bool operationResult = variableDeducer.DeduceVariableValues(defaultConfigUpdater,
                 new[] { new PackageUpdateResult("runtime.win-x64.Microsoft.NETCore.DotNetAppHost", "unimportant", "3.1.3") },
-                new SwrFile[] { swrFile });
+                new SwrFile[] { swrFile }, out List<PropsFileVariableReference> results, out string details);
 
+            Assert.IsTrue(operationResult);
             Assert.IsNotNull(results);
             Assert.IsTrue(results.Any(r => r.ReferencedFilePath == swrPath), "Cannot find the value of variable in given swr.");
             Assert.IsTrue(results.Any(r => r.ReferencedFilePath == swrPath && r.Name == "AspNetCoreTargetingPack30Version"), "Cannot find the correct variable.");

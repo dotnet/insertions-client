@@ -149,6 +149,13 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
             if (results.PropsFileUpdateResults != null)
             {
+                Console.ForegroundColor = results.PropsFileUpdateResults.Outcome ? ConsoleColor.Green : ConsoleColor.Red;
+                Console.WriteLine($"Props file updating completed {(results.PropsFileUpdateResults.Outcome ? "successfully" : "in a failure")}.");
+                if(!results.PropsFileUpdateResults.Outcome)
+                {
+                    Console.WriteLine($"Details: {results.PropsFileUpdateResults.OutcomeDetails}.");
+                }
+                Console.ResetColor();
                 Trace.WriteLine($"Updated {results.PropsFileUpdateResults.UpdatedVariables.Count} .props files:");
                 foreach (KeyValuePair<PropsFile, List<PropsFileVariableReference>> propsFile in results.PropsFileUpdateResults.UpdatedVariables.Where(r => r.Value.Count != 0).OrderBy(p => p.Key.Path))
                 {

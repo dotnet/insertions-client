@@ -63,16 +63,19 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="defaultConfigUpdater"><see cref="DefaultConfigUpdater"/> that will provide extract locations for packages.</param>
         /// <param name="packages">Nuget packages that should be downloaded and used.</param>
         /// <param name="swrFiles">Files, containing the variables.</param>
-        /// <returns></returns>
-        public List<PropsFileVariableReference> DeduceVariableValues(DefaultConfigUpdater defaultConfigUpdater, IEnumerable<PackageUpdateResult> packages,
-            SwrFile[] swrFiles, int maximumWaitSeconds = -1)
+        /// <param name="deducedVariablesList">List of variables, value of which was found.</param>
+        /// <param name="outcomeDetails">Detail string, explaining the outcome of the operation.</param>
+        /// <param name="maximumWaitSeconds">Maximum duration to wait for nuget downloads to complete.</param>
+        /// <returns>True if operation succeeded. False otherwise</returns>
+        public bool DeduceVariableValues(DefaultConfigUpdater defaultConfigUpdater, IEnumerable<PackageUpdateResult> packages,
+            SwrFile[] swrFiles, out List<PropsFileVariableReference> deducedVariablesList, out string outcomeDetails, int maximumWaitSeconds = -1)
         {
-            using CancellationTokenSource cancellationToken = new CancellationTokenSource();
+            using CancellationTokenSource tokenSource = new CancellationTokenSource();
             ConcurrentBag<PropsFileVariableReference> deducedVariables = new ConcurrentBag<PropsFileVariableReference>();
 
             TransformManyBlock<PackageUpdateResult, string> nugetDownloadBlock = new TransformManyBlock<PackageUpdateResult, string>(async (packageUpdate) =>
             {
-                return await GetPackageFileListAsync(defaultConfigUpdater, packageUpdate, cancellationToken.Token);
+                return await GetPackageFileListAsync(defaultConfigUpdater, packageUpdate, tokenSource.Token).ConfigureAwait(false);
             });
 
             ActionBlock<string> filenameMatchBlock = new ActionBlock<string>((filename) =>
@@ -95,11 +98,16 @@ namespace Microsoft.Net.Insertions.Api
 
             if(executedToCompletion == false)
             {
-                Trace.WriteLine("Failed to download and process all the nuget packages in time.");
-                cancellationToken.Cancel();
+                outcomeDetails = "Operation timed out. Failed to download and process all the nuget packages in time.";
+                tokenSource.Cancel();
+            }
+            else
+            {
+                outcomeDetails = string.Empty;
             }
 
-            return deducedVariables.ToList();
+            deducedVariablesList = deducedVariables.ToList();
+            return executedToCompletion;
         }
 
         private async Task<IEnumerable<string>> GetPackageFileListAsync(DefaultConfigUpdater defaultConfigUpdater, PackageUpdateResult packageUpdate, CancellationToken? cancellationToken = null)
@@ -129,7 +137,7 @@ namespace Microsoft.Net.Insertions.Api
                     rep.PackageSource.Credentials = _credentials;
                 }
 
-                FindPackageByIdResource resource = await rep.GetResourceAsync<FindPackageByIdResource>();
+                FindPackageByIdResource resource = await rep.GetResourceAsync<FindPackageByIdResource>().ConfigureAwait(false);
 
                 Trace.WriteLine($"Downloading package {packageUpdate.PackageId}-{packageUpdate.NewVersion} into memory.");
 
@@ -139,7 +147,8 @@ namespace Microsoft.Net.Insertions.Api
                     packageStream,
                     cache,
                     NullLogger.Instance,
-                    cancellationToken ?? ownedCancellationToken!.Token);
+                    cancellationToken ?? ownedCancellationToken!.Token)
+                    .ConfigureAwait(false);
 
                 if (!downloadResult)
                 {
@@ -148,15 +157,7 @@ namespace Microsoft.Net.Insertions.Api
                 }
 
                 Trace.WriteLine($"Downloading complete for package {packageUpdate.PackageId}.");
-
-                using PackageArchiveReader packageReader = new PackageArchiveReader(packageStream);
-
-                return packageReader.GetFiles().Select(file =>
-                {
-                    // Construct path to the file
-                    // Link always has backslash. Make sure it is consistent.
-                    return link + "\\" + file.Replace('/', '\\');
-                }).ToList();
+                return GetNugetFileList(packageStream, link);
             }
             catch (Exception e)
             {
@@ -184,6 +185,25 @@ namespace Microsoft.Net.Insertions.Api
                     yield return new PropsFileVariableReference(payloadPath.VariableName, match.Groups[1].Value, swrFile.Path);
                 }
             }
+        }
+    
+        /// <summary>
+        /// Retrieves the paths to all the files in the nuget package as if they were extracted to the location
+        /// specified in <see cref="directory"/> parameter.
+        /// </summary>
+        /// <param name="packageDataStream">Stream containing the nuget package binary.</param>
+        /// <param name="directory">Directory for the extracted files in the package.</param>
+        /// <returns></returns>
+        private List<string> GetNugetFileList(Stream packageDataStream, string directory)
+        {
+            using PackageArchiveReader packageReader = new PackageArchiveReader(packageDataStream);
+
+            return packageReader.GetFiles().Select(file =>
+            {
+                // Construct path to the file
+                // Link always has backslash. Make sure it is consistent.
+                return directory + "\\" + file.Replace('/', '\\');
+            }).ToList();
         }
     }
 }

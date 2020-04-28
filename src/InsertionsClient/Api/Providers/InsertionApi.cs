@@ -99,10 +99,17 @@ namespace Microsoft.Net.Insertions.Api.Providers
                     SwrFile[] swrFiles = swrFileReader.LoadSwrFiles(propsFilesRootDirectory);
 
                     PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
-                    List<PropsFileVariableReference> variables = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets, swrFiles, _maxDownloadSeconds);
+                    bool deduceOperationResult = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets,
+                        swrFiles, out List<PropsFileVariableReference> variables, out string outcomeDetails, _maxDownloadSeconds);
 
                     PropsFileUpdater propsFileUpdater = new PropsFileUpdater();
                     results.PropsFileUpdateResults = propsFileUpdater.UpdatePropsFiles(variables, propsFilesRootDirectory);
+
+                    if(!deduceOperationResult)
+                    {
+                        results.PropsFileUpdateResults.Outcome = false;
+                        results.PropsFileUpdateResults.OutcomeDetails += outcomeDetails;
+                    }
                 }
             }
             catch (Exception e)
