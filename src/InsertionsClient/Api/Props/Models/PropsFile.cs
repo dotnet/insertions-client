@@ -140,7 +140,7 @@ namespace Microsoft.Net.Insertions.Props.Models
             catch (Exception e)
             {
                 Trace.WriteLine($"Failed to load xml document at path: {Path}");
-                Trace.WriteLine(e.Message);
+                Trace.WriteLine(e.ToString());
                 return false;
             }
         }

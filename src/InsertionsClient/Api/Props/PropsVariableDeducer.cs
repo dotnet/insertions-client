@@ -161,7 +161,8 @@ namespace Microsoft.Net.Insertions.Api
             }
             catch (Exception e)
             {
-                Trace.WriteLine("There is an issue downloading nuget package: " + e.ToString());
+                Trace.WriteLine($"There is an issue downloading nuget package.");
+                Trace.WriteLine(e.ToString());
                 return Enumerable.Empty<string>();
             }
             finally
