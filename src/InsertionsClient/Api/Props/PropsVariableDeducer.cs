@@ -29,7 +29,7 @@ namespace Microsoft.Net.Insertions.Api
     /// <item> Paths to files specified in swr files. </item>
     /// </list>
     /// </summary>
-    internal class PropsVariableDeducer
+    internal sealed class PropsVariableDeducer
     {
         /// <summary>
         /// Nuget feed used to download packages
@@ -64,7 +64,8 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="updatedPackages"></param>
         /// <param name="swrFiles"></param>
         /// <returns></returns>
-        public List<PropsFileVariableReference> DeduceVariableValues(DefaultConfigUpdater defaultConfigUpdater, IEnumerable<PackageUpdateResult> updatedPackages, SwrFile[] swrFiles)
+        public List<PropsFileVariableReference> DeduceVariableValues(DefaultConfigUpdater defaultConfigUpdater, IEnumerable<PackageUpdateResult> updatedPackages,
+            SwrFile[] swrFiles, int maximumWaitSeconds = -1)
         {
             ConcurrentBag<PropsFileVariableReference> deducedVariables = new ConcurrentBag<PropsFileVariableReference>();
 
@@ -89,7 +90,12 @@ namespace Microsoft.Net.Insertions.Api
             }
 
             nugetDownloadBlock.Complete();
-            filenameMatchBlock.Completion.Wait();
+            bool executedToCompletion = filenameMatchBlock.Completion.Wait(-1);
+
+            if(executedToCompletion == false)
+            {
+                Trace.WriteLine("Failed to download and process all the nuget packages in time.");
+            }
 
             return deducedVariables.ToList();
         }

@@ -14,8 +14,24 @@ namespace Microsoft.Net.Insertions.Props.Models
     /// This type represents a props file that contains the variables
     /// to be used during VS build process.
     /// </summary>
-    public class PropsFile
+    public sealed class PropsFile
     {
+        /// <summary>
+        /// Matches a variable assignement line.
+        /// First matched group is the variable name, second one is the value.
+        /// </summary>
+        /// <example>NetCoreSharedHostVersion=3.1.2;</example>
+        private static Regex _variableAssignmentRegex = new Regex(@"\b(\w*)=([\w|.|-]*);");
+
+        /// <summary>
+        /// Creates an instance of PropsFile.
+        /// </summary>
+        /// <param name="path">Path to the file on disk.</param>
+        internal PropsFile(string path)
+        {
+            Path = path;
+        }
+
         /// <summary>
         /// Path to this file on disk.
         /// </summary>
@@ -29,22 +45,6 @@ namespace Microsoft.Net.Insertions.Props.Models
         private XDocument? _xDocument { get; set; }
 
         private bool _isLoaded => _xDocument != null;
-
-        /// <summary>
-        /// Matches a variable assignement line.
-        /// First matched group is the variable name, second one is the value.
-        /// </summary>
-        /// <example>NetCoreSharedHostVersion=3.1.2;</example>
-        private static Regex _variableAssignmentRegex = new Regex(@"\b(\w*)=([\w|.|-]*);");
-
-        /// <summary>
-        /// Creates an instance of PropsFile.
-        /// </summary>
-        /// <param name="path">Path to the file on disk.</param>
-        public PropsFile(string path)
-        {
-            Path = path;
-        }
 
         /// <summary>
         /// Attempts to find given variable in the file. Changes the value if found.

@@ -11,7 +11,7 @@ namespace Microsoft.Net.Insertions.Api
     /// <summary>
     /// Finds and loads .swr files in a given directory.
     /// </summary>
-    internal class SwrFileReader
+    internal sealed class SwrFileReader
     {
         private readonly int _maxConcurrency;
 
@@ -76,7 +76,7 @@ namespace Microsoft.Net.Insertions.Api
                 variableInput = variableInput.Replace("!(bindpath.sources)", "src");
 
                 Match variableMatch = _variablePattern.Match(variableInput);
-                if (variableMatch.Success == false)
+                if (!variableMatch.Success)
                 {
                     // This payload path contains no variables. Skip
                     continue;

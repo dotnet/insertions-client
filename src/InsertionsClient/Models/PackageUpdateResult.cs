@@ -30,7 +30,7 @@ namespace Microsoft.Net.Insertions.Models
         /// <param name="packageId">Id of the package that was updated.</param>
         /// <param name="previousVersion">Version of the package before the change.</param>
         /// <param name="newVersion">Version of the package after the change.</param>
-        public PackageUpdateResult(string packageId, string previousVersion, string newVersion)
+        internal PackageUpdateResult(string packageId, string previousVersion, string newVersion)
         {
             PackageId = packageId;
             PreviousVersion = previousVersion;

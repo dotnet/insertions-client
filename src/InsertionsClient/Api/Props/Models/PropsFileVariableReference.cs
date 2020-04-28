@@ -5,7 +5,7 @@ namespace Microsoft.Net.Insertions.Props.Models
     /// <summary>
     /// Represents a reference to a variable defined in a props file
     /// </summary>
-    public class PropsFileVariableReference
+    public sealed class PropsFileVariableReference
     {
         /// <summary>
         /// Name of the defined variable
@@ -23,14 +23,13 @@ namespace Microsoft.Net.Insertions.Props.Models
         /// </summary>
         public string ReferencedFilePath { get; private set; }
 
-
         /// <summary>
         /// Creates an instance of <see cref="PropsFileVariableReference"/>.
         /// </summary>
         /// <param name="name">Name of the variable</param>
         /// <param name="value">Desired value of the variable</param>
         /// <param name="referencedFilePath">The file that was referencing this variable.</param>
-        public PropsFileVariableReference(string name, string value, string referencedFilePath)
+        internal PropsFileVariableReference(string name, string value, string referencedFilePath)
         {
             Name = name;
             Value = value;

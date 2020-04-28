@@ -12,7 +12,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
     /// <summary>
     /// Used to find given variables in props files under a given directory and updates their values.
     /// </summary>
-    internal class PropsFileUpdater
+    internal sealed class PropsFileUpdater
     {
         /// <summary>
         /// Props files, keyed by their immediate directories.
@@ -37,7 +37,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 if (!TryUpdateValue(variableReference.Name, variableReference.Value, referencedDirectory, out PropsFile? updatedFile, out string existingValue))
                 {
                     // Variable was not found.
-                    results.UnrecognizedVariables.Add(variableReference);
+                    results._unrecognizedVariables.Add(variableReference);
                     results.OutcomeDetails = "Some of the variables were not found in any .props files.";
                     Trace.WriteLine($"Variable \"{variableReference.Name}\" was not found in any of the .props files.");
                     continue;
@@ -49,9 +49,10 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 }
 
                 List<PropsFileVariableReference>? modifiedVariables;
-                if (!results.UpdatedVariables.TryGetValue(updatedFile!, out modifiedVariables))
+                if (!results._updatedVariables.TryGetValue(updatedFile!, out modifiedVariables))
                 {
-                    results.UpdatedVariables[updatedFile!] = modifiedVariables = new List<PropsFileVariableReference>();
+                    modifiedVariables = new List<PropsFileVariableReference>();
+                    results._updatedVariables[updatedFile!] = modifiedVariables;
                 }
 
                 modifiedVariables.Add(variableReference);
@@ -59,7 +60,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
             foreach (FileSaveResult saveResult in Save())
             {
-                results.ModifiedFiles.Add(saveResult);
+                results._modifiedFiles.Add(saveResult);
             }
 
             results.Outcome = true;
