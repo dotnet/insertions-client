@@ -21,8 +21,10 @@
     > _-p:C:\VS\src\SetupPackages_
 1. **-a**: Personal access token to access packages in [VS feed](https://pkgs.dev.azure.com/devdiv/_packaging/VS-CoreXtFeeds/nuget/v3/index.json) [**optional**]. If not specified, props files will not be updated.
     > _-a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757_
-1. **-w:** Maximum allowed duration in seconds [**optional**].  Example: 
+1. **-w:** Maximum allowed duration in seconds, excluding downloads [**optional**].  Example: 
     > _-w:60_
+1. **-ds:** Maximum allowed duration in seconds that can be spent downloading nuget packages [**optional**].  Example: 
+    > _-ds:240_
 1. **-c:** Maximum concurrency of default.config version updates [**optional**].  Example:
     > _-c:10_
 

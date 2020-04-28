@@ -12,8 +12,10 @@ namespace Microsoft.Net.Insertions.Api
         /// </summary>
         /// <param name="maxWaitSeconds">Optional: Maximum number of seconds that the application
         /// is allowed to run. After that, operation will be cancelled.</param>
+        /// <param name="maxDownloadSeconds">Optional: Maximum number of seconds that the application
+        /// is allowed to spend on downloading and processing nuget packages.</param>
         /// <param name="maxConcurrency">Optional: Level of concurrency.</param>
         /// <returns><see cref="IInsertionApi"/> An IInsertionApi instance.</returns>
-        IInsertionApi Create(int? maxWaitSeconds = null, int? maxConcurrency = null);
+        IInsertionApi Create(int? maxWaitSeconds = null, int? maxDownloadSeconds = null, int? maxConcurrency = null);
     }
 }

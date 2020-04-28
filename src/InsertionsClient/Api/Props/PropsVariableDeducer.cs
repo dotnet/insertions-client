@@ -60,18 +60,19 @@ namespace Microsoft.Net.Insertions.Api
         /// <summary>
         /// Deduces the value of the variables in swr files
         /// </summary>
-        /// <param name="defaultConfigUpdater"></param>
-        /// <param name="updatedPackages"></param>
-        /// <param name="swrFiles"></param>
+        /// <param name="defaultConfigUpdater"><see cref="DefaultConfigUpdater"/> that will provide extract locations for packages.</param>
+        /// <param name="packages">Nuget packages that should be downloaded and used.</param>
+        /// <param name="swrFiles">Files, containing the variables.</param>
         /// <returns></returns>
-        public List<PropsFileVariableReference> DeduceVariableValues(DefaultConfigUpdater defaultConfigUpdater, IEnumerable<PackageUpdateResult> updatedPackages,
+        public List<PropsFileVariableReference> DeduceVariableValues(DefaultConfigUpdater defaultConfigUpdater, IEnumerable<PackageUpdateResult> packages,
             SwrFile[] swrFiles, int maximumWaitSeconds = -1)
         {
+            using CancellationTokenSource cancellationToken = new CancellationTokenSource();
             ConcurrentBag<PropsFileVariableReference> deducedVariables = new ConcurrentBag<PropsFileVariableReference>();
 
             TransformManyBlock<PackageUpdateResult, string> nugetDownloadBlock = new TransformManyBlock<PackageUpdateResult, string>(async (packageUpdate) =>
             {
-                return await GetPackageFileList(defaultConfigUpdater, packageUpdate);
+                return await GetPackageFileListAsync(defaultConfigUpdater, packageUpdate, cancellationToken.Token);
             });
 
             ActionBlock<string> filenameMatchBlock = new ActionBlock<string>((filename) =>
@@ -84,23 +85,24 @@ namespace Microsoft.Net.Insertions.Api
 
             nugetDownloadBlock.LinkTo(filenameMatchBlock, new DataflowLinkOptions() { PropagateCompletion = true });
 
-            foreach (PackageUpdateResult package in updatedPackages)
+            foreach (PackageUpdateResult package in packages)
             {
                 nugetDownloadBlock.Post(package);
             }
 
             nugetDownloadBlock.Complete();
-            bool executedToCompletion = filenameMatchBlock.Completion.Wait(-1);
+            bool executedToCompletion = filenameMatchBlock.Completion.Wait(maximumWaitSeconds);
 
             if(executedToCompletion == false)
             {
                 Trace.WriteLine("Failed to download and process all the nuget packages in time.");
+                cancellationToken.Cancel();
             }
 
             return deducedVariables.ToList();
         }
 
-        private async Task<IEnumerable<string>> GetPackageFileList(DefaultConfigUpdater defaultConfigUpdater, PackageUpdateResult packageUpdate)
+        private async Task<IEnumerable<string>> GetPackageFileListAsync(DefaultConfigUpdater defaultConfigUpdater, PackageUpdateResult packageUpdate, CancellationToken? cancellationToken = null)
         {
             string? link = defaultConfigUpdater.GetPackageLink(packageUpdate.PackageId);
 
@@ -111,21 +113,23 @@ namespace Microsoft.Net.Insertions.Api
             }
 
             SourceCacheContext cache = new SourceCacheContext();
-            CancellationTokenSource cancellationToken = new CancellationTokenSource();
             NuGetVersion packageVersion = new NuGetVersion(packageUpdate.NewVersion);
+
+            // We have to specify some cancellation token, if caller doesn't provide one
+            CancellationTokenSource? ownedCancellationToken = cancellationToken == null ? new CancellationTokenSource() : null;
 
             // Stream that will receive the package bytes
             using MemoryStream packageStream = new MemoryStream();
 
             try
             {
-                SourceRepository? rep = Repository.Factory.GetCoreV3(_feed, FeedType.HttpV3);
+                SourceRepository rep = Repository.Factory.GetCoreV3(_feed, FeedType.HttpV3);
                 if (_credentials != null)
                 {
                     rep.PackageSource.Credentials = _credentials;
                 }
 
-                FindPackageByIdResource? resource = await rep.GetResourceAsync<FindPackageByIdResource>();
+                FindPackageByIdResource resource = await rep.GetResourceAsync<FindPackageByIdResource>();
 
                 Trace.WriteLine($"Downloading package {packageUpdate.PackageId}-{packageUpdate.NewVersion} into memory.");
 
@@ -135,7 +139,7 @@ namespace Microsoft.Net.Insertions.Api
                     packageStream,
                     cache,
                     NullLogger.Instance,
-                    cancellationToken.Token);
+                    cancellationToken ?? ownedCancellationToken!.Token);
 
                 if (!downloadResult)
                 {
@@ -158,6 +162,10 @@ namespace Microsoft.Net.Insertions.Api
             {
                 Trace.WriteLine("There is an issue downloading nuget package: " + e.ToString());
                 return Enumerable.Empty<string>();
+            }
+            finally
+            {
+                ownedCancellationToken?.Dispose();
             }
         }
 

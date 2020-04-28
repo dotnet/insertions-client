@@ -25,13 +25,17 @@ namespace Microsoft.Net.Insertions.Api.Providers
     {
         private readonly MeasurementsSession _metrics;
 
-        private readonly int _maxWaitSeconds = 75, _maxConcurrentWorkers = 15;
+        private readonly int _maxWaitSeconds = 75;
 
+        private readonly int _maxConcurrentWorkers = 15;
 
-        internal InsertionApi(int? maxWaitSeconds = null, int? maxConcurrency = null)
+        private readonly int _maxDownloadSeconds = 240;
+
+        internal InsertionApi(int? maxWaitSeconds = null, int? maxDownloadSeconds = null, int? maxConcurrency = null)
         {
             _metrics = new MeasurementsSession();
             _maxWaitSeconds = Math.Clamp(maxWaitSeconds ?? 120, 60, 120);
+            _maxDownloadSeconds = Math.Clamp(maxDownloadSeconds ?? 240, 60, 900);
             _maxConcurrentWorkers = Math.Clamp(maxConcurrency ?? 20, 1, 20);
         }
 
@@ -95,7 +99,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                     SwrFile[] swrFiles = swrFileReader.LoadSwrFiles(propsFilesRootDirectory);
 
                     PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
-                    List<PropsFileVariableReference> variables = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets, swrFiles);
+                    List<PropsFileVariableReference> variables = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets, swrFiles, _maxDownloadSeconds);
 
                     PropsFileUpdater propsFileUpdater = new PropsFileUpdater();
                     results.PropsFileUpdateResults = propsFileUpdater.UpdatePropsFiles(variables, propsFilesRootDirectory);

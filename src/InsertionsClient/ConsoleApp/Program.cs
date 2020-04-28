@@ -32,6 +32,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private const string SwitchMaxWaitSeconds = "-w:";
 
+        private const string SwitchMaxDownloadSeconds = "-ds";
+
         private const string SwitchMaxConcurrency = "-c:";
 
         private static readonly Lazy<string> HelpParameters = new Lazy<string>(() =>
@@ -42,15 +44,17 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             txt.Append(" ");
             txt.Append($"{SwitchManifest}<manifest.json full file path>");
             txt.Append(" ");
-            txt.Append($"{SwitchIgnorePackages}<ignored packages file path>");
+            txt.Append($"[{SwitchIgnorePackages}<ignored packages file path>]");
             txt.Append(" ");
-            txt.Append($"{SwitchPropsFilesRootDir}<root directory that contains props files>");
+            txt.Append($"[{SwitchPropsFilesRootDir}<root directory that contains props files>]");
             txt.Append(" ");
-            txt.Append($"{SwitchFeedAccessToken}<token to access nuget feed>");
+            txt.Append($"[{SwitchFeedAccessToken}<token to access nuget feed>]");
             txt.Append(" ");
-            txt.Append($"{SwitchMaxWaitSeconds}<maximum seconds to allow job run, as int>");
+            txt.Append($"[{SwitchMaxWaitSeconds}<maximum seconds to allow job run, excluding downloads, as int>]");
             txt.Append(" ");
-            txt.Append($"{SwitchMaxConcurrency}<max concurrent default.config updates, as int>");
+            txt.Append($"[{SwitchMaxDownloadSeconds}<maximum seconds to allow nuget downloads run, as int>]");
+            txt.Append(" ");
+            txt.Append($"[{SwitchMaxConcurrency}<max concurrent default.config updates, as int>]");
 
             return txt.ToString();
         });
@@ -70,6 +74,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
         private static string FeedAccessToken = string.Empty;
 
         private static int MaxWaitSeconds = 75;
+
+        private static int MaxDownloadSeconds = 240;
 
         private static int MaxConcurrency = 4;
 
@@ -103,7 +109,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             ProcessCmdArguments(args);
 
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
-            IInsertionApi api = apiFactory.Create(MaxWaitSeconds, MaxConcurrency);
+            IInsertionApi api = apiFactory.Create(MaxWaitSeconds, MaxDownloadSeconds, MaxConcurrency);
 
             UpdateResults results;
             if (!string.IsNullOrWhiteSpace(IgnoredPackagesFile))
@@ -185,7 +191,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Console.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
             Console.WriteLine($"{SwitchPropsFilesRootDir}   directory to search for and update .props files [optional]");
             Console.WriteLine($"{FeedAccessToken}   token to access nuget feed. Necessary when updating props files [optional]");
-            Console.WriteLine($"{SwitchMaxWaitSeconds}   maximum allowed duration in seconds [optional]");
+            Console.WriteLine($"{SwitchMaxWaitSeconds}   maximum allowed duration in seconds, excluding downloads [optional]");
+            Console.WriteLine($"{SwitchMaxDownloadSeconds}   maximum allowed duration in seconds that can be spent downloading nuget packages [optional]");
             Console.WriteLine($"{SwitchMaxConcurrency}   maximum concurrency of default.config version updates [optional]{Environment.NewLine}");
 
             Console.ForegroundColor = ConsoleColor.Green;
@@ -239,7 +246,11 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 }
                 else if (arg.StartsWith(SwitchMaxWaitSeconds))
                 {
-                    ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max wait seconds\":", ref MaxWaitSeconds);
+                    ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max run duration in seconds, excluding downloads\":", ref MaxWaitSeconds);
+                }
+                else if (arg.StartsWith(SwitchMaxDownloadSeconds))
+                {
+                    ProcessArgumentInt(arg, SwitchMaxDownloadSeconds, $"Specified \"max download duration in seconds\":", ref MaxDownloadSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxConcurrency))
                 {
