@@ -214,6 +214,9 @@ namespace Microsoft.Net.Insertions.Api
             return results;
         }
 
+        /// <summary>
+        /// Each individual package gets stored into _packageXElements
+        /// </summary>
         private void LoadPackagesFromXml(XDocument xDocument)
         {
             foreach (XElement packageXElement in xDocument.Descendants(ElementNamePackage))
