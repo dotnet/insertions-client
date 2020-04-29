@@ -27,6 +27,7 @@ namespace Microsoft.Net.Insertions.Api
 
         private readonly Dictionary<XDocument, string> _documentPaths;
 
+        //A ConcurrentDictionary is thread safe, otherwise a HashSet would be a better option
         private readonly ConcurrentDictionary<XDocument, byte> _modifiedDocuments;
 
         private readonly ConcurrentDictionary<string, XElement> _packageXElements;
@@ -95,16 +96,18 @@ namespace Microsoft.Net.Insertions.Api
                 return false;
             }
 
+            // Stores default.config into _documentPaths
             _documentPaths[defaultConfigXml] = defaultConfigPath;
+            // Stores packages within default.config into _packageXElements
             LoadPackagesFromXml(defaultConfigXml);
 
-            // Find xml elements that define additional .packageconfig in them.
+            // Find xml elements that define additional .packageconfig in them going through each element under <additionalPackageConfigs>
             IEnumerable<XElement> additionalConfigParents = defaultConfigXml.Descendants(ElementNameAdditionalConfigsParent);
             if(additionalConfigParents != null)
             {
                 string configsDirectory = Path.GetDirectoryName(defaultConfigPath) ?? string.Empty;
 
-                foreach(XElement packageconfigXElement in additionalConfigParents.SelectMany(p => p.Elements(ElementNameAdditionalConfig)))
+                foreach (XElement packageconfigXElement in additionalConfigParents.SelectMany(p => p.Elements(ElementNameAdditionalConfig)))
                 {
                     string? configFileRelativePath = packageconfigXElement.Attribute("name")?.Value;
 
@@ -134,8 +137,9 @@ namespace Microsoft.Net.Insertions.Api
                         Trace.WriteLine($"Loading of .packageconfig file has failed with exception{Environment.NewLine}{e.ToString()}");
                         continue;
                     }
-
+                    // Stores [file].packageconfig into _documentPaths
                     _documentPaths[packageConfigXDocument] = configFileAbsolutePath;
+                    // Stores packages from each .packageconfig into _packageXElements
                     LoadPackagesFromXml(packageConfigXDocument);
                 }
             }
@@ -165,6 +169,7 @@ namespace Microsoft.Net.Insertions.Api
                 return true;
             }
 
+            // Update the version
             xElement.Attribute("version").Value = version;
 
             // Store the document. Store a junk value (0) with it, because we have to.
