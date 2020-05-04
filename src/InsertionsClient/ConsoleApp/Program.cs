@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using Microsoft.Net.Insertions.Api;
-using Microsoft.Net.Insertions.Models;
 using Microsoft.Net.Insertions.Api.Providers;
 using Microsoft.Net.Insertions.Common.Constants;
 using Microsoft.Net.Insertions.Common.Logging;
+using Microsoft.Net.Insertions.Models;
+using Microsoft.Net.Insertions.Props.Models;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -24,7 +26,13 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private const string SwitchIgnoreDevUxTeamPackages = "-idut";
 
+        private const string SwitchPropsFilesRootDir = "-p:";
+
+        private const string SwitchFeedAccessToken = "-a:";
+
         private const string SwitchMaxWaitSeconds = "-w:";
+
+        private const string SwitchMaxDownloadSeconds = "-ds";
 
         private const string SwitchMaxConcurrency = "-c:";
 
@@ -36,11 +44,17 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             txt.Append(" ");
             txt.Append($"{SwitchManifest}<manifest.json full file path>");
             txt.Append(" ");
-            txt.Append($"{SwitchIgnorePackages}<ignored packages file path>");
+            txt.Append($"[{SwitchIgnorePackages}<ignored packages file path>]");
             txt.Append(" ");
-            txt.Append($"{SwitchMaxWaitSeconds}<maximum seconds to allow job run, as int>");
+            txt.Append($"[{SwitchPropsFilesRootDir}<root directory that contains props files>]");
             txt.Append(" ");
-            txt.Append($"{SwitchMaxConcurrency}<max concurrent default.config updates, as int>");
+            txt.Append($"[{SwitchFeedAccessToken}<token to access nuget feed>]");
+            txt.Append(" ");
+            txt.Append($"[{SwitchMaxWaitSeconds}<maximum seconds to allow job run, excluding downloads, as int>]");
+            txt.Append(" ");
+            txt.Append($"[{SwitchMaxDownloadSeconds}<maximum seconds to allow nuget downloads run, as int>]");
+            txt.Append(" ");
+            txt.Append($"[{SwitchMaxConcurrency}<max concurrent default.config updates, as int>]");
 
             return txt.ToString();
         });
@@ -55,7 +69,13 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private static bool IgnoreDevUxTeamPackagesScenario;
 
+        private static string PropsFilesRootDirectory = string.Empty;
+
+        private static string FeedAccessToken = string.Empty;
+
         private static int MaxWaitSeconds = 75;
+
+        private static int MaxDownloadSeconds = 240;
 
         private static int MaxConcurrency = 4;
 
@@ -89,20 +109,20 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             ProcessCmdArguments(args);
 
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
-            IInsertionApi api = apiFactory.Create(MaxWaitSeconds, MaxConcurrency);
+            IInsertionApi api = apiFactory.Create(MaxWaitSeconds, MaxDownloadSeconds, MaxConcurrency);
 
             UpdateResults results;
             if (!string.IsNullOrWhiteSpace(IgnoredPackagesFile))
             {
-                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, IgnoredPackagesFile);
+                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, IgnoredPackagesFile, FeedAccessToken, PropsFilesRootDirectory);
             }
             else if (IgnoreDevUxTeamPackagesScenario)
             {
-                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, InsertionConstants.DefaultDevUxTeamPackages);
+                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, InsertionConstants.DefaultDevUxTeamPackages, FeedAccessToken, PropsFilesRootDirectory);
             }
             else
             {
-                results = api.UpdateVersions(ManifestFile, DefaultConfigFile);
+                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, (HashSet<string>?)null, FeedAccessToken, PropsFilesRootDirectory);
             }
 
             ShowResults(results);
@@ -126,6 +146,35 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             {
                 Trace.WriteLine($"           {updatedNuget.PackageId}: {updatedNuget.NewVersion}");
             }
+
+            if (results.PropsFileUpdateResults != null)
+            {
+                Console.ForegroundColor = results.PropsFileUpdateResults.Outcome ? ConsoleColor.Green : ConsoleColor.Red;
+                Console.WriteLine($"Props file updating completed {(results.PropsFileUpdateResults.Outcome ? "successfully" : "in a failure")}.");
+                if(!results.PropsFileUpdateResults.Outcome)
+                {
+                    Console.WriteLine($"Details: {results.PropsFileUpdateResults.OutcomeDetails}.");
+                }
+                Console.ResetColor();
+                Trace.WriteLine($"Updated {results.PropsFileUpdateResults.UpdatedVariables.Count} .props files:");
+                foreach (KeyValuePair<PropsFile, List<PropsFileVariableReference>> propsFile in results.PropsFileUpdateResults.UpdatedVariables.Where(r => r.Value.Count != 0).OrderBy(p => p.Key.Path))
+                {
+                    Trace.WriteLine($"        {propsFile.Key.Path}");
+                    foreach (PropsFileVariableReference? variableChange in propsFile.Value)
+                    {
+                        Trace.WriteLine($"                {variableChange.Name}={variableChange.Value}");
+                    }
+                }
+
+                if (results.PropsFileUpdateResults.UnrecognizedVariables.Count != 0)
+                {
+                    Trace.WriteLine($"{results.PropsFileUpdateResults.UnrecognizedVariables.Count} variables were not found in props files:");
+                    foreach (PropsFileVariableReference? variable in results.PropsFileUpdateResults.UnrecognizedVariables)
+                    {
+                        Trace.WriteLine($"        {variable.Name} in {variable.ReferencedFilePath}");
+                    }
+                }
+            }
         }
 
         private static void ShowStartOrEndMessage(string message)
@@ -147,9 +196,12 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Console.WriteLine($"{SwitchDefaultConfig}   full path on disk to default.config to update");
             Console.WriteLine($"{SwitchManifest}   full path on disk to manifest.json");
             Console.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
-            Console.WriteLine($"{SwitchMaxWaitSeconds}   maximum allowed duration in seconds [optional]");
+            Console.WriteLine($"{SwitchPropsFilesRootDir}   directory to search for and update .props files [optional]");
+            Console.WriteLine($"{FeedAccessToken}   token to access nuget feed. Necessary when updating props files [optional]");
+            Console.WriteLine($"{SwitchMaxWaitSeconds}   maximum allowed duration in seconds, excluding downloads [optional]");
+            Console.WriteLine($"{SwitchMaxDownloadSeconds}   maximum allowed duration in seconds that can be spent downloading nuget packages [optional]");
             Console.WriteLine($"{SwitchMaxConcurrency}   maximum concurrency of default.config version updates [optional]{Environment.NewLine}");
- 
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Example...");
             Console.WriteLine($">{ProgramName.Value} {SwitchDefaultConfig}c:\\default.config {SwitchManifest}c:\\manifest.json");
@@ -190,9 +242,22 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 {
                     ProcessArgument(arg, SwitchIgnorePackages, $"Specified ignored packages file:", ref IgnoredPackagesFile);
                 }
+                else if (arg.StartsWith(SwitchPropsFilesRootDir))
+                {
+                    ProcessArgument(arg, SwitchPropsFilesRootDir, $"Specified root directory for props files:", ref PropsFilesRootDirectory);
+                }
+                else if (arg.StartsWith(SwitchFeedAccessToken))
+                {
+                    FeedAccessToken = arg.Replace(SwitchFeedAccessToken, string.Empty);
+                    Trace.WriteLine($"CMD line param. An access token was specified.");
+                }
                 else if (arg.StartsWith(SwitchMaxWaitSeconds))
                 {
-                    ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max wait seconds\":", ref MaxWaitSeconds);
+                    ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max run duration in seconds, excluding downloads\":", ref MaxWaitSeconds);
+                }
+                else if (arg.StartsWith(SwitchMaxDownloadSeconds))
+                {
+                    ProcessArgumentInt(arg, SwitchMaxDownloadSeconds, $"Specified \"max download duration in seconds\":", ref MaxDownloadSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxConcurrency))
                 {

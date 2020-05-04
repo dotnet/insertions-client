@@ -1,12 +1,13 @@
 # Overview
-**InsertionsClient** updates the versions of NuGet packages in _default.config_ with the corresponding versions specified in _manifest.json_ assets.
+**InsertionsClient** updates the versions of NuGet packages in _default.config_ with the corresponding versions specified in _manifest.json_ assets. It also updates the values of properties defined in .props files.
 
 ## How does **InsertionsClient** work?
 1. Loads into memory the contents of both _default.config_ and _manifest.json_ as well as all the _.packageconfig_ files listed in the _default.config_
 1. Searches _default.config_ and _.packageconfig_ files for corresponding NuGet packages for each _manifest.json_ asset
 1. For every match, the NuGet version in the config file is updated with that of the corresponding _manifest.json_ asset
 1. The updated _default.config_ and _.packageconfig_'s are saved on disk
-
+1. If an access token is specified with **-a:** switch, binaries for the updated packages are downloaded. Content of the packages are used to update the values of properties defined in `PackagePreprocessorDefinitions` tag in .props files
+1. Modified .props file are saved on disk
 ## Input
 1. **-d:** Path to the default.config.  Example: 
     > _-d:c:\default.config_
@@ -15,13 +16,21 @@
 1. **-i:** Path to ignored packages file [**optional**]. Example: 
     > _-i:c:\files\ignore.txt_
 1. **-idut** Indicates that packages relevant to the .NET Dev UX team are ignored [**optional**].  If **-i:** is also set, the file specified with that option is used, superceding **-idut**.
-1. **-w:** Maximum allowed duration in seconds [**optional**].  Example: 
+    > _-idut_
+1. **-p**: Path to the directory to search for .props files [**optional**]. If left unspecified, all the .props files under src\SetupPackages in local VS repo will be searched.
+    > _-p:C:\VS\src\SetupPackages_
+1. **-a**: Personal access token to access packages in [VS feed](https://pkgs.dev.azure.com/devdiv/_packaging/VS-CoreXtFeeds/nuget/v3/index.json) [**optional**]. If not specified, props files will not be updated.
+    > _-a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757_
+1. **-w:** Maximum allowed duration in seconds, excluding downloads [**optional**].  Example: 
     > _-w:60_
+1. **-ds:** Maximum allowed duration in seconds that can be spent downloading nuget packages [**optional**].  Example: 
+    > _-ds:240_
 1. **-c:** Maximum concurrency of default.config version updates [**optional**].  Example:
     > _-c:10_
 
 _Warnings_
 1. NO SPACES ALLOWED IN EITHER default.config OR manifest.json FILE PATHS
+1. NO SPACES ALLOWED IN props file search directory
 1. The default duration & concurrency values should suffice
 
 ## Log
@@ -60,17 +69,25 @@ The examples below rely on the following conditions...
 #### Opting to Specify File with NuGet Packages to Ignore
 Location of additional needed resources...
 1. _ignored.txt_ located in \repos\Assets
-<pre>
+```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -i:\repos\Assets\ignored.txt
-</pre>
+```
 #### Opting to Ignore .NET Dev UX NuGet Packages
-<pre>
+```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -idut
-</pre>
+```
 #### Opting Not to Ignore any NuGet Packages
-<pre>
+```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json
-</pre>
+```
+#### Specifying an Access Token to Update .props Files
+```pwsh
+$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehroaq9k5zvvxstrqg2dzsedhlu757
+```
+#### Specifying a .props File Search Directory
+```pwsh
+$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757 -p:C:\VS\src\SetupPackages\DotNetCoreSDK
+```
 
 ## Output
 _InsertionsClient.exe_ outputs the results of running operations to both a persistent log file and to console.

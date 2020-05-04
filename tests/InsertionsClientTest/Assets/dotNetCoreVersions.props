@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(_NTBINDIR)\SetupPackages\Group\ddswixgroup.props" />
+  <PropertyGroup>
+    <PackagePreprocessorDefinitions>
+      $(PackagePreprocessorDefinitions);
+      <!-- Versions for .NET Core packages manufactured in the 'dotnet/core-setup' repo. -->
+      NetCoreAppHostPack30Version=3.0.3;
+      NetCoreAppHostPack31Version=3.1.2;
+      NetCoreHostFXRVersion=3.1.2;
+      NetCoreSharedFramework21Version=2.1.16;
+      NetCoreSharedFramework22Version=2.2.8;
+      NetCoreSharedFramework30Version=3.0.3;
+      NetCoreSharedFramework31Version=3.1.2;
+      NetCoreSharedHostVersion=3.1.2;
+      NetCoreTargetingPack30Version=3.0.0;
+      NetCoreTargetingPack31Version=3.1.0;
+      NetStandardTargetingPack21Version=2.1.0;
+      WindowsDesktopSharedFramework30Version=3.0.3;
+      WindowsDesktopSharedFramework31Version=3.1.2;
+      WindowsDesktopTargetingPack30Version=3.0.0;
+      WindowsDesktopTargetingPack31Version=3.1.0;
+      <!-- Versions for .NET Core packages manufactured in the 'dotnet/core-sdk' repo. -->
+      NetCoreSdkPlaceholderVersion=3.1.102-servicing-014873;
+      NetCoreTemplates21Version=3.1.300-preview-015048;
+      NetCoreTemplates22Version=3.1.100-rtm-014727;
+      NetCoreTemplates30Version=3.1.300-preview-015048;
+      NetCoreTemplates31Version=3.1.102-servicing-014873;
+      NetCoreToolsetVersion=3.1.102;
+      <!-- Versions for .NET Core packages manufactured in the 'aspnet/aspnetcore' repo. -->
+      AspNetCoreSharedFramework21Version=2.1.16;
+      AspNetCoreSharedFramework22Version=2.2.8;
+      AspNetCoreSharedFramework30Version=3.0.3;
+      AspNetCoreSharedFramework31Version=3.1.2;
+      AspNetCoreTargetingPack30Version=3.0.1;
+      AspNetCoreTargetingPack31Version=3.1.2;
+    </PackagePreprocessorDefinitions>
+  </PropertyGroup>
+</Project>

@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using Microsoft.Net.Insertions.Props.Models;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,9 +47,14 @@ namespace Microsoft.Net.Insertions.Models
         public FileSaveResult[]? FileSaveResults { get; set; }
 
         /// <summary>
+        /// Results of the props file update stage. Null, if stage didn't run.
+        /// </summary>
+        public PropsUpdateResults? PropsFileUpdateResults { get; set; }
+
+        /// <summary>
         /// Adds the given package to the updated nuget list.
         /// </summary>
-        public void AddPackage(PackageUpdateResult packageUpdateResult)
+        internal void AddPackage(PackageUpdateResult packageUpdateResult)
         {
             _updatedNugetsList.Add(packageUpdateResult);
         }

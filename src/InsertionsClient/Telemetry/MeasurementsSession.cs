@@ -2,7 +2,6 @@
 
 using Microsoft.Net.Insertions.Models;
 using Microsoft.Net.Insertions.Telemetry.Models;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
