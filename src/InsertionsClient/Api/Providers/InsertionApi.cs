@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Api.Models;
+using Microsoft.Net.Insertions.Api.Props.Models;
 using Microsoft.Net.Insertions.Common.Constants;
 using Microsoft.Net.Insertions.Common.Json;
 using Microsoft.Net.Insertions.Models;

@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Api.Models;
+using Microsoft.Net.Insertions.Api.Props.Models;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -91,7 +91,7 @@ namespace Microsoft.Net.Insertions.Api
                 // Backslashes should be considered as literals in regex
                 variableValuePattern = variableValuePattern.Replace("\\", "\\\\");
 
-                swr.PayloadPaths.Add(new SwrFile.PayloadPath(new Regex(variableValuePattern), variableName));
+                swr.PayloadPaths.Add(new PayloadPath(new Regex(variableValuePattern), variableName));
             }
 
             return swr;

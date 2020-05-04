@@ -40,7 +40,7 @@ namespace Microsoft.Net.Insertions.Props.Models
         /// <summary>
         /// Has content of this file changes since we loaded it?
         /// </summary>
-        public bool isDirty { get; private set; }
+        internal bool isDirty { get; private set; }
 
         private XDocument? _xDocument { get; set; }
 
@@ -53,7 +53,7 @@ namespace Microsoft.Net.Insertions.Props.Models
         /// <param name="value">New value of the variable</param>
         /// <param name="value">Previous value of the variable, if found.</param>
         /// <returns>True if variable was found. False otherwise</returns>
-        public bool TryUpdateVariable(string variableName, string value, out string existingValue)
+        internal bool TryUpdateVariable(string variableName, string value, out string existingValue)
         {
             if (!_isLoaded && !LoadDocument())
             {
@@ -103,7 +103,7 @@ namespace Microsoft.Net.Insertions.Props.Models
         /// file to disk. If there are no changes to the file and no
         /// disk operation is needed, returns null value.
         /// </returns>
-        public FileSaveResult? Save()
+        internal FileSaveResult? Save()
         {
             if (_isLoaded == false || !isDirty)
             {

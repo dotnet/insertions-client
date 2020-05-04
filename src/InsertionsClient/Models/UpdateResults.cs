@@ -54,7 +54,7 @@ namespace Microsoft.Net.Insertions.Models
         /// <summary>
         /// Adds the given package to the updated nuget list.
         /// </summary>
-        public void AddPackage(PackageUpdateResult packageUpdateResult)
+        internal void AddPackage(PackageUpdateResult packageUpdateResult)
         {
             _updatedNugetsList.Add(packageUpdateResult);
         }

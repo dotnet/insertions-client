@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using Microsoft.Net.Insertions.Api;
-using Microsoft.Net.Insertions.Api.Models;
+using Microsoft.Net.Insertions.Api.Props.Models;
 using Microsoft.Net.Insertions.Api.Providers;
 using Microsoft.Net.Insertions.Models;
 using Microsoft.Net.Insertions.Props.Models;

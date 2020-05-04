@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Api.Models;
+using Microsoft.Net.Insertions.Api.Props.Models;
 using Microsoft.Net.Insertions.Models;
 using Microsoft.Net.Insertions.Props.Models;
 using NuGet.Common;
@@ -175,7 +175,7 @@ namespace Microsoft.Net.Insertions.Api
         {
             foreach (SwrFile swrFile in swrFiles)
             {
-                foreach (SwrFile.PayloadPath payloadPath in swrFile.PayloadPaths)
+                foreach (PayloadPath payloadPath in swrFile.PayloadPaths)
                 {
                     Match match = payloadPath.Pattern.Match(filename);
                     if (!match.Success)
