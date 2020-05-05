@@ -94,7 +94,7 @@ namespace Microsoft.Net.Insertions.Api
             }
 
             nugetDownloadBlock.Complete();
-            bool executedToCompletion = filenameMatchBlock.Completion.Wait(maximumWaitSeconds * 1000);
+            bool executedToCompletion = filenameMatchBlock.Completion.Wait(maximumWaitSeconds == -1 ? -1 : (maximumWaitSeconds * 1000));
 
             if(executedToCompletion == false)
             {

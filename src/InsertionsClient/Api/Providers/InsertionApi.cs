@@ -34,8 +34,8 @@ namespace Microsoft.Net.Insertions.Api.Providers
         internal InsertionApi(int? maxWaitSeconds = null, int? maxDownloadSeconds = null, int? maxConcurrency = null)
         {
             _metrics = new MeasurementsSession();
-            _maxWaitSeconds = Math.Clamp(maxWaitSeconds ?? 120, 60, 120);
-            _maxDownloadSeconds = Math.Clamp(maxDownloadSeconds ?? 240, 60, 900);
+            _maxWaitSeconds = Math.Max(maxWaitSeconds ?? 120, 60);
+            _maxDownloadSeconds = Math.Max(maxDownloadSeconds ?? 240, 1);
             _maxConcurrentWorkers = Math.Clamp(maxConcurrency ?? 20, 1, 20);
         }
 
