@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -127,11 +128,14 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
         private void LogStatistics()
         {
-            Trace.WriteLine("Statistics:");
+            StringBuilder stringBuilder = new StringBuilder(900 /* rough size of stats */);
+            stringBuilder.AppendLine("Statistics:");
             foreach (Update update in Enum.GetValues(typeof(Update)).OfType<Update>())
             {
-                Trace.WriteLine($"{update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
+                stringBuilder.AppendLine($"{update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
             }
+
+            Trace.WriteLine(stringBuilder.ToString());
         }
 
         internal bool TryValidateManifestFile(string manifestFile, out string details)
