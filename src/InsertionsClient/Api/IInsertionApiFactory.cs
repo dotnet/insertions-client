@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System;
+
 namespace Microsoft.Net.Insertions.Api
 {
     /// <summary>
@@ -16,6 +18,6 @@ namespace Microsoft.Net.Insertions.Api
         /// is allowed to spend on downloading and processing nuget packages.</param>
         /// <param name="maxConcurrency">Optional: Level of concurrency.</param>
         /// <returns><see cref="IInsertionApi"/> An IInsertionApi instance.</returns>
-        IInsertionApi Create(int? maxWaitSeconds = null, int? maxDownloadSeconds = null, int? maxConcurrency = null);
+        IInsertionApi Create(TimeSpan? maxWaitSeconds = null, TimeSpan? maxDownloadSeconds = null, int? maxConcurrency = null);
     }
 }

@@ -115,7 +115,10 @@ namespace InsertionsClientTest
         /// Attempts to deduce the value of a variable in an swr using a publicly available nuget package.
         /// </summary>
         [TestMethod]
-        public void TestVariableValueDeduce()
+        [DataRow(120*1000, DisplayName = "Download in a reasonable time")]
+        // Test if we can corectly use the value -1 to represent infinite time allowance
+        [DataRow(-1, DisplayName = "Download without timeout")]
+        public void TestVariableValueDeduce(int maxWaitMilliseconds)
         {
             // Generate test default.config
             string testConfig = @"<?xml version=""1.0"" encoding=""us-ascii""?>
@@ -143,9 +146,9 @@ namespace InsertionsClientTest
             PropsVariableDeducer variableDeducer = new PropsVariableDeducer("https://api.nuget.org/v3/index.json", null);
             bool operationResult = variableDeducer.DeduceVariableValues(defaultConfigUpdater,
                 new[] { new PackageUpdateResult("runtime.win-x64.Microsoft.NETCore.DotNetAppHost", "unimportant", "3.1.3") },
-                new SwrFile[] { swrFile }, out List<PropsFileVariableReference> results, out string details);
+                new SwrFile[] { swrFile }, out List<PropsFileVariableReference> results, out string details, TimeSpan.FromMilliseconds(maxWaitMilliseconds));
 
-            Assert.IsTrue(operationResult);
+            Assert.IsTrue(operationResult, $"Operation failed with message: {details}");
             Assert.IsNotNull(results);
             Assert.IsTrue(results.Any(r => r.ReferencedFilePath == swrPath), "Cannot find the value of variable in given swr.");
             Assert.IsTrue(results.Any(r => r.ReferencedFilePath == swrPath && r.Name == "AspNetCoreTargetingPack30Version"), "Cannot find the correct variable.");
@@ -187,7 +190,7 @@ namespace InsertionsClientTest
                 new SwrFile[] { swrFile }, out List<PropsFileVariableReference> results, out string details, 
                 
             // Timeout in zero seconds
-                0);
+                TimeSpan.FromSeconds(0));
 
             Assert.IsFalse(operationResult, "Operation should have timed out, but it succeeded.");
             Assert.IsTrue(details.Contains("timed out"));
