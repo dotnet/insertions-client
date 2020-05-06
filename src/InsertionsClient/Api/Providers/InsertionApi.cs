@@ -71,7 +71,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                     CreateParallelOptions(source.Token),
                     asset => ParallelCallback(asset, packagesToIgnore, configUpdater, results));
 
-                /* Delay saving config file changes until props file updates are successfull.
+                /* Delay saving config file changes until props file updates are successful.
                  * If we save the results now and props-file step fails, re-running the application won't attempt to update props files again.
                  * A partial success in the app shouldn't hide the errors in the consecutive runs. */
 
@@ -89,14 +89,14 @@ namespace Microsoft.Net.Insertions.Api.Providers
                         }
                         else
                         {
-                            Trace.WriteLine("Failed to find an appropriate folder to search for .props files."
+                            Trace.WriteLine("Failed to find an appropriate folder to search for .props files. "
                                 + "Props file updating will be disabled.");
 
                             results.PropsFileUpdateResults = new PropsUpdateResults()
                             {
                                 Outcome = false,
-                                OutcomeDetails = "Failed to find an appropriate folder to search for .props files."
-                                + "Props file updating will be disabled."
+                                OutcomeDetails = "Failed to find an appropriate folder to search for .props files. "
+                                    + "Props file updating will be disabled."
                             };
                         }
                     }
