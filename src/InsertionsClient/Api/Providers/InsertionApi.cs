@@ -71,45 +71,71 @@ namespace Microsoft.Net.Insertions.Api.Providers
                     CreateParallelOptions(source.Token),
                     asset => ParallelCallback(asset, packagesToIgnore, configUpdater, results));
 
-                results.FileSaveResults = configUpdater.Save();
+                /* Delay saving config file changes until props file updates are successfull.
+                 * If we save the results now and props-file step fails, re-running the application won't attempt to update props files again.
+                 * A partial success in the app shouldn't hide the errors in the consecutive runs. */
 
-                if (string.IsNullOrWhiteSpace(propsFilesRootDirectory))
+                // Only update props files if user specified an access token. Null token means user doesn't want to update props files.
+                bool propsUpdatesEnabled = accessToken != null;
+
+                if(propsUpdatesEnabled)
                 {
-                    if (FindPropsFileRootDirectory(defaultConfigFile, out propsFilesRootDirectory))
+                    // Attempt to find a proper directory to search for props files, if we are not already given one.
+                    if (string.IsNullOrWhiteSpace(propsFilesRootDirectory))
                     {
-                        Trace.WriteLine($"The directory to search for .props files: {propsFilesRootDirectory}");
-                    }
-                    else
-                    {
-                        Trace.WriteLine("Failed to find an appropriate folder to search for .props files."
-                            + "Props file updating will be disabled.");
-
-                        results.PropsFileUpdateResults = new PropsUpdateResults()
+                        if (FindPropsFileRootDirectory(defaultConfigFile, out propsFilesRootDirectory))
                         {
-                            Outcome = false,
-                            OutcomeDetails = "Failed to find an appropriate folder to search for .props files."
-                            + "Props file updating will be disabled."
-                        };
+                            Trace.WriteLine($"The directory to search for .props files: {propsFilesRootDirectory}");
+                        }
+                        else
+                        {
+                            Trace.WriteLine("Failed to find an appropriate folder to search for .props files."
+                                + "Props file updating will be disabled.");
+
+                            results.PropsFileUpdateResults = new PropsUpdateResults()
+                            {
+                                Outcome = false,
+                                OutcomeDetails = "Failed to find an appropriate folder to search for .props files."
+                                + "Props file updating will be disabled."
+                            };
+                        }
+                    }
+
+                    // Update props files if we have a valid directory to search
+                    if (!string.IsNullOrWhiteSpace(propsFilesRootDirectory))
+                    {
+                        SwrFileReader swrFileReader = new SwrFileReader(_maxConcurrentWorkers);
+                        SwrFile[] swrFiles = swrFileReader.LoadSwrFiles(propsFilesRootDirectory);
+
+                        PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
+                        bool deduceOperationResult = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets,
+                            swrFiles, out List<PropsFileVariableReference> variables, out string outcomeDetails, _maxDownloadSeconds);
+
+                        PropsFileUpdater propsFileUpdater = new PropsFileUpdater();
+                        results.PropsFileUpdateResults = propsFileUpdater.UpdatePropsFiles(variables, propsFilesRootDirectory);
+
+                        if (!deduceOperationResult)
+                        {
+                            results.PropsFileUpdateResults.Outcome = false;
+                            results.PropsFileUpdateResults.OutcomeDetails += outcomeDetails;
+                        }
                     }
                 }
-
-                if (!string.IsNullOrWhiteSpace(propsFilesRootDirectory))
+                else
                 {
-                    SwrFileReader swrFileReader = new SwrFileReader(_maxConcurrentWorkers);
-                    SwrFile[] swrFiles = swrFileReader.LoadSwrFiles(propsFilesRootDirectory);
-
-                    PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
-                    bool deduceOperationResult = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets,
-                        swrFiles, out List<PropsFileVariableReference> variables, out string outcomeDetails, _maxDownloadSeconds);
-
-                    PropsFileUpdater propsFileUpdater = new PropsFileUpdater();
-                    results.PropsFileUpdateResults = propsFileUpdater.UpdatePropsFiles(variables, propsFilesRootDirectory);
-
-                    if(!deduceOperationResult)
-                    {
-                        results.PropsFileUpdateResults.Outcome = false;
-                        results.PropsFileUpdateResults.OutcomeDetails += outcomeDetails;
-                    }
+                    Trace.WriteLine(".props file updates are skipped since no access token was specified.");
+                }
+                
+                if(!propsUpdatesEnabled || results.PropsFileUpdateResults!.Outcome == true)
+                {
+                    // Prop files were updated successfuly. It is safe to save config update results.
+                    results.FileSaveResults = configUpdater.Save();
+                }
+                else
+                {
+                    Trace.WriteLine("default.config and .packageconfig file updates were skipped, because " +
+                        "there was an issue updating .props files.");
+                    results.FileSaveResults = new FileSaveResult[0];
                 }
             }
             catch (Exception e)
