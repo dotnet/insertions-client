@@ -135,7 +135,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 stringBuilder.AppendLine($"{update} - {update.GetString()}{Environment.NewLine}{_metrics[update]}");
             }
 
-            Trace.WriteLine(stringBuilder.ToString());
+            Trace.Write(stringBuilder.ToString());
         }
 
         internal bool TryValidateManifestFile(string manifestFile, out string details)
