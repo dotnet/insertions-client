@@ -148,20 +148,17 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             }
 
             Trace.WriteLine($"Updated {results.FileSaveResults?.Length ?? 0} config files...");
-            if(results.FileSaveResults != null)
+            foreach(FileSaveResult configSaveResult in results.FileSaveResults ?? Enumerable.Empty<FileSaveResult>())
             {
-                foreach(FileSaveResult configSaveResult in results.FileSaveResults)
+                if(configSaveResult.Succeeded)
                 {
-                    if(configSaveResult.Succeeded)
-                    {
-                        Trace.WriteLine($"           Saved: {configSaveResult.Path}");
-                    }
-                    else
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Trace.WriteLine($"           Save Failed: {configSaveResult.Path}");
-                        Console.ResetColor();
-                    }
+                    Trace.WriteLine($"           Saved: {configSaveResult.Path}");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Trace.WriteLine($"           Save Failed: {configSaveResult.Path}");
+                    Console.ResetColor();
                 }
             }
 
