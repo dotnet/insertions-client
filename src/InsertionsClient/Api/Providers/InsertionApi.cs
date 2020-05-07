@@ -25,17 +25,17 @@ namespace Microsoft.Net.Insertions.Api.Providers
     {
         private readonly MeasurementsSession _metrics;
 
-        private readonly int _maxWaitSeconds = 75;
+        private readonly int _maxConcurrentWorkers;
 
-        private readonly int _maxConcurrentWorkers = 15;
+        private readonly TimeSpan _maxWaitDuration;
 
-        private readonly int _maxDownloadSeconds = 240;
+        private readonly TimeSpan _maxDownloadDuration;
 
-        internal InsertionApi(int? maxWaitSeconds = null, int? maxDownloadSeconds = null, int? maxConcurrency = null)
+        internal InsertionApi(TimeSpan? maxWaitSeconds = null, TimeSpan? maxDownloadSeconds = null, int? maxConcurrency = null)
         {
             _metrics = new MeasurementsSession();
-            _maxWaitSeconds = Math.Clamp(maxWaitSeconds ?? 120, 60, 120);
-            _maxDownloadSeconds = Math.Clamp(maxDownloadSeconds ?? 240, 60, 900);
+            _maxWaitDuration = TimeSpan.FromSeconds(Math.Max(maxWaitSeconds?.TotalSeconds ?? 120, 60));
+            _maxDownloadDuration = TimeSpan.FromSeconds(Math.Max(maxDownloadSeconds?.TotalSeconds ?? 240, 1));
             _maxConcurrentWorkers = Math.Clamp(maxConcurrency ?? 20, 1, 20);
         }
 
@@ -64,7 +64,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 IgnoredNuGets = packagesToIgnore
             };
             Stopwatch overallRunStopWatch = Stopwatch.StartNew();
-            using CancellationTokenSource source = new CancellationTokenSource(TimeSpan.FromSeconds(_maxWaitSeconds));
+            using CancellationTokenSource source = new CancellationTokenSource(_maxWaitDuration);
             try
             {
                 _ = Parallel.ForEach(assets,
@@ -100,7 +100,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
                     PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
                     bool deduceOperationResult = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets,
-                        swrFiles, out List<PropsFileVariableReference> variables, out string outcomeDetails, _maxDownloadSeconds);
+                        swrFiles, out List<PropsFileVariableReference> variables, out string outcomeDetails, _maxDownloadDuration);
 
                     PropsFileUpdater propsFileUpdater = new PropsFileUpdater();
                     results.PropsFileUpdateResults = propsFileUpdater.UpdatePropsFiles(variables, propsFilesRootDirectory);

@@ -65,10 +65,10 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="swrFiles">Files, containing the variables.</param>
         /// <param name="deducedVariablesList">List of variables, value of which was found.</param>
         /// <param name="outcomeDetails">Detail string, explaining the outcome of the operation.</param>
-        /// <param name="maximumWaitSeconds">Maximum duration to wait for nuget downloads to complete.</param>
+        /// <param name="maximumWaitDuration">Maximum duration to wait for nuget downloads to complete.</param>
         /// <returns>True if operation succeeded. False otherwise</returns>
         public bool DeduceVariableValues(DefaultConfigUpdater defaultConfigUpdater, IEnumerable<PackageUpdateResult> packages,
-            SwrFile[] swrFiles, out List<PropsFileVariableReference> deducedVariablesList, out string outcomeDetails, int maximumWaitSeconds = -1)
+            SwrFile[] swrFiles, out List<PropsFileVariableReference> deducedVariablesList, out string outcomeDetails, TimeSpan? maximumWaitDuration = null)
         {
             using CancellationTokenSource tokenSource = new CancellationTokenSource();
             ConcurrentBag<PropsFileVariableReference> deducedVariables = new ConcurrentBag<PropsFileVariableReference>();
@@ -94,7 +94,7 @@ namespace Microsoft.Net.Insertions.Api
             }
 
             nugetDownloadBlock.Complete();
-            bool executedToCompletion = filenameMatchBlock.Completion.Wait(maximumWaitSeconds);
+            bool executedToCompletion = filenameMatchBlock.Completion.Wait(maximumWaitDuration ?? TimeSpan.FromMilliseconds(-1));
 
             if(executedToCompletion == false)
             {
