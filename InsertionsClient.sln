@@ -7,14 +7,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5FD20126-B41
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{182BD287-26A9-4C62-BE4B-FFE0E8523736}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsertionsClientTest", "tests\InsertionsClientTest\InsertionsClientTest.csproj", "{37813EAF-AC17-4FFE-8A1A-40251541E942}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsertionsClient.Test", "tests\InsertionsClientTest\InsertionsClient.Test.csproj", "{37813EAF-AC17-4FFE-8A1A-40251541E942}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{03E71AC4-85FF-448C-B413-8306124BD851}"
 	ProjectSection(SolutionItems) = preProject
 		docs\README.md = docs\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsertionsClient", "src\InsertionsClient\InsertionsClient.csproj", "{D5B4E4CC-9B67-404B-BC73-7F41D5197483}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsertionsClient.Console", "src\InsertionsClient.Console\InsertionsClient.Console.csproj", "{D5B4E4CC-9B67-404B-BC73-7F41D5197483}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
