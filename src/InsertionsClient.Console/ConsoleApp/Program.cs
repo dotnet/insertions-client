@@ -8,6 +8,7 @@ using Microsoft.Net.Insertions.Models;
 using Microsoft.Net.Insertions.Props.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -122,7 +123,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             }
             else
             {
-                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, (HashSet<string>?)null, FeedAccessToken, PropsFilesRootDirectory);
+                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, ImmutableHashSet<string>.Empty, FeedAccessToken, PropsFilesRootDirectory);
             }
 
             ShowResults(results);

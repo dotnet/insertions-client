@@ -7,6 +7,7 @@ using Microsoft.Net.Insertions.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
@@ -33,28 +34,29 @@ namespace InsertionsClientTest
             {
                 IgnoreCase.DefaultDevUxTeamPackages => api.UpdateVersions(manifestFile, defaultConfigFile, InsertionConstants.DefaultDevUxTeamPackages, null, null),
                 IgnoreCase.SpecifiedFile => api.UpdateVersions(manifestFile, defaultConfigFile, Path.Combine(assetsDirectory, "ignored.txt"), null, null),
-                _ => api.UpdateVersions(manifestFile, defaultConfigFile, (HashSet<string>?)null, null, null),
+                _ => api.UpdateVersions(manifestFile, defaultConfigFile, ImmutableHashSet<string>.Empty, null, null),
             };
 
             Assert.IsTrue(ListsAreEquivalent(ignoreCase, results?.IgnoredNuGets), $"Mismatched ignore packages for {ignoreCase}");
         }
 
-        private bool ListsAreEquivalent(IgnoreCase ignoreCase, HashSet<string>? results)
+        private bool ListsAreEquivalent(IgnoreCase ignoreCase, ImmutableHashSet<string>? results)
         {
-            HashSet<string>? expected = ignoreCase switch
+            ImmutableHashSet<string>? expected = ignoreCase switch
             {
                 IgnoreCase.DefaultDevUxTeamPackages => InsertionConstants.DefaultDevUxTeamPackages,
-                IgnoreCase.SpecifiedFile =>
-                new HashSet<string>(File.ReadAllLines(Path.Combine(Directory.GetCurrentDirectory(), "Assets", "ignored.txt"))),
+                IgnoreCase.SpecifiedFile => new HashSet<string>( File.ReadAllLines( 
+                    Path.Combine(Directory.GetCurrentDirectory(), "Assets", "ignored.txt")))
+                    .ToImmutableHashSet(),
                 _ => null,
             };
 
-            if (expected == null)
+            if (expected == null || expected.Count == 0)
             {
-                return results == null;
+                return results == null || results.Count == 0;
             }
 
-            return results == null ? false : !expected.Except(results).Any();
+            return results == null ? false : ( !expected.Except(results).Any() && !results.Except(expected).Any() );
         }
     }
 }
