@@ -11,7 +11,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\..\InsertionsClient.Core\InsertionsClient.Core.csproj" />
+    <ProjectReference Include="..\InsertionsClient.Core\InsertionsClient.Core.csproj" />
   </ItemGroup>
 
 </Project>

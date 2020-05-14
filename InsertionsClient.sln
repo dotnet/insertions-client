@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{03E71AC4-8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InsertionsClient.Console", "src\InsertionsClient.Console\InsertionsClient.Console.csproj", "{D5B4E4CC-9B67-404B-BC73-7F41D5197483}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsertionsClient.Core", "InsertionsClient.Core\InsertionsClient.Core.csproj", "{21D6EA74-F877-46D9-BD2D-E5733126C999}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsertionsClient.Core", "src\InsertionsClient.Core\InsertionsClient.Core.csproj", "{21D6EA74-F877-46D9-BD2D-E5733126C999}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\InsertionsClient.Core\InsertionsClient.Core.csproj" />
+    <ProjectReference Include="..\..\src\InsertionsClient.Core\InsertionsClient.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
