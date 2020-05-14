@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Microsoft.Net.Insertions.Common.Logging
 {
-    public sealed class InsertionsConsoleTraceListener : ConsoleTraceListener
+    internal sealed class InsertionsConsoleTraceListener : ConsoleTraceListener
     {
         public override void WriteLine(string message)
         {

@@ -11,7 +11,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="NuGet.Protocol" Version="5.5.1" />
+    <ProjectReference Include="..\..\InsertionsClient.Core\InsertionsClient.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Microsoft.Net.Insertions.Common.Logging
 {
-    static class Utilities
+    internal static class Utilities
     {
         private static StringBuilder _logBuilder = new StringBuilder(512);
 

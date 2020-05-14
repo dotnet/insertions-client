@@ -4,7 +4,7 @@ using System;
 
 namespace Microsoft.Net.Insertions.Api.Providers
 {
-    internal sealed class InsertionApiFactory : IInsertionApiFactory
+    public sealed class InsertionApiFactory : IInsertionApiFactory
     {
         public IInsertionApi Create(TimeSpan? maxWaitSeconds = null, TimeSpan? maxDownloadSeconds = null, int ? maxConcurrency = null)
         {

@@ -4,13 +4,13 @@ using System.Collections.Generic;
 
 namespace Microsoft.Net.Insertions.Common.Constants
 {
-    internal static class InsertionConstants
+    public static class InsertionConstants
     {
-        internal const string DefaultConfigFile = "default.config";
+        public const string DefaultConfigFile = "default.config";
 
-        internal const string ManifestFile = "manifest.json";
+        public const string ManifestFile = "manifest.json";
 
-        internal static readonly HashSet<string> DefaultDevUxTeamPackages = new HashSet<string>
+        public static readonly HashSet<string> DefaultDevUxTeamPackages = new HashSet<string>
         {
             "Microsoft.VisualStudio.LiveShare",
             "System.Reflection.Metadata",
