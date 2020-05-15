@@ -68,7 +68,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
         }
 
         /// <summary>
-        /// Finds and preprocessed props file under the given directory.
+        /// Finds and preprocesses the props files under the given directory.
         /// </summary>
         /// <param name="rootSearchDirectory">Root directory that contains the props files.
         /// Specify the most specific directory as root to prevent searching unnecessary folders.</param>
