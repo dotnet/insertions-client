@@ -187,7 +187,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
         private static void ShowHelp()
         {
             Console.WriteLine($"{Environment.NewLine}");
-            Console.WriteLine($"{ProgramName.Value} updates versions of NuGet packages in {InsertionConstants.DefaultConfigFile} with the corresponding values from {InsertionConstants.ManifestFile}{Environment.NewLine}");
+            Console.WriteLine($"{ProgramName.Value} updates versions of NuGet packages in {InsertionConstants.DefaultConfigFile} with the corresponding values from {InsertionConstants.ManifestFile}{Environment.NewLine}." +
+                $" If an access token is specified with the switch {SwitchFeedAccessToken}, properties defined in .props files are also updated.");
 
             Console.WriteLine($"Usage:");
             Console.WriteLine($">{ProgramName.Value}.exe {HelpParameters.Value}");
@@ -197,7 +198,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Console.WriteLine($"{SwitchManifest}   full path on disk to manifest.json");
             Console.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
             Console.WriteLine($"{SwitchPropsFilesRootDir}   directory to search for and update .props files [optional]");
-            Console.WriteLine($"{FeedAccessToken}   token to access nuget feed. Necessary when updating props files [optional]");
+            Console.WriteLine($"{SwitchFeedAccessToken}   token to access nuget feed. Necessary when updating props files [optional]");
             Console.WriteLine($"{SwitchMaxWaitSeconds}   maximum allowed duration in seconds, excluding downloads [optional]");
             Console.WriteLine($"{SwitchMaxDownloadSeconds}   maximum allowed duration in seconds that can be spent downloading nuget packages [optional]");
             Console.WriteLine($"{SwitchMaxConcurrency}   maximum concurrency of default.config version updates [optional]{Environment.NewLine}");
