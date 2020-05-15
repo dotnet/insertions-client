@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "InsertionsClient": {
-      "commandName": "Project",
-      "commandLineArgs": "-d:C:\\temp\\insertions\\default.config -m:C:\\temp\\insertions\\manifest.json -i:C:\\temp\\insertions\\ignored.txt"
-    }
-  }
-}

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Microsoft.Net.Insertions</RootNamespace>
+    <AssemblyName>InsertionsClient</AssemblyName>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\InsertionsClient.Core\InsertionsClient.Core.csproj" />
+  </ItemGroup>
+
+</Project>
