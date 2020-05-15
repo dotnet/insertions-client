@@ -73,9 +73,9 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private static string FeedAccessToken = string.Empty;
 
-        private static int MaxWaitSeconds = 75;
+        private static TimeSpan MaxWaitDuration = TimeSpan.FromSeconds(75);
 
-        private static int MaxDownloadSeconds = 240;
+        private static TimeSpan MaxDownloadDuration = TimeSpan.FromSeconds(240);
 
         private static int MaxConcurrency = 4;
 
@@ -109,7 +109,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             ProcessCmdArguments(args);
 
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
-            IInsertionApi api = apiFactory.Create(MaxWaitSeconds, MaxDownloadSeconds, MaxConcurrency);
+            IInsertionApi api = apiFactory.Create(MaxWaitDuration, MaxDownloadDuration, MaxConcurrency);
 
             UpdateResults results;
             if (!string.IsNullOrWhiteSpace(IgnoredPackagesFile))
@@ -248,19 +248,19 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
                 {
-                    ProcessArgument(arg, SwitchDefaultConfig, $"Specified {InsertionConstants.DefaultConfigFile}:", ref DefaultConfigFile);
+                    ProcessArgument(arg, SwitchDefaultConfig, $"Specified {InsertionConstants.DefaultConfigFile}:", out DefaultConfigFile);
                 }
                 else if (arg.StartsWith(SwitchManifest))
                 {
-                    ProcessArgument(arg, SwitchManifest, $"Specified {InsertionConstants.ManifestFile}:", ref ManifestFile);
+                    ProcessArgument(arg, SwitchManifest, $"Specified {InsertionConstants.ManifestFile}:", out ManifestFile);
                 }
                 else if (arg.StartsWith(SwitchIgnorePackages))
                 {
-                    ProcessArgument(arg, SwitchIgnorePackages, $"Specified ignored packages file:", ref IgnoredPackagesFile);
+                    ProcessArgument(arg, SwitchIgnorePackages, $"Specified ignored packages file:", out IgnoredPackagesFile);
                 }
                 else if (arg.StartsWith(SwitchPropsFilesRootDir))
                 {
-                    ProcessArgument(arg, SwitchPropsFilesRootDir, $"Specified root directory for props files:", ref PropsFilesRootDirectory);
+                    ProcessArgument(arg, SwitchPropsFilesRootDir, $"Specified root directory for props files:", out PropsFilesRootDirectory);
                 }
                 else if (arg.StartsWith(SwitchFeedAccessToken))
                 {
@@ -269,15 +269,17 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 }
                 else if (arg.StartsWith(SwitchMaxWaitSeconds))
                 {
-                    ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max run duration in seconds, excluding downloads\":", ref MaxWaitSeconds);
+                    ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max run duration in seconds, excluding downloads\":", out int waitDurationSeconds);
+                    MaxWaitDuration = TimeSpan.FromSeconds(waitDurationSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxDownloadSeconds))
                 {
-                    ProcessArgumentInt(arg, SwitchMaxDownloadSeconds, $"Specified \"max download duration in seconds\":", ref MaxDownloadSeconds);
+                    ProcessArgumentInt(arg, SwitchMaxDownloadSeconds, $"Specified \"max download duration in seconds\":", out int downloadDurationSeconds);
+                    MaxDownloadDuration = TimeSpan.FromSeconds(downloadDurationSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxConcurrency))
                 {
-                    ProcessArgumentInt(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", ref MaxConcurrency);
+                    ProcessArgumentInt(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", out MaxConcurrency);
                 }
                 else if (arg.StartsWith(SwitchIgnoreDevUxTeamPackages))
                 {
@@ -295,13 +297,13 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             }
         }
 
-        private static void ProcessArgument(string argument, string appSwitch, string cmdLineMessage, ref string target)
+        private static void ProcessArgument(string argument, string appSwitch, string cmdLineMessage, out string target)
         {
             target = argument.Replace(appSwitch, string.Empty);
             Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
         }
 
-        private static void ProcessArgumentInt(string argument, string appSwitch, string cmdLineMessage, ref int target)
+        private static void ProcessArgumentInt(string argument, string appSwitch, string cmdLineMessage, out int target)
         {
             string trimmedArg = argument.Replace(appSwitch, string.Empty);
             if (int.TryParse(trimmedArg, out target))

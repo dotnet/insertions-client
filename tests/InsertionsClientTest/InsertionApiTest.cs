@@ -5,6 +5,7 @@ using Microsoft.Net.Insertions.Api.Providers;
 using Microsoft.Net.Insertions.Common.Constants;
 using Microsoft.Net.Insertions.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace InsertionsClientTest
         public void TestLoadFile(IgnoreCase ignoreCase)
         {
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
-            IInsertionApi api = apiFactory.Create(75, 4);
+            IInsertionApi api = apiFactory.Create(TimeSpan.FromSeconds(75), TimeSpan.FromSeconds(4));
 
             UpdateResults results;
             string assetsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
