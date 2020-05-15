@@ -133,27 +133,43 @@ namespace Microsoft.Net.Insertions.ConsoleApp
         private static void ShowResults(UpdateResults results)
         {
             Console.ForegroundColor = results.Outcome ? ConsoleColor.Green : ConsoleColor.Red;
-            Console.WriteLine($"Completed {(results.Outcome ? "successfully" : "in a failure")}.");
+            Trace.WriteLine($"Completed {(results.Outcome ? "successfully" : "in a failure")}.");
             if (!results.Outcome)
             {
-                Console.WriteLine($"Details: {results.OutcomeDetails}.");
+                Trace.WriteLine($"Details: {results.OutcomeDetails}.");
             }
             Console.ResetColor();
             Trace.WriteLine($"Duration: {results.DurationMilliseconds:N2}-ms.");
             Trace.WriteLine($"Successful updates: {results.UpdatedNuGets.Count():N0}.");
-            Trace.WriteLine("Updated default.config NuGet package versions...");
+            Trace.WriteLine("Found package version changes in config files...");
             foreach (PackageUpdateResult updatedNuget in results.UpdatedNuGets.OrderBy(r => r.PackageId))
             {
                 Trace.WriteLine($"           {updatedNuget.PackageId}: {updatedNuget.NewVersion}");
             }
 
+            Trace.WriteLine($"Updated {results.FileSaveResults?.Length ?? 0} config files...");
+            foreach(FileSaveResult configSaveResult in results.FileSaveResults ?? Enumerable.Empty<FileSaveResult>())
+            {
+                if(configSaveResult.Succeeded)
+                {
+                    Trace.WriteLine($"           Saved: {configSaveResult.Path}");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Trace.WriteLine($"           Save Failed: {configSaveResult.Path}");
+                    Console.ResetColor();
+                }
+            }
+
+
             if (results.PropsFileUpdateResults != null)
             {
                 Console.ForegroundColor = results.PropsFileUpdateResults.Outcome ? ConsoleColor.Green : ConsoleColor.Red;
-                Console.WriteLine($"Props file updating completed {(results.PropsFileUpdateResults.Outcome ? "successfully" : "in a failure")}.");
+                Trace.WriteLine($"Props file updating completed {(results.PropsFileUpdateResults.Outcome ? "successfully" : "in a failure")}.");
                 if(!results.PropsFileUpdateResults.Outcome)
                 {
-                    Console.WriteLine($"Details: {results.PropsFileUpdateResults.OutcomeDetails}.");
+                    Trace.WriteLine($"Details: {results.PropsFileUpdateResults.OutcomeDetails}.");
                 }
                 Console.ResetColor();
                 Trace.WriteLine($"Updated {results.PropsFileUpdateResults.UpdatedVariables.Count} .props files:");
@@ -180,39 +196,39 @@ namespace Microsoft.Net.Insertions.ConsoleApp
         private static void ShowStartOrEndMessage(string message)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(message);
+            Trace.WriteLine(message);
             Console.ResetColor();
         }
 
         private static void ShowHelp()
         {
-            Console.WriteLine($"{Environment.NewLine}");
-            Console.WriteLine($"{ProgramName.Value} updates versions of NuGet packages in {InsertionConstants.DefaultConfigFile} with the corresponding values from {InsertionConstants.ManifestFile}{Environment.NewLine}." +
+            Trace.WriteLine($"{Environment.NewLine}");
+            Trace.WriteLine($"{ProgramName.Value} updates versions of NuGet packages in {InsertionConstants.DefaultConfigFile} with the corresponding values from {InsertionConstants.ManifestFile}{Environment.NewLine}." +
                 $" If an access token is specified with the switch {SwitchFeedAccessToken}, properties defined in .props files are also updated.");
 
-            Console.WriteLine($"Usage:");
-            Console.WriteLine($">{ProgramName.Value}.exe {HelpParameters.Value}");
+            Trace.WriteLine($"Usage:");
+            Trace.WriteLine($">{ProgramName.Value}.exe {HelpParameters.Value}");
 
-            Console.WriteLine($"{Environment.NewLine}Options:");
-            Console.WriteLine($"{SwitchDefaultConfig}   full path on disk to default.config to update");
-            Console.WriteLine($"{SwitchManifest}   full path on disk to manifest.json");
-            Console.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
-            Console.WriteLine($"{SwitchPropsFilesRootDir}   directory to search for and update .props files [optional]");
-            Console.WriteLine($"{SwitchFeedAccessToken}   token to access nuget feed. Necessary when updating props files [optional]");
-            Console.WriteLine($"{SwitchMaxWaitSeconds}   maximum allowed duration in seconds, excluding downloads [optional]");
-            Console.WriteLine($"{SwitchMaxDownloadSeconds}   maximum allowed duration in seconds that can be spent downloading nuget packages [optional]");
-            Console.WriteLine($"{SwitchMaxConcurrency}   maximum concurrency of default.config version updates [optional]{Environment.NewLine}");
+            Trace.WriteLine($"{Environment.NewLine}Options:");
+            Trace.WriteLine($"{SwitchDefaultConfig}   full path on disk to default.config to update");
+            Trace.WriteLine($"{SwitchManifest}   full path on disk to manifest.json");
+            Trace.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
+            Trace.WriteLine($"{SwitchPropsFilesRootDir}   directory to search for and update .props files [optional]");
+            Trace.WriteLine($"{SwitchFeedAccessToken}   token to access nuget feed. Necessary when updating props files [optional]");
+            Trace.WriteLine($"{SwitchMaxWaitSeconds}   maximum allowed duration in seconds, excluding downloads [optional]");
+            Trace.WriteLine($"{SwitchMaxDownloadSeconds}   maximum allowed duration in seconds that can be spent downloading nuget packages [optional]");
+            Trace.WriteLine($"{SwitchMaxConcurrency}   maximum concurrency of default.config version updates [optional]{Environment.NewLine}");
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Example...");
-            Console.WriteLine($">{ProgramName.Value} {SwitchDefaultConfig}c:\\default.config {SwitchManifest}c:\\manifest.json");
+            Trace.WriteLine("Example...");
+            Trace.WriteLine($">{ProgramName.Value} {SwitchDefaultConfig}c:\\default.config {SwitchManifest}c:\\manifest.json");
             Console.ResetColor();
         }
 
         private static void ShowErrorHelpAndExit(string reason)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Exiting due to incorrect input.  Reason: {reason}");
+            Trace.WriteLine($"Exiting due to incorrect input.  Reason: {reason}");
             Console.ResetColor();
             ShowHelp();
             Environment.Exit(1);
@@ -221,7 +237,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
         private static void ProcessCmdArguments(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("Processing CMD line parameters");
+            Trace.WriteLine("Processing CMD line parameters");
             Console.ResetColor();
 
             if (args == null || args.Length < 2)
