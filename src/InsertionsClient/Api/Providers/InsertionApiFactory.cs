@@ -1,10 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System;
+
 namespace Microsoft.Net.Insertions.Api.Providers
 {
     internal sealed class InsertionApiFactory : IInsertionApiFactory
     {
-        public IInsertionApi Create(int? maxWaitSeconds = null, int? maxDownloadSeconds = null, int ? maxConcurrency = null)
+        public IInsertionApi Create(TimeSpan? maxWaitSeconds = null, TimeSpan? maxDownloadSeconds = null, int ? maxConcurrency = null)
         {
             return new InsertionApi(maxWaitSeconds, maxDownloadSeconds, maxConcurrency);
         }

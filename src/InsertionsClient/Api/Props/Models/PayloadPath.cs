@@ -7,7 +7,7 @@ namespace Microsoft.Net.Insertions.Api.Props.Models
     /// <summary>
     /// Represents a payload defined in the swr file.
     /// </summary>
-    internal class PayloadPath
+    internal sealed class PayloadPath
     {
         /// <summary>
         /// Pattern that will match the path to an actual file on disk, exposing the value of the variable.
