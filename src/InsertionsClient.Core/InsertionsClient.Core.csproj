@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Microsoft.Net.Insertions</RootNamespace>
-    <AssemblyName>InsertionsClient</AssemblyName>
+    <AssemblyName>InsertionsClient.Core</AssemblyName>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
