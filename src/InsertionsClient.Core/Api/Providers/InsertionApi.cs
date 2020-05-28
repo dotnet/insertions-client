@@ -10,6 +10,7 @@ using Microsoft.Net.Insertions.Telemetry;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -43,12 +44,22 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
         #region IInsertionApi API
 
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile, string? accessToken = null, string? propsFilesRootDirectory = null)
+        public UpdateResults UpdateVersions(
+            string manifestFile,
+            string defaultConfigFile,
+            string ignoredPackagesFile,
+            string? accessToken = null,
+            string? propsFilesRootDirectory = null)
         {
             return UpdateVersions(manifestFile, defaultConfigFile, LoadPackagesToIgnore(ignoredPackagesFile), accessToken, propsFilesRootDirectory);
         }
 
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, HashSet<string>? packagesToIgnore, string? accessToken = null, string? propsFilesRootDirectory = null)
+        public UpdateResults UpdateVersions(
+            string manifestFile,
+            string defaultConfigFile,
+            ImmutableHashSet<string>? packagesToIgnore,
+            string? accessToken = null,
+            string? propsFilesRootDirectory = null)
         {
             List<Asset> assets = null!;
             DefaultConfigUpdater configUpdater;
@@ -271,11 +282,11 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return configUpdater.TryLoad(defaultConfigPath, out details);
         }
 
-        private HashSet<string> LoadPackagesToIgnore(string ignoredPackagesFile)
+        private ImmutableHashSet<string> LoadPackagesToIgnore(string ignoredPackagesFile)
         {
             if (!File.Exists(ignoredPackagesFile))
             {
-                return new HashSet<string>();
+                return ImmutableHashSet<string>.Empty;
             }
 
             HashSet<string> ignoredPackages = new HashSet<string>();
@@ -286,10 +297,14 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 ignoredPackages.Add(line);
             }
 
-            return ignoredPackages;
+            return ignoredPackages.ToImmutableHashSet();
         }
 
-        private void ParallelCallback(Asset asset, HashSet<string>? packagesToIgnore, DefaultConfigUpdater configUpdater, UpdateResults results)
+        private void ParallelCallback(
+            Asset asset, 
+            ImmutableHashSet<string>? packagesToIgnore,
+            DefaultConfigUpdater configUpdater,
+            UpdateResults results)
         {
             Stopwatch stopWatch = Stopwatch.StartNew();
 

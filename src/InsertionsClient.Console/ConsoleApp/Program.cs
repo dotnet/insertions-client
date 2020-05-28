@@ -8,6 +8,7 @@ using Microsoft.Net.Insertions.Models;
 using Microsoft.Net.Insertions.Props.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -114,15 +115,32 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             UpdateResults results;
             if (!string.IsNullOrWhiteSpace(IgnoredPackagesFile))
             {
-                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, IgnoredPackagesFile, FeedAccessToken, PropsFilesRootDirectory);
+                results = api.UpdateVersions(
+                    ManifestFile,
+                    DefaultConfigFile,
+                    IgnoredPackagesFile,
+                    FeedAccessToken,
+                    PropsFilesRootDirectory
+                );
             }
             else if (IgnoreDevUxTeamPackagesScenario)
             {
-                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, InsertionConstants.DefaultDevUxTeamPackages, FeedAccessToken, PropsFilesRootDirectory);
+                results = api.UpdateVersions(
+                    ManifestFile,
+                    DefaultConfigFile,
+                    InsertionConstants.DefaultDevUxTeamPackages,
+                    FeedAccessToken, PropsFilesRootDirectory
+                );
             }
             else
             {
-                results = api.UpdateVersions(ManifestFile, DefaultConfigFile, (HashSet<string>?)null, FeedAccessToken, PropsFilesRootDirectory);
+                results = api.UpdateVersions(
+                    ManifestFile,
+                    DefaultConfigFile,
+                    ImmutableHashSet<string>.Empty,
+                    FeedAccessToken,
+                    PropsFilesRootDirectory
+                );
             }
 
             ShowResults(results);
@@ -148,9 +166,9 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             }
 
             Trace.WriteLine($"Updated {results.FileSaveResults?.Length ?? 0} config files...");
-            foreach(FileSaveResult configSaveResult in results.FileSaveResults ?? Enumerable.Empty<FileSaveResult>())
+            foreach (FileSaveResult configSaveResult in results.FileSaveResults ?? Enumerable.Empty<FileSaveResult>())
             {
-                if(configSaveResult.Succeeded)
+                if (configSaveResult.Succeeded)
                 {
                     Trace.WriteLine($"           Saved: {configSaveResult.Path}");
                 }
@@ -167,7 +185,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             {
                 Console.ForegroundColor = results.PropsFileUpdateResults.Outcome ? ConsoleColor.Green : ConsoleColor.Red;
                 Trace.WriteLine($"Props file updating completed {(results.PropsFileUpdateResults.Outcome ? "successfully" : "in a failure")}.");
-                if(!results.PropsFileUpdateResults.Outcome)
+                if (!results.PropsFileUpdateResults.Outcome)
                 {
                     Trace.WriteLine($"Details: {results.PropsFileUpdateResults.OutcomeDetails}.");
                 }

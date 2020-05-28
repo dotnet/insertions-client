@@ -3,6 +3,7 @@
 using Microsoft.Net.Insertions.Props.Models;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Microsoft.Net.Insertions.Models
@@ -28,7 +29,7 @@ namespace Microsoft.Net.Insertions.Models
         /// <summary>
         /// Ids of ignored nuget packages.
         /// </summary>
-        public HashSet<string>? IgnoredNuGets { get; set; }
+        public ImmutableHashSet<string>? IgnoredNuGets { get; set; }
 
         /// <summary>
         /// Duration in ms of <see cref="IInsertionApi.UpdateVersions(string, string, string)"/> attempt.

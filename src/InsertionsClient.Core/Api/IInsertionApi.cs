@@ -2,6 +2,7 @@
 
 using Microsoft.Net.Insertions.Models;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("InsertionsClient.Test")]
@@ -22,7 +23,12 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="accessToken">Access token used when connecting to nuget feed.</param>
         /// <param name="propsFilesRootDirectory">Directory that will be searched for props files.</param>
         /// <returns><see cref="UpdateResults"/> detailing the operation's outcome.</returns>
-        UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile, string? accessToken, string? propsFilesRootDirectory);
+        UpdateResults UpdateVersions(
+            string manifestFile,
+            string defaultConfigFile,
+            string ignoredPackagesFile,
+            string? accessToken,
+            string? propsFilesRootDirectory);
 
         /// <summary>
         /// Updates default.config NuGet package versions from matching manifest.json assets.
@@ -33,6 +39,11 @@ namespace Microsoft.Net.Insertions.Api
         /// <param name="accessToken">Access token used when connecting to nuget feed.</param>
         /// <param name="propsFilesRootDirectory">Directory that will be searched for props files.</param>
         /// <returns><see cref="UpdateResults"/> detailing the operation's outcome.</returns>
-        UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, HashSet<string>? packagesToIgnore, string? accessToken, string? propsFilesRootDirectory);
+        UpdateResults UpdateVersions(
+            string manifestFile,
+            string defaultConfigFile,
+            ImmutableHashSet<string>? packagesToIgnore,
+            string? accessToken,
+            string? propsFilesRootDirectory);
     }
 }
