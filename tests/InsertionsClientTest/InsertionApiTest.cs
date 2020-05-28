@@ -45,7 +45,7 @@ namespace InsertionsClientTest
             ImmutableHashSet<string>? expected = ignoreCase switch
             {
                 IgnoreCase.DefaultDevUxTeamPackages => InsertionConstants.DefaultDevUxTeamPackages,
-                IgnoreCase.SpecifiedFile => new HashSet<string>( File.ReadAllLines( 
+                IgnoreCase.SpecifiedFile => new HashSet<string>(File.ReadAllLines(
                     Path.Combine(Directory.GetCurrentDirectory(), "Assets", "ignored.txt")))
                     .ToImmutableHashSet(),
                 _ => null,
@@ -56,7 +56,7 @@ namespace InsertionsClientTest
                 return results == null || results.Count == 0;
             }
 
-            return results == null ? false : ( !expected.Except(results).Any() && !results.Except(expected).Any() );
+            return results == null ? false : expected.SetEquals(results);
         }
     }
 }

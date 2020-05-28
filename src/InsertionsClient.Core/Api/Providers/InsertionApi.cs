@@ -44,12 +44,22 @@ namespace Microsoft.Net.Insertions.Api.Providers
 
         #region IInsertionApi API
 
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, string ignoredPackagesFile, string? accessToken = null, string? propsFilesRootDirectory = null)
+        public UpdateResults UpdateVersions(
+            string manifestFile,
+            string defaultConfigFile,
+            string ignoredPackagesFile,
+            string? accessToken = null,
+            string? propsFilesRootDirectory = null)
         {
             return UpdateVersions(manifestFile, defaultConfigFile, LoadPackagesToIgnore(ignoredPackagesFile), accessToken, propsFilesRootDirectory);
         }
 
-        public UpdateResults UpdateVersions(string manifestFile, string defaultConfigFile, ImmutableHashSet<string>? packagesToIgnore, string? accessToken = null, string? propsFilesRootDirectory = null)
+        public UpdateResults UpdateVersions(
+            string manifestFile,
+            string defaultConfigFile,
+            ImmutableHashSet<string>? packagesToIgnore,
+            string? accessToken = null,
+            string? propsFilesRootDirectory = null)
         {
             List<Asset> assets = null!;
             DefaultConfigUpdater configUpdater;
@@ -290,7 +300,11 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return ignoredPackages.ToImmutableHashSet();
         }
 
-        private void ParallelCallback(Asset asset, ImmutableHashSet<string>? packagesToIgnore, DefaultConfigUpdater configUpdater, UpdateResults results)
+        private void ParallelCallback(
+            Asset asset, 
+            ImmutableHashSet<string>? packagesToIgnore,
+            DefaultConfigUpdater configUpdater,
+            UpdateResults results)
         {
             Stopwatch stopWatch = Stopwatch.StartNew();
 
