@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -47,16 +48,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
         public UpdateResults UpdateVersions(
             string manifestFile,
             string defaultConfigFile,
-            string ignoredPackagesFile,
-            string? accessToken = null,
-            string? propsFilesRootDirectory = null)
-        {
-            return UpdateVersions(manifestFile, defaultConfigFile, LoadPackagesToIgnore(ignoredPackagesFile), accessToken, propsFilesRootDirectory);
-        }
-
-        public UpdateResults UpdateVersions(
-            string manifestFile,
-            string defaultConfigFile,
+            IEnumerable<Regex> whitelistedPackages,
             ImmutableHashSet<string>? packagesToIgnore,
             string? accessToken = null,
             string? propsFilesRootDirectory = null)
@@ -81,7 +73,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
             {
                 _ = Parallel.ForEach(assets,
                     CreateParallelOptions(source.Token),
-                    asset => ParallelCallback(asset, packagesToIgnore, configUpdater, results));
+                    asset => ParallelCallback(asset, whitelistedPackages, packagesToIgnore, configUpdater, results));
 
                 /* Delay saving config file changes until props file updates are successful.
                  * If we save the results now and props-file step fails, re-running the application won't attempt to update props files again.
@@ -90,7 +82,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 // Only update props files if user specified an access token. Null token means user doesn't want to update props files.
                 bool propsUpdatesEnabled = accessToken != null;
 
-                if(propsUpdatesEnabled)
+                if (propsUpdatesEnabled)
                 {
                     // Attempt to find a proper directory to search for props files, if we are not already given one.
                     if (string.IsNullOrWhiteSpace(propsFilesRootDirectory))
@@ -101,14 +93,12 @@ namespace Microsoft.Net.Insertions.Api.Providers
                         }
                         else
                         {
-                            Trace.WriteLine("Failed to find an appropriate folder to search for .props files. "
-                                + "Props file updating will be disabled.");
+                            Trace.WriteLine("Failed to find an appropriate folder to search for .props files.");
 
                             results.PropsFileUpdateResults = new PropsUpdateResults()
                             {
                                 Outcome = false,
-                                OutcomeDetails = "Failed to find an appropriate folder to search for .props files. "
-                                    + "Props file updating will be disabled."
+                                OutcomeDetails = "Failed to find an appropriate folder to search for .props files."
                             };
                         }
                     }
@@ -119,9 +109,9 @@ namespace Microsoft.Net.Insertions.Api.Providers
                         SwrFileReader swrFileReader = new SwrFileReader(_maxConcurrentWorkers);
                         SwrFile[] swrFiles = swrFileReader.LoadSwrFiles(propsFilesRootDirectory);
 
-                    PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
-                    bool deduceOperationResult = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets,
-                        swrFiles, out List<PropsFileVariableReference> variables, out string outcomeDetails, _maxDownloadDuration);
+                        PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
+                        bool deduceOperationResult = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets,
+                            swrFiles, out List<PropsFileVariableReference> variables, out string outcomeDetails, _maxDownloadDuration);
 
                         PropsFileUpdater propsFileUpdater = new PropsFileUpdater();
                         results.PropsFileUpdateResults = propsFileUpdater.UpdatePropsFiles(variables, propsFilesRootDirectory);
@@ -137,8 +127,8 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 {
                     Trace.WriteLine(".props file updates are skipped since no access token was specified.");
                 }
-                
-                if(!propsUpdatesEnabled || results.PropsFileUpdateResults!.Outcome == true)
+
+                if (!propsUpdatesEnabled || results.PropsFileUpdateResults!.Outcome == true)
                 {
                     // Prop files were updated successfuly. It is safe to save config update results.
                     results.FileSaveResults = configUpdater.Save();
@@ -282,26 +272,9 @@ namespace Microsoft.Net.Insertions.Api.Providers
             return configUpdater.TryLoad(defaultConfigPath, out details);
         }
 
-        private ImmutableHashSet<string> LoadPackagesToIgnore(string ignoredPackagesFile)
-        {
-            if (!File.Exists(ignoredPackagesFile))
-            {
-                return ImmutableHashSet<string>.Empty;
-            }
-
-            HashSet<string> ignoredPackages = new HashSet<string>();
-            string[] fileLines = File.ReadAllLines(ignoredPackagesFile);
-
-            foreach (string line in fileLines)
-            {
-                ignoredPackages.Add(line);
-            }
-
-            return ignoredPackages.ToImmutableHashSet();
-        }
-
         private void ParallelCallback(
-            Asset asset, 
+            Asset asset,
+            IEnumerable<Regex> whitelistedPackages,
             ImmutableHashSet<string>? packagesToIgnore,
             DefaultConfigUpdater configUpdater,
             UpdateResults results)
@@ -311,6 +284,14 @@ namespace Microsoft.Net.Insertions.Api.Providers
             if (!TryGetPackageId(asset.Name!, asset.Version!, out string packageId))
             {
                 _metrics.AddMeasurement(Update.NotAPackage, stopWatch.ElapsedTicks);
+                return;
+            }
+
+            // Whitelist isn't empty, but packageId doensn't match with any of the entries.
+            if (whitelistedPackages.Any() && whitelistedPackages.All(pattern => !pattern.IsMatch(packageId)))
+            {
+                _metrics.AddMeasurement(Update.Ignored, stopWatch.ElapsedTicks);
+                Trace.WriteLine($"Skipping {packageId} since it isn't in the whitelisted packages.");
                 return;
             }
 
