@@ -266,23 +266,23 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
                 {
-                    InputLoading.ProcessArgument(arg, SwitchDefaultConfig, $"Specified {InsertionConstants.DefaultConfigFile}:", out DefaultConfigFile);
+                    DefaultConfigFile = InputLoading.ProcessArgument(arg, SwitchDefaultConfig, $"Specified {InsertionConstants.DefaultConfigFile}:");
                 }
                 else if (arg.StartsWith(SwitchManifest))
                 {
-                    InputLoading.ProcessArgument(arg, SwitchManifest, $"Specified {InsertionConstants.ManifestFile}:", out ManifestFile);
+                    ManifestFile = InputLoading.ProcessArgument(arg, SwitchManifest, $"Specified {InsertionConstants.ManifestFile}:");
                 }
                 else if (arg.StartsWith(SwitchWhitelistedPackages))
                 {
-                    InputLoading.ProcessArgument(arg, SwitchWhitelistedPackages, $"Specified whitelisted packages file:", out WhitelistedPackagesFile);
+                    WhitelistedPackagesFile = InputLoading.ProcessArgument(arg, SwitchWhitelistedPackages, $"Specified whitelisted packages file:");
                 }
                 else if (arg.StartsWith(SwitchIgnorePackages))
                 {
-                    InputLoading.ProcessArgument(arg, SwitchIgnorePackages, $"Specified ignored packages file:", out IgnoredPackagesFile);
+                    IgnoredPackagesFile = InputLoading.ProcessArgument(arg, SwitchIgnorePackages, $"Specified ignored packages file:");
                 }
                 else if (arg.StartsWith(SwitchPropsFilesRootDir))
                 {
-                    InputLoading.ProcessArgument(arg, SwitchPropsFilesRootDir, $"Specified root directory for props files:", out PropsFilesRootDirectory);
+                    PropsFilesRootDirectory = InputLoading.ProcessArgument(arg, SwitchPropsFilesRootDir, $"Specified root directory for props files:");
                 }
                 else if (arg.StartsWith(SwitchFeedAccessToken))
                 {
@@ -291,17 +291,17 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 }
                 else if (arg.StartsWith(SwitchMaxWaitSeconds))
                 {
-                    InputLoading.ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max run duration in seconds, excluding downloads\":", out int waitDurationSeconds);
+                    int waitDurationSeconds = InputLoading.ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max run duration in seconds, excluding downloads\":");
                     MaxWaitDuration = TimeSpan.FromSeconds(waitDurationSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxDownloadSeconds))
                 {
-                    InputLoading.ProcessArgumentInt(arg, SwitchMaxDownloadSeconds, $"Specified \"max download duration in seconds\":", out int downloadDurationSeconds);
+                    int downloadDurationSeconds = InputLoading.ProcessArgumentInt(arg, SwitchMaxDownloadSeconds, $"Specified \"max download duration in seconds\":");
                     MaxDownloadDuration = TimeSpan.FromSeconds(downloadDurationSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxConcurrency))
                 {
-                    InputLoading.ProcessArgumentInt(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", out MaxConcurrency);
+                    MaxConcurrency = InputLoading.ProcessArgumentInt(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":");
                 }
                 else if (arg.StartsWith(SwitchIgnoreDevUxTeamPackages))
                 {

@@ -13,24 +13,24 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 {
     internal static class InputLoading
     {
-        internal static void ProcessArgument(string argument, string appSwitch, string cmdLineMessage, out string target)
+        internal static string ProcessArgument(string argument, string appSwitch, string cmdLineMessage)
         {
-            target = argument.Replace(appSwitch, string.Empty);
-            Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
+            string argumentValue = argument.Replace(appSwitch, string.Empty);
+            Trace.WriteLine($"CMD line param. {cmdLineMessage} {argumentValue}");
+            return argumentValue;
         }
 
-        internal static void ProcessArgumentInt(string argument, string appSwitch, string cmdLineMessage, out int target)
+        internal static int ProcessArgumentInt(string argument, string appSwitch, string cmdLineMessage)
         {
             string trimmedArg = argument.Replace(appSwitch, string.Empty);
-            if (int.TryParse(trimmedArg, out target))
+            if (int.TryParse(trimmedArg, out int argumentValue))
             {
-                Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
+                Trace.WriteLine($"CMD line param. {cmdLineMessage} {argumentValue}");
+                return argumentValue;
             }
-            else
-            {
-                target = -1;
-                Trace.WriteLine("Specified value is not an integer. Default value will be used.");
-            }
+             
+            Trace.WriteLine(@"Specified value is not an integer. Default value of ""-1"" will be used.");
+            return -1;
         }
 
         internal static IEnumerable<Regex> LoadWhitelistedPackages(string whitelistedPackagesFile)
