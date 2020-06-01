@@ -17,6 +17,8 @@
     > _-i:c:\files\ignore.txt_
 1. **-idut** Indicates that packages relevant to the .NET Dev UX team are ignored [**optional**].  If **-i:** is also set, the file specified with that option is used, superceding **-idut**.
     > _-idut_
+1. **-wl:** Path to the whitelist file [**optional**]. If this is specified, only the packages listed in this file will be updated. Each line in the file represents a regex pattern that will potentially match one or more package IDs. This switch will be ignored if the given file is empty.
+    > _-wl:c:\files\whitelist.txt_
 1. **-p**: Path to the directory to search for .props files [**optional**]. If left unspecified, all the .props files under src\SetupPackages in local VS repo will be searched.
     > _-p:C:\VS\src\SetupPackages_
 1. **-a**: Personal access token to access packages in [VS feed](https://pkgs.dev.azure.com/devdiv/_packaging/VS-CoreXtFeeds/nuget/v3/index.json) [**optional**]. If not specified, props files will not be updated.
@@ -72,6 +74,14 @@ Location of additional needed resources...
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -i:\repos\Assets\ignored.txt
 ```
+#### Restricting the affected packages with a whitelist
+Location of additional needed resources...
+1. _whitelist.txt_ located in \repos\Assets. Each line should be a regex pattern matching package IDs such as:  
+`^VS\.Redist\.Common\.NetCore\.SharedFramework\.(x86|x64)\.[0-9]+\.[0-9]+$`
+```pwsh
+$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -wl:\repos\Assets\whitelist.txt
+```
+
 #### Opting to Ignore .NET Dev UX NuGet Packages
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -idut

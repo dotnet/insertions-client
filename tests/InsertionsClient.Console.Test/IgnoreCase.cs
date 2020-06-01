@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-namespace InsertionsClientTest
+namespace InsertionsClient.Console.Test
 {
     public enum IgnoreCase
     {

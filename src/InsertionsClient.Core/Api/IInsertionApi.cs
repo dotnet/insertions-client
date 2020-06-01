@@ -4,8 +4,9 @@ using Microsoft.Net.Insertions.Models;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
-[assembly: InternalsVisibleTo("InsertionsClient.Test")]
+[assembly: InternalsVisibleTo("InsertionsClient.Core.Test")]
 namespace Microsoft.Net.Insertions.Api
 {
     /// <summary>
@@ -18,23 +19,8 @@ namespace Microsoft.Net.Insertions.Api
         /// </summary>
         /// <param name="manifestFile">Specified manifest.json.</param>
         /// <param name="defaultConfigFile">Full path to &quot;default.config&quot; file.</param>
-        /// <param name="ignoredPackagesFile">Full path to the file which lists all the packages to ignore line by line.
-        /// Package ids should be given identical to how they are written in &quot;default.config&quot;.</param>
-        /// <param name="accessToken">Access token used when connecting to nuget feed.</param>
-        /// <param name="propsFilesRootDirectory">Directory that will be searched for props files.</param>
-        /// <returns><see cref="UpdateResults"/> detailing the operation's outcome.</returns>
-        UpdateResults UpdateVersions(
-            string manifestFile,
-            string defaultConfigFile,
-            string ignoredPackagesFile,
-            string? accessToken,
-            string? propsFilesRootDirectory);
-
-        /// <summary>
-        /// Updates default.config NuGet package versions from matching manifest.json assets.
-        /// </summary>
-        /// <param name="manifestFile">Specified manifest.json.</param>
-        /// <param name="defaultConfigFile">Full path to &quot;default.config&quot; file.</param>
+        /// <param name="whitelistedPackages">Regex patterns matching with the packages that are allowed to be updated. If the set is empty,
+        /// any package is allowed be updated unless specified in packagesToIgnore.</param>
         /// <param name="packagesToIgnore"><see cref="HashSet{string}"/> of packages to ignore.</param>
         /// <param name="accessToken">Access token used when connecting to nuget feed.</param>
         /// <param name="propsFilesRootDirectory">Directory that will be searched for props files.</param>
@@ -42,6 +28,7 @@ namespace Microsoft.Net.Insertions.Api
         UpdateResults UpdateVersions(
             string manifestFile,
             string defaultConfigFile,
+            IEnumerable<Regex> whitelistedPackages,
             ImmutableHashSet<string>? packagesToIgnore,
             string? accessToken,
             string? propsFilesRootDirectory);

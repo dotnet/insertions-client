@@ -13,8 +13,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 
+[assembly: InternalsVisibleTo("InsertionsClient.Console.Test")]
 namespace Microsoft.Net.Insertions.ConsoleApp
 {
     internal class Program
@@ -22,6 +25,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
         private const string SwitchDefaultConfig = "-d:";
 
         private const string SwitchManifest = "-m:";
+
+        private const string SwitchWhitelistedPackages = "-wl:";
 
         private const string SwitchIgnorePackages = "-i:";
 
@@ -45,6 +50,8 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             txt.Append(" ");
             txt.Append($"{SwitchManifest}<manifest.json full file path>");
             txt.Append(" ");
+            txt.Append($"[{SwitchWhitelistedPackages}<whitelisted packages file path>]");
+            txt.Append(" ");
             txt.Append($"[{SwitchIgnorePackages}<ignored packages file path>]");
             txt.Append(" ");
             txt.Append($"[{SwitchPropsFilesRootDir}<root directory that contains props files>]");
@@ -66,13 +73,15 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
         private static string ManifestFile = string.Empty;
 
+        private static string WhitelistedPackagesFile = string.Empty;
+
         private static string IgnoredPackagesFile = string.Empty;
 
         private static bool IgnoreDevUxTeamPackagesScenario;
 
         private static string PropsFilesRootDirectory = string.Empty;
 
-        private static string FeedAccessToken = string.Empty;
+        private static string? FeedAccessToken = null;
 
         private static TimeSpan MaxWaitDuration = TimeSpan.FromSeconds(75);
 
@@ -111,37 +120,26 @@ namespace Microsoft.Net.Insertions.ConsoleApp
 
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
             IInsertionApi api = apiFactory.Create(MaxWaitDuration, MaxDownloadDuration, MaxConcurrency);
+            IEnumerable<Regex> whitelistedPackages = InputLoading.LoadWhitelistedPackages(WhitelistedPackagesFile);
+            ImmutableHashSet<string> ignoredPackages = ImmutableHashSet<string>.Empty;
 
-            UpdateResults results;
             if (!string.IsNullOrWhiteSpace(IgnoredPackagesFile))
             {
-                results = api.UpdateVersions(
-                    ManifestFile,
-                    DefaultConfigFile,
-                    IgnoredPackagesFile,
-                    FeedAccessToken,
-                    PropsFilesRootDirectory
-                );
+                ignoredPackages = InputLoading.LoadPackagesToIgnore(IgnoredPackagesFile);
             }
             else if (IgnoreDevUxTeamPackagesScenario)
             {
-                results = api.UpdateVersions(
-                    ManifestFile,
-                    DefaultConfigFile,
-                    InsertionConstants.DefaultDevUxTeamPackages,
-                    FeedAccessToken, PropsFilesRootDirectory
-                );
+                ignoredPackages = InsertionConstants.DefaultDevUxTeamPackages;
             }
-            else
-            {
-                results = api.UpdateVersions(
+
+            UpdateResults results = api.UpdateVersions(
                     ManifestFile,
                     DefaultConfigFile,
-                    ImmutableHashSet<string>.Empty,
+                    whitelistedPackages,
+                    ignoredPackages,
                     FeedAccessToken,
                     PropsFilesRootDirectory
                 );
-            }
 
             ShowResults(results);
 
@@ -230,6 +228,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Trace.WriteLine($"{Environment.NewLine}Options:");
             Trace.WriteLine($"{SwitchDefaultConfig}   full path on disk to default.config to update");
             Trace.WriteLine($"{SwitchManifest}   full path on disk to manifest.json");
+            Trace.WriteLine($"{SwitchWhitelistedPackages}   full path on disk to whitelisted packages file. Each line should contain a regex pattern that may match zero or more package ids [optional]");
             Trace.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
             Trace.WriteLine($"{SwitchPropsFilesRootDir}   directory to search for and update .props files [optional]");
             Trace.WriteLine($"{SwitchFeedAccessToken}   token to access nuget feed. Necessary when updating props files [optional]");
@@ -267,19 +266,23 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
                 {
-                    ProcessArgument(arg, SwitchDefaultConfig, $"Specified {InsertionConstants.DefaultConfigFile}:", out DefaultConfigFile);
+                    DefaultConfigFile = InputLoading.ProcessArgument(arg, SwitchDefaultConfig, $"Specified {InsertionConstants.DefaultConfigFile}:");
                 }
                 else if (arg.StartsWith(SwitchManifest))
                 {
-                    ProcessArgument(arg, SwitchManifest, $"Specified {InsertionConstants.ManifestFile}:", out ManifestFile);
+                    ManifestFile = InputLoading.ProcessArgument(arg, SwitchManifest, $"Specified {InsertionConstants.ManifestFile}:");
+                }
+                else if (arg.StartsWith(SwitchWhitelistedPackages))
+                {
+                    WhitelistedPackagesFile = InputLoading.ProcessArgument(arg, SwitchWhitelistedPackages, $"Specified whitelisted packages file:");
                 }
                 else if (arg.StartsWith(SwitchIgnorePackages))
                 {
-                    ProcessArgument(arg, SwitchIgnorePackages, $"Specified ignored packages file:", out IgnoredPackagesFile);
+                    IgnoredPackagesFile = InputLoading.ProcessArgument(arg, SwitchIgnorePackages, $"Specified ignored packages file:");
                 }
                 else if (arg.StartsWith(SwitchPropsFilesRootDir))
                 {
-                    ProcessArgument(arg, SwitchPropsFilesRootDir, $"Specified root directory for props files:", out PropsFilesRootDirectory);
+                    PropsFilesRootDirectory = InputLoading.ProcessArgument(arg, SwitchPropsFilesRootDir, $"Specified root directory for props files:");
                 }
                 else if (arg.StartsWith(SwitchFeedAccessToken))
                 {
@@ -288,17 +291,17 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 }
                 else if (arg.StartsWith(SwitchMaxWaitSeconds))
                 {
-                    ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max run duration in seconds, excluding downloads\":", out int waitDurationSeconds);
+                    int waitDurationSeconds = InputLoading.ProcessArgumentInt(arg, SwitchMaxWaitSeconds, $"Specified \"max run duration in seconds, excluding downloads\":");
                     MaxWaitDuration = TimeSpan.FromSeconds(waitDurationSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxDownloadSeconds))
                 {
-                    ProcessArgumentInt(arg, SwitchMaxDownloadSeconds, $"Specified \"max download duration in seconds\":", out int downloadDurationSeconds);
+                    int downloadDurationSeconds = InputLoading.ProcessArgumentInt(arg, SwitchMaxDownloadSeconds, $"Specified \"max download duration in seconds\":");
                     MaxDownloadDuration = TimeSpan.FromSeconds(downloadDurationSeconds);
                 }
                 else if (arg.StartsWith(SwitchMaxConcurrency))
                 {
-                    ProcessArgumentInt(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":", out MaxConcurrency);
+                    MaxConcurrency = InputLoading.ProcessArgumentInt(arg, SwitchMaxConcurrency, $"Specified \"max concurrency\":");
                 }
                 else if (arg.StartsWith(SwitchIgnoreDevUxTeamPackages))
                 {
@@ -313,26 +316,6 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             if (string.IsNullOrWhiteSpace(ManifestFile))
             {
                 ShowErrorHelpAndExit($"{InsertionConstants.ManifestFile} path not set.");
-            }
-        }
-
-        private static void ProcessArgument(string argument, string appSwitch, string cmdLineMessage, out string target)
-        {
-            target = argument.Replace(appSwitch, string.Empty);
-            Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
-        }
-
-        private static void ProcessArgumentInt(string argument, string appSwitch, string cmdLineMessage, out int target)
-        {
-            string trimmedArg = argument.Replace(appSwitch, string.Empty);
-            if (int.TryParse(trimmedArg, out target))
-            {
-                Trace.WriteLine($"CMD line param. {cmdLineMessage} {target}");
-            }
-            else
-            {
-                target = -1;
-                Trace.WriteLine("Specified value is not an integer. Default value will be used.");
             }
         }
     }

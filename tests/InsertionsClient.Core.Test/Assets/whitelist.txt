@@ -1,0 +1,7 @@
+^VS\.Redist\.Common\.AspNetCore\.SharedFramework\.(x86|x64)\.[0-9]+\.[0-9]+$
+^VS\.Redist\.Common\.Net\.Core\.SDK\.MSBuildExtensions$
+^VS\.Redist\.Common\.NetCore\.AppHostPack\.(x86|x64).*\.[0-9]+\.[0-9]+$
+^VS\.Redist\.Common\.NetCore\.SharedFramework\.(x86|x64)\.[0-9]+\.[0-9]+$
+^VS\.Redist\.Common\.NetCore\.SharedHost\.(x86|x64)\.[0-9]+\.[0-9]+$
+^VS\.Redist\.Common\.NetCore\.Toolset\.(x86|x64)$
+^VS\.Redist\.Common\.NetCore\.Templates\.x64\.2\.[0-9]+$
