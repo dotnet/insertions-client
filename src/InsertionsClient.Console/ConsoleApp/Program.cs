@@ -228,7 +228,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
             Trace.WriteLine($"{Environment.NewLine}Options:");
             Trace.WriteLine($"{SwitchDefaultConfig}   full path on disk to default.config to update");
             Trace.WriteLine($"{SwitchManifest}   full path on disk to manifest.json");
-            Trace.WriteLine($"{SwitchWhitelistedPackages}   full path on disk to whitelisted packages file. Each line should have a package id. Regex is also supported [optional]");
+            Trace.WriteLine($"{SwitchWhitelistedPackages}   full path on disk to whitelisted packages file. Each line should contain a regex pattern that may match zero or more package ids [optional]");
             Trace.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
             Trace.WriteLine($"{SwitchPropsFilesRootDir}   directory to search for and update .props files [optional]");
             Trace.WriteLine($"{SwitchFeedAccessToken}   token to access nuget feed. Necessary when updating props files [optional]");

@@ -60,15 +60,7 @@ namespace Microsoft.Net.Insertions.ConsoleApp
                 return ImmutableHashSet<string>.Empty;
             }
 
-            HashSet<string> ignoredPackages = new HashSet<string>();
-            string[] fileLines = File.ReadAllLines(ignoredPackagesFile);
-
-            foreach (string line in fileLines)
-            {
-                ignoredPackages.Add(line);
-            }
-
-            return ignoredPackages.ToImmutableHashSet();
+            return File.ReadAllLines(ignoredPackagesFile).ToImmutableHashSet();
         }
     }
 }

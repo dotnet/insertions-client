@@ -287,7 +287,7 @@ namespace Microsoft.Net.Insertions.Api.Providers
                 return;
             }
 
-            // Whitelist isn't empty, but packageId doensn't match with any of the entries.
+            // Whitelist isn't empty, but packageId doesn't match with any of the entries.
             if (whitelistedPackages.Any() && whitelistedPackages.All(pattern => !pattern.IsMatch(packageId)))
             {
                 _metrics.AddMeasurement(Update.Ignored, stopWatch.ElapsedTicks);
