@@ -1,6 +1,6 @@
 using System;
 
-namespace Microsoft.Net.Insertions.Models
+namespace Microsoft.DotNet.InsertionsClient.Models
 {
     /// <summary> Stores the result of a file save operation.
     public struct FileSaveResult : IEquatable<FileSaveResult>

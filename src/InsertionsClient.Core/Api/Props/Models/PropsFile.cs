@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Models;
+using Microsoft.DotNet.InsertionsClient.Models;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Microsoft.Net.Insertions.Props.Models
+namespace Microsoft.DotNet.InsertionsClient.Props.Models
 {
     /// <summary>
     /// This type represents a props file that contains the variables

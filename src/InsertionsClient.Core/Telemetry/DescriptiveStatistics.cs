@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Telemetry.Models;
+using Microsoft.DotNet.InsertionsClient.Telemetry.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.Net.Insertions.Telemetry
+namespace Microsoft.DotNet.InsertionsClient.Telemetry
 {
     internal sealed class DescriptiveStatistics
     {

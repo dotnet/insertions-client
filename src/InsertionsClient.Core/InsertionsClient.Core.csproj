@@ -1,11 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Microsoft.Net.Insertions</RootNamespace>
-    <AssemblyName>InsertionsClient.Core</AssemblyName>
+    <RootNamespace>Microsoft.DotNet.InsertionsClient</RootNamespace>
+    <AssemblyName>Microsoft.DotNet.InsertionsClient.Core</AssemblyName>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
+    
+    <Authors>Microsoft, DotNet</Authors>
+    <Company>Microsoft</Company>
+    <Product>Microsoft.Dotnet.InsertionsClient.Core</Product>
+    <Description>Core library for inserting .NET Core SDK into Visual Studio.</Description>
+    <Copyright>Copyright (c) Microsoft. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://github.com/dotnet/insertions-client</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dotnet/insertions-client</RepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>

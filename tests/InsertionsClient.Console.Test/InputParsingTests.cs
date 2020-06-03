@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Api;
-using Microsoft.Net.Insertions.Api.Providers;
-using Microsoft.Net.Insertions.ConsoleApp;
-using Microsoft.Net.Insertions.Models;
+using Microsoft.DotNet.InsertionsClient.Api;
+using Microsoft.DotNet.InsertionsClient.Api.Providers;
+using Microsoft.DotNet.InsertionsClient.ConsoleApp;
+using Microsoft.DotNet.InsertionsClient.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

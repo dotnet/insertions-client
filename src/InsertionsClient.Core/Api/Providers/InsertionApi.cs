@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Api.Props.Models;
-using Microsoft.Net.Insertions.Common.Constants;
-using Microsoft.Net.Insertions.Common.Json;
-using Microsoft.Net.Insertions.Models;
-using Microsoft.Net.Insertions.Models.Extensions;
-using Microsoft.Net.Insertions.Props.Models;
-using Microsoft.Net.Insertions.Telemetry;
+using Microsoft.DotNet.InsertionsClient.Api.Props.Models;
+using Microsoft.DotNet.InsertionsClient.Common.Constants;
+using Microsoft.DotNet.InsertionsClient.Common.Json;
+using Microsoft.DotNet.InsertionsClient.Models;
+using Microsoft.DotNet.InsertionsClient.Models.Extensions;
+using Microsoft.DotNet.InsertionsClient.Props.Models;
+using Microsoft.DotNet.InsertionsClient.Telemetry;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Microsoft.Net.Insertions.Api.Providers
+namespace Microsoft.DotNet.InsertionsClient.Api.Providers
 {
     /// <summary>
     /// <see cref="IInsertionApi"/> provider relying on <see cref="IDefaultConfigApi"/> instances to update NuGet versions.

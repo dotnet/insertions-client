@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Api;
-using Microsoft.Net.Insertions.Api.Providers;
-using Microsoft.Net.Insertions.Common.Constants;
-using Microsoft.Net.Insertions.Common.Logging;
-using Microsoft.Net.Insertions.Models;
-using Microsoft.Net.Insertions.Props.Models;
+using Microsoft.DotNet.InsertionsClient.Api;
+using Microsoft.DotNet.InsertionsClient.Api.Providers;
+using Microsoft.DotNet.InsertionsClient.Common.Constants;
+using Microsoft.DotNet.InsertionsClient.Common.Logging;
+using Microsoft.DotNet.InsertionsClient.Models;
+using Microsoft.DotNet.InsertionsClient.Props.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -18,7 +18,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 [assembly: InternalsVisibleTo("InsertionsClient.Console.Test")]
-namespace Microsoft.Net.Insertions.ConsoleApp
+namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
 {
     internal class Program
     {

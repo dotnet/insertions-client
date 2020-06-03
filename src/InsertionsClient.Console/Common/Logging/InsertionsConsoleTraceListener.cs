@@ -2,7 +2,7 @@
 
 using System.Diagnostics;
 
-namespace Microsoft.Net.Insertions.Common.Logging
+namespace Microsoft.DotNet.InsertionsClient.Common.Logging
 {
     internal sealed class InsertionsConsoleTraceListener : ConsoleTraceListener
     {

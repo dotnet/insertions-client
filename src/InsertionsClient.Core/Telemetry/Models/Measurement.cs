@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Models;
+using Microsoft.DotNet.InsertionsClient.Models;
 using System;
 
-namespace Microsoft.Net.Insertions.Telemetry.Models
+namespace Microsoft.DotNet.InsertionsClient.Telemetry.Models
 {
     internal sealed class Measurement
     {

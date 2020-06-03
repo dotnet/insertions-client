@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Microsoft.Net.Insertions.Api
+namespace Microsoft.DotNet.InsertionsClient.Api
 {
     /// <summary>
     /// Factory of <see cref="IInsertionApi"/> instances.

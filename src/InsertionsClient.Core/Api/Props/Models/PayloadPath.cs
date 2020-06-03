@@ -2,7 +2,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace Microsoft.Net.Insertions.Api.Props.Models
+namespace Microsoft.DotNet.InsertionsClient.Api.Props.Models
 {
     /// <summary>
     /// Represents a payload defined in the swr file.

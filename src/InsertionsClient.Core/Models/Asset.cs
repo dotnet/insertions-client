@@ -2,7 +2,7 @@
 
 using System.Runtime.Serialization;
 
-namespace Microsoft.Net.Insertions.Models
+namespace Microsoft.DotNet.InsertionsClient.Models
 {
     /// <summary>
     /// Describes individual build assets.

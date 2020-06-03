@@ -3,7 +3,7 @@
 using System;
 using System.Text;
 
-namespace Microsoft.Net.Insertions.Common.Logging
+namespace Microsoft.DotNet.InsertionsClient.Common.Logging
 {
     internal static class Utilities
     {

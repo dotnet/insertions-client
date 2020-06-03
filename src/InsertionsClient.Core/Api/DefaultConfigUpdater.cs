@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Common.Constants;
-using Microsoft.Net.Insertions.Models;
+using Microsoft.DotNet.InsertionsClient.Common.Constants;
+using Microsoft.DotNet.InsertionsClient.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Microsoft.Net.Insertions.Api
+namespace Microsoft.DotNet.InsertionsClient.Api
 {
     /// <summary>
     /// Manages loading and updating &quot;default.config&quot; file and &quot;.packageconfig&quot; files listed in it.

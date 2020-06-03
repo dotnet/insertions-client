@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Microsoft.Net.Insertions.Models
+namespace Microsoft.DotNet.InsertionsClient.Models
 {
     /// <summary>
     /// Defines a manifest.json build.

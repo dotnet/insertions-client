@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Microsoft.Net.Insertions.ConsoleApp
+namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
 {
     internal static class InputLoading
     {

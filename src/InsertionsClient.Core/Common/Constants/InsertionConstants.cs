@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace Microsoft.Net.Insertions.Common.Constants
+namespace Microsoft.DotNet.InsertionsClient.Common.Constants
 {
     public static class InsertionConstants
     {

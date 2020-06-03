@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-namespace Microsoft.Net.Insertions.Props.Models
+namespace Microsoft.DotNet.InsertionsClient.Props.Models
 {
     /// <summary>
     /// Represents a reference to a variable defined in a props file
