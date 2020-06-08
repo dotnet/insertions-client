@@ -4,6 +4,7 @@ using Microsoft.Net.Insertions.Models;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
@@ -45,6 +46,16 @@ namespace Microsoft.Net.Insertions.Props.Models
         private XDocument? _xDocument { get; set; }
 
         private bool _isLoaded => _xDocument != null;
+
+        /// <summary>
+        /// Settings to make sure saved xml has correct the formatting.
+        /// </summary>
+        private static readonly XmlWriterSettings _xmlWriteSettings = new XmlWriterSettings()
+        {
+            OmitXmlDeclaration = true,
+            Indent = true,
+            Encoding = Encoding.ASCII
+        };
 
         /// <summary>
         /// Attempts to find given variable in the file. Changes the value if found.
@@ -114,7 +125,8 @@ namespace Microsoft.Net.Insertions.Props.Models
 
             try
             {
-                _xDocument!.Save(Path);
+                using XmlWriter writer = XmlWriter.Create(Path, _xmlWriteSettings);
+                _xDocument!.Save(writer);
                 return new FileSaveResult(Path);
             }
             catch (Exception e)
