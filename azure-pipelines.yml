@@ -20,6 +20,7 @@ steps:
   displayName: 'Test'
 - task: DotNetCoreCLI@2
   displayName: Pack
+  condition: eq(variables.PublishToFeed, true)
   inputs:
     command: pack
     packagesToPack: 'src/**/*.csproj'
@@ -31,17 +32,21 @@ steps:
     includesymbols: true
     includesource: true
     configuration: release
-- task: NuGetAuthenticate@0
-  displayName: 'NuGet Authenticate'
-- task: NuGetCommand@2
-  displayName: 'NuGet push'
-  inputs:
-    command: push
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
-    publishVstsFeed: 'public/dotnet-eng'
-    allowPackageConflicts: true
 - task: PublishBuildArtifacts@1
+  condition: eq(variables.PublishToFeed, true)
   inputs:
     pathToPublish: '$(Build.ArtifactStagingDirectory)'
     artifactName: 'NugetArtifacts' 
     publishLocation: 'Container'
+- ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+  - task: NuGetAuthenticate@0
+    condition: eq(variables.PublishToFeed, true)
+    displayName: 'NuGet Authenticate'
+  - task: NuGetCommand@2
+    displayName: 'NuGet push'
+    condition: eq(variables.PublishToFeed, true)
+    inputs:
+      command: push
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+      publishVstsFeed: 'public/dotnet-eng'
+      allowPackageConflicts: true
