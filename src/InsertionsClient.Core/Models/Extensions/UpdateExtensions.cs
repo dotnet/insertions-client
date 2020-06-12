@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-namespace Microsoft.Net.Insertions.Models.Extensions
+namespace Microsoft.DotNet.InsertionsClient.Models.Extensions
 {
     internal static class UpdateExtensions
     {

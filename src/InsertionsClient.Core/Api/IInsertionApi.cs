@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Models;
+using Microsoft.DotNet.InsertionsClient.Models;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 [assembly: InternalsVisibleTo("InsertionsClient.Core.Test")]
-namespace Microsoft.Net.Insertions.Api
+namespace Microsoft.DotNet.InsertionsClient.Api
 {
     /// <summary>
     /// Defines features to manage default.config insertions from manifest.json.

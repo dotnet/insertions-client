@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Api.Providers;
-using Microsoft.Net.Insertions.Common.Json;
-using Microsoft.Net.Insertions.Models;
+using Microsoft.DotNet.InsertionsClient.Api.Providers;
+using Microsoft.DotNet.InsertionsClient.Common.Json;
+using Microsoft.DotNet.InsertionsClient.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Api.Props.Models;
-using Microsoft.Net.Insertions.Models;
-using Microsoft.Net.Insertions.Props.Models;
+using Microsoft.DotNet.InsertionsClient.Api.Props.Models;
+using Microsoft.DotNet.InsertionsClient.Models;
+using Microsoft.DotNet.InsertionsClient.Props.Models;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Packaging;
@@ -20,7 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
-namespace Microsoft.Net.Insertions.Api
+namespace Microsoft.DotNet.InsertionsClient.Api
 {
     /// <summary>
     /// Deduces the values of given props file variables by matching:

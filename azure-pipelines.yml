@@ -1,7 +1,7 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+variables:
+  Major: '1'
+  Minor: '0'
+  Patch: '0'
 
 trigger:
 - master
@@ -13,8 +13,40 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-  displayName: 'build'
+  displayName: 'Build'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'test'
-  displayName: 'run tests'
+  displayName: 'Test'
+- task: DotNetCoreCLI@2
+  displayName: Pack
+  condition: eq(variables.PublishToFeed, true)
+  inputs:
+    command: pack
+    packagesToPack: 'src/**/*.csproj'
+    versioningScheme: byPrereleaseNumber
+    majorVersion: '$(Major)'
+    minorVersion: '$(Minor)'
+    patchVersion: '$(Patch)'
+    packTimezone: 'utc'
+    includesymbols: true
+    includesource: true
+    configuration: release
+- task: PublishBuildArtifacts@1
+  condition: eq(variables.PublishToFeed, true)
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'NugetArtifacts' 
+    publishLocation: 'Container'
+- ${{ if eq(variables['System.TeamProject'], 'internal') }}:
+  - task: NuGetAuthenticate@0
+    condition: eq(variables.PublishToFeed, true)
+    displayName: 'NuGet Authenticate'
+  - task: NuGetCommand@2
+    displayName: 'NuGet push'
+    condition: eq(variables.PublishToFeed, true)
+    inputs:
+      command: push
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+      publishVstsFeed: 'public/dotnet-eng'
+      allowPackageConflicts: true

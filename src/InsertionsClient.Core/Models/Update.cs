@@ -1,6 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-namespace Microsoft.Net.Insertions.Models
+namespace Microsoft.DotNet.InsertionsClient.Models
 {
     internal enum Update
     {

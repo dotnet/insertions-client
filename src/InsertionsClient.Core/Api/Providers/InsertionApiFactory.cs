@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Microsoft.Net.Insertions.Api.Providers
+namespace Microsoft.DotNet.InsertionsClient.Api.Providers
 {
     public sealed class InsertionApiFactory : IInsertionApiFactory
     {

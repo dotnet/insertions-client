@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Models;
-using Microsoft.Net.Insertions.Telemetry.Models;
+using Microsoft.DotNet.InsertionsClient.Models;
+using Microsoft.DotNet.InsertionsClient.Telemetry.Models;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Microsoft.Net.Insertions.Telemetry
+namespace Microsoft.DotNet.InsertionsClient.Telemetry
 {
     internal sealed class MeasurementsSession
     {

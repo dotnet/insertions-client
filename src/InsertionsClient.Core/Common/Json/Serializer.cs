@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
-namespace Microsoft.Net.Insertions.Common.Json
+namespace Microsoft.DotNet.InsertionsClient.Common.Json
 {
     /// <summary>
     /// Contains JSon serializing utilities.

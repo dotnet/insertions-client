@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Net.Insertions.Models
+namespace Microsoft.DotNet.InsertionsClient.Models
 {
     internal sealed class AssetEqualityComparer : IEqualityComparer<Asset>
     {

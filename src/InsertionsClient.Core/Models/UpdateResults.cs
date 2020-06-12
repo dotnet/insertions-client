@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Props.Models;
+using Microsoft.DotNet.InsertionsClient.Props.Models;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Microsoft.Net.Insertions.Models
+namespace Microsoft.DotNet.InsertionsClient.Models
 {
     /// <summary>
     /// Describes the response to <see cref="IInsertionApi.UpdateVersions(string, string, string)"/> calls.

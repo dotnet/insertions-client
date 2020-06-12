@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 
-namespace Microsoft.Net.Insertions.Api.Props.Models
+namespace Microsoft.DotNet.InsertionsClient.Api.Props.Models
 {
     /// <summary>
     /// Represents an SWR file in a VS repo local working directory.

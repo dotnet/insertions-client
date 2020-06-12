@@ -3,12 +3,23 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Microsoft.Net.Insertions</RootNamespace>
-    <AssemblyName>InsertionsClient.Console</AssemblyName>
+    <RootNamespace>Microsoft.DotNet.InsertionsClient</RootNamespace>
+    <AssemblyName>Microsoft.DotNet.InsertionsClient.Console</AssemblyName>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
+    
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>InsertionsClient</ToolCommandName>
+    <Authors>Microsoft, DotNet</Authors>
+    <Company>Microsoft</Company>
+    <Product>Microsoft.Dotnet.InsertionsClient.Console</Product>
+    <Description>Console application for inserting .NET Core SDK into Visual Studio.</Description>
+    <Copyright>Copyright (c) Microsoft. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://github.com/dotnet/insertions-client</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dotnet/insertions-client</RepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\InsertionsClient.Core\InsertionsClient.Core.csproj" />

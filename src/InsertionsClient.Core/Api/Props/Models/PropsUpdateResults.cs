@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Models;
+using Microsoft.DotNet.InsertionsClient.Models;
 using System.Collections.Generic;
 
-namespace Microsoft.Net.Insertions.Props.Models
+namespace Microsoft.DotNet.InsertionsClient.Props.Models
 {
     /// <summary>
     /// Represents the result of a PropsFile update operation

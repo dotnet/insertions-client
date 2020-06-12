@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Models;
-using Microsoft.Net.Insertions.Props.Models;
+using Microsoft.DotNet.InsertionsClient.Models;
+using Microsoft.DotNet.InsertionsClient.Props.Models;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace Microsoft.Net.Insertions.Api.Providers
+namespace Microsoft.DotNet.InsertionsClient.Api.Providers
 {
     /// <summary>
     /// Used to find given variables in props files under a given directory and updates their values.

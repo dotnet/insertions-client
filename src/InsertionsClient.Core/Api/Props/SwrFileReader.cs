@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
-using Microsoft.Net.Insertions.Api.Props.Models;
+using Microsoft.DotNet.InsertionsClient.Api.Props.Models;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Microsoft.Net.Insertions.Api
+namespace Microsoft.DotNet.InsertionsClient.Api
 {
     /// <summary>
     /// Finds and loads .swr files in a given directory.
