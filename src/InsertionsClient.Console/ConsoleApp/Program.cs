@@ -112,7 +112,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
         private static string LogFile { get; }
 
         [STAThread]
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
             ShowStartOrEndMessage($"Running {ProgramName.Value}");
 
@@ -144,6 +144,8 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             ShowResults(results);
 
             Trace.WriteLine($"Log: {LogFile}{Environment.NewLine}");
+            
+            return results.Outcome ? 0 : 1;
         }
 
         private static void ShowResults(UpdateResults results)

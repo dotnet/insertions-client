@@ -138,6 +138,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
                     Trace.WriteLine("default.config and .packageconfig file updates were skipped, because " +
                         "there was an issue updating .props files.");
                     results.FileSaveResults = new FileSaveResult[0];
+                    results.OutcomeDetails += "Failure in updating .props files.";
                 }
             }
             catch (Exception e)
