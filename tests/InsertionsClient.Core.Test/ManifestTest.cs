@@ -48,10 +48,13 @@ namespace DefaultConfigClientTest
         [TestMethod]
         public void TestLoadNonJsonFile()
         {
+            InsertionApi insertionApi = new InsertionApi();
+            List<Asset> assets = new List<Asset>();
+            
             string fakeManifestPath = Path.Combine(Environment.CurrentDirectory, "fakeManifest.json");
             File.WriteAllText(fakeManifestPath, "some content that is not json");
-            InsertionApi insertionApi = new InsertionApi();
-            bool result = insertionApi.TryExtractManifestAssets(fakeManifestPath, out List<Asset> assets, out string error);
+
+            bool result = insertionApi.TryExtractManifestAssets(fakeManifestPath, assets, out string error);
             Assert.IsFalse(result);
             Assert.IsFalse(string.IsNullOrWhiteSpace(error));
             Assert.IsNotNull(assets);
@@ -87,7 +90,8 @@ namespace DefaultConfigClientTest
         private List<Asset> LoadManifestAssets()
         {
             InsertionApi insertionApi = new InsertionApi();
-            bool result = insertionApi.TryExtractManifestAssets(GetManifestFilePath(), out List<Asset> assets, out string error);
+            List<Asset> assets = new List<Asset>();
+            bool result = insertionApi.TryExtractManifestAssets(GetManifestFilePath(), assets, out string error);
             Assert.IsTrue(result, error);
             Assert.IsTrue(string.IsNullOrWhiteSpace(error), error);
             Assert.IsNotNull(assets);
