@@ -9,7 +9,7 @@ using System.Text;
 namespace Microsoft.DotNet.InsertionsClient.Common.Json
 {
     /// <summary>
-    /// Contains JSon serializing utilities.
+    /// Contains JSON serializing utilities.
     /// </summary>
     public static class Serializer
     {
@@ -26,7 +26,7 @@ namespace Microsoft.DotNet.InsertionsClient.Common.Json
         }
 
         /// <summary>
-        /// Deserializes a specified json to a targeted type <typeparamref name="TModel"/>.
+        /// Deserializes a specified JSON to a targeted type <typeparamref name="TModel"/>.
         /// </summary>
         /// <typeparam name="TModel">Targeted type.</typeparam>
         /// <param name="json">Specified json string.</param>
@@ -37,7 +37,7 @@ namespace Microsoft.DotNet.InsertionsClient.Common.Json
         }
 
         /// <summary>
-        /// Deserializes a specified json to a targeted type <typeparamref name="TModel"/>.
+        /// Deserializes a specified JSON to a targeted type <typeparamref name="TModel"/>.
         /// </summary>
         /// <typeparam name="TModel">Targeted type.</typeparam>
         /// <param name="json">Specified json string.</param>
@@ -55,11 +55,11 @@ namespace Microsoft.DotNet.InsertionsClient.Common.Json
         }
 
         /// <summary>
-        /// Serializes the specified object to a JSon string.
+        /// Serializes the specified object to a JSON string.
         /// </summary>
         /// <typeparam name="TModel">Type of object to serialize</typeparam>
         /// <param name="instance"></param>
-        /// <returns>Corresponding JSon string.</returns>
+        /// <returns>Corresponding JSON string.</returns>
         public static string Serialize<TModel>(TModel instance)
         {
             return Serialize(instance, new DataContractJsonSerializer(typeof(TModel), DataContractCustomTypes));

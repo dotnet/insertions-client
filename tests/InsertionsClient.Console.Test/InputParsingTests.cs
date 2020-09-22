@@ -60,7 +60,7 @@ namespace InsertionsClient.Console.Test
                     ignoredPackages,
                     null,
                     null);
-            
+
             Assert.IsFalse(results.UpdatedNuGets.Any(n => whitelistedPackages.All(pattern => !pattern.IsMatch(n.PackageId))), "Packages that shouldn't have been updated were updated.");
         }
 
@@ -98,7 +98,7 @@ namespace InsertionsClient.Console.Test
         {
             string assetsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
             string manifestFile = Path.Combine(assetsDirectory, "manifest.json");
-            
+
             Assert.IsTrue(File.Exists(manifestFile), "Manifest file that is required for the test was not found.");
 
             List<string> parsedPaths = InputLoading.LoadManifestPaths(manifestFile, out int invalidPathCount);
@@ -124,9 +124,9 @@ namespace InsertionsClient.Console.Test
         {
             string assetsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
             string manifestFile = Path.Combine(assetsDirectory, "manifest.json");
-            
+
             Assert.IsTrue(File.Exists(manifestFile), "Manifest file that is required for the test was not found.");
-            
+
             string nonexistentManifestFile = "A file that hopefully doesnt exist.44526223453856905547954332726542";
             string inputString = $"{nonexistentManifestFile};{manifestFile};; ;   ;";
 

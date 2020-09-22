@@ -14,7 +14,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api
         /// with a single manifest file instead of a set of manifest files.
         /// See the documentation of the related method for the detailed usage.
         /// </summary>
-        public static UpdateResults UpdateVersions( this IInsertionApi api,
+        public static UpdateResults UpdateVersions(this IInsertionApi api,
             string manifestFile,
             string defaultConfigFile,
             IEnumerable<Regex> whitelistedPackages,

@@ -265,7 +265,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
             string json = File.ReadAllText(manifestFile);
             if (string.IsNullOrWhiteSpace(json))
             {
-                Trace.WriteLine($"Failed to read JSon content from file {manifestFile}.");
+                Trace.WriteLine($"Failed to read JSON content from file {manifestFile}.");
                 return null;
             }
             try
