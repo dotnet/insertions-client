@@ -189,13 +189,13 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
         }
 
         /// <summary>
-        /// Parses the manifest files and extracts the assets into the given collection.
+        /// Parses the manifest file and extracts the assets into the given collection.
         /// </summary>
         /// <param name="manifestFile">Path to the file that will be parsed.</param>
         /// <param name="assets">The collection that the new assets will be inserted into.</param>
         /// <param name="details">Details of the encountered issue in case of an error.
         /// The value is null or empty in the case of success.</param>
-        /// <returns></returns>
+        /// <returns>True if the operation succeeded without errors. False, otherwise.</returns>
         internal bool TryExtractManifestAssets(string manifestFile, ICollection<Asset> assets, out string details)
         {
             details = string.Empty;

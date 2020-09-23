@@ -116,6 +116,42 @@ namespace InsertionsClient.Console.Test
         }
 
         /// <summary>
+        /// Tests whether <see cref="InputLoading.LoadManifestPaths(string, out int)"/> can load multiple valid manifest files.
+        /// </summary>
+        [TestMethod]
+        public void TestMultipleManifestPathLoading()
+        {
+            string assetsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
+            string manifestFile = Path.Combine(assetsDirectory, "manifest.json");
+            string otherManifestFile = Path.GetTempFileName();
+
+            Assert.IsTrue(File.Exists(manifestFile), "Manifest file that is required for the test was not found.");
+            Assert.IsTrue(File.Exists(otherManifestFile), "Failed to create the temporary file that is required for the test.");
+
+            string inputString = $"{manifestFile};{otherManifestFile}";
+
+            List<string> parsedPaths = InputLoading.LoadManifestPaths(inputString, out int invalidPathCount);
+
+            Assert.IsNotNull(parsedPaths);
+            Assert.AreEqual(2, parsedPaths.Count, "Unexpected number of paths were extracted from the input string.");
+            Assert.AreEqual(0, invalidPathCount, "No invalid path was expected.");
+            Assert.IsTrue(File.Exists(parsedPaths[0]), $"Parsed path doesn't point to a valid file:{parsedPaths[0]}");
+            Assert.IsTrue(File.Exists(parsedPaths[1]), $"Parsed path doesn't point to a valid file:{parsedPaths[1]}");
+
+            FileInfo[] inputFiles = new []
+            {
+                new FileInfo(manifestFile),
+                new FileInfo(otherManifestFile)
+            };
+
+            List<FileInfo> parsedFiles = parsedPaths.Select(p => new FileInfo(p)).ToList();
+
+            // Path strings may be different, but they both should point to the same file.
+            bool pathsPointToSameFiles = inputFiles.All(p => parsedFiles.Any(i => i.FullName == p.FullName));
+            Assert.IsTrue(pathsPointToSameFiles, "Input files and the resulting files do not match.");
+        }
+
+        /// <summary>
         /// Tests whether <see cref="InputLoading.LoadManifestPaths(string, out int)"/> can load manifest files
         /// from an input string that contains a path to a non-existent file.
         /// </summary>

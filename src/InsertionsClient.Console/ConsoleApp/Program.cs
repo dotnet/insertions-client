@@ -126,7 +126,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
 
             if(invalidManifestFileCount != 0)
             {
-                ShowErrorHelpAndExit($"Failed to find one or more manifest.json files specified in '{ManifestFile}'");
+                ShowErrorHelpAndExit($"Failed to find {invalidManifestFileCount.ToString()} manifest.json files specified in '{ManifestFile}'");
             }
 
             if (!string.IsNullOrWhiteSpace(IgnoredPackagesFile))
