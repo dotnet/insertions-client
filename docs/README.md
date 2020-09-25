@@ -11,8 +11,14 @@
 ## Input
 1. **-d:** Path to the default.config.  Example: 
     > _-d:c:\default.config_
-1. **-m:** Path to the manifest.json.  Example:
+1. **-m:** Path to the manifest.json file or to the containing directory.
+   
+   The following two examples use the same manifest file:
     > _-m:c:\files\manifest.json_
+    > _-m:c:\files\_
+
+   It is also possible to input multiple manifest files. In this case, the files will be processed in order. If the same package is updated from multiple manifest files, version number from the last specified manifest file will be used. To do this, use semicolon (;) to separate the paths as such:
+    > _m:c:\files\manifest.json;c:\just\folder\\;c:\another\fullpath\manifest.json_
 1. **-i:** Path to ignored packages file [**optional**]. Example: 
     > _-i:c:\files\ignore.txt_
 1. **-idut** Indicates that packages relevant to the .NET Dev UX team are ignored [**optional**].  If **-i:** is also set, the file specified with that option is used, superceding **-idut**.

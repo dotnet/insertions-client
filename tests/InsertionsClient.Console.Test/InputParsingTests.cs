@@ -60,7 +60,7 @@ namespace InsertionsClient.Console.Test
                     ignoredPackages,
                     null,
                     null);
-            
+
             Assert.IsFalse(results.UpdatedNuGets.Any(n => whitelistedPackages.All(pattern => !pattern.IsMatch(n.PackageId))), "Packages that shouldn't have been updated were updated.");
         }
 
@@ -88,6 +88,138 @@ namespace InsertionsClient.Console.Test
 
             Assert.IsTrue(ignoredPackages.SetEquals(results.IgnoredNuGets), $"Mismatched ignore packages");
             Assert.IsFalse(results.UpdatedNuGets.Any(n => ignoredPackages.Contains(n.PackageId)), "Packages that shouldn't have been updated were updated.");
+        }
+
+        /// <summary>
+        /// Tests whether <see cref="InputLoading.LoadManifestPaths(string, out int)"/> can load a single valid manifest file.
+        /// </summary>
+        [TestMethod]
+        public void TestManifestPathLoading()
+        {
+            string assetsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
+            string manifestFile = Path.Combine(assetsDirectory, "manifest.json");
+
+            Assert.IsTrue(File.Exists(manifestFile), "Manifest file that is required for the test was not found.");
+
+            List<string> parsedPaths = InputLoading.LoadManifestPaths(manifestFile, out int invalidPathCount);
+
+            Assert.IsNotNull(parsedPaths);
+            Assert.AreEqual(1, parsedPaths.Count, "Unexpected number of paths were extracted from the input string.");
+            Assert.AreEqual(0, invalidPathCount, "No invalid path was expected.");
+            Assert.IsTrue(File.Exists(parsedPaths[0]), $"Parsed path doesn't point to a valid file:{parsedPaths[0]}");
+
+            // Path strings may be different, but they both should point to the same file.
+            FileInfo inputFile = new FileInfo(manifestFile);
+            FileInfo parsedFile = new FileInfo(parsedPaths[0]);
+
+            Assert.AreEqual(inputFile.FullName, parsedFile.FullName, "Parsed file is not the same file given as input.");
+        }
+
+        /// <summary>
+        /// Tests whether <see cref="InputLoading.LoadManifestPaths(string, out int)"/> can load multiple valid manifest files.
+        /// </summary>
+        [TestMethod]
+        public void TestMultipleManifestPathLoading()
+        {
+            string assetsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
+            string manifestFile = Path.Combine(assetsDirectory, "manifest.json");
+            string otherManifestFile = Path.GetTempFileName();
+
+            Assert.IsTrue(File.Exists(manifestFile), "Manifest file that is required for the test was not found.");
+            Assert.IsTrue(File.Exists(otherManifestFile), "Failed to create the temporary file that is required for the test.");
+
+            string inputString = $"{manifestFile};{otherManifestFile}";
+
+            List<string> parsedPaths = InputLoading.LoadManifestPaths(inputString, out int invalidPathCount);
+
+            Assert.IsNotNull(parsedPaths);
+            Assert.AreEqual(2, parsedPaths.Count, "Unexpected number of paths were extracted from the input string.");
+            Assert.AreEqual(0, invalidPathCount, "No invalid path was expected.");
+            Assert.IsTrue(File.Exists(parsedPaths[0]), $"Parsed path doesn't point to a valid file:{parsedPaths[0]}");
+            Assert.IsTrue(File.Exists(parsedPaths[1]), $"Parsed path doesn't point to a valid file:{parsedPaths[1]}");
+
+            FileInfo[] inputFiles = new []
+            {
+                new FileInfo(manifestFile),
+                new FileInfo(otherManifestFile)
+            };
+
+            List<FileInfo> parsedFiles = parsedPaths.Select(p => new FileInfo(p)).ToList();
+
+            // Path strings may be different, but they both should point to the same file.
+            bool pathsPointToSameFiles = inputFiles.All(p => parsedFiles.Any(i => i.FullName == p.FullName));
+            Assert.IsTrue(pathsPointToSameFiles, "Input files and the resulting files do not match.");
+        }
+
+        /// <summary>
+        /// Tests whether <see cref="InputLoading.LoadManifestPaths(string, out int)"/> can load manifest files
+        /// from an input string that contains a path to a non-existent file.
+        /// </summary>
+        [TestMethod]
+        public void TestInvalidManifestPathLoading()
+        {
+            string assetsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
+            string manifestFile = Path.Combine(assetsDirectory, "manifest.json");
+
+            Assert.IsTrue(File.Exists(manifestFile), "Manifest file that is required for the test was not found.");
+
+            string nonexistentManifestFile = "A file that hopefully doesnt exist.44526223453856905547954332726542";
+            string inputString = $"{nonexistentManifestFile};{manifestFile};; ;   ;";
+
+            List<string> parsedPaths = InputLoading.LoadManifestPaths(inputString, out int invalidPathCount);
+
+            Assert.IsNotNull(parsedPaths);
+            Assert.AreEqual(1, parsedPaths.Count, "Unexpected number of paths were extracted from the input string.");
+            Assert.AreEqual(1, invalidPathCount, "One invalid path was expected.");
+            Assert.IsTrue(File.Exists(parsedPaths[0]), $"Parsed path doesn't point to a valid file:{parsedPaths[0]}");
+
+            // Path strings may be different, but they both should point to the same file.
+            FileInfo inputFile = new FileInfo(manifestFile);
+            FileInfo parsedFile = new FileInfo(parsedPaths[0]);
+
+            Assert.AreEqual(inputFile.FullName, parsedFile.FullName, "Parsed file is not the same file given as input.");
+        }
+
+        /// <summary>
+        /// Tests whether <see cref="InputLoading.LoadManifestPaths(string, out int)"/> can successfully parse
+        /// various input string that contain no paths.
+        /// </summary>
+        [DataRow(null, DisplayName = "Null input")]
+        [DataRow("", DisplayName = "Empty string")]
+        [DataRow(";", DisplayName = "Multiple empty strings")]
+        [DataRow("  ", DisplayName = "Whitespaces")]
+        [DataRow("  ; ;;   ; ", DisplayName = "Multiple whitespaces")]
+        [TestMethod]
+        public void TestEmptyManifestPathLoading(string inputString)
+        {
+            List<string> parsedPaths = InputLoading.LoadManifestPaths(inputString, out int invalidPathCount);
+
+            Assert.IsNotNull(parsedPaths);
+            Assert.AreEqual(0, parsedPaths.Count, "Unexpected number of paths were extracted from the input string.");
+            Assert.AreEqual(0, invalidPathCount, "No invalid path was expected.");
+        }
+
+        /// <summary>
+        /// Tests whether <see cref="InputLoading.LoadManifestPaths(string, out int)"/> can load manifest files
+        /// from an input string that contains a path to a directory instead of a path to a file.
+        /// </summary>
+        [TestMethod]
+        public void TestManifestPathLoadingFolders()
+        {
+            string assetsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
+
+            List<string> parsedPaths = InputLoading.LoadManifestPaths(assetsDirectory, out int invalidPathCount);
+
+            Assert.IsNotNull(parsedPaths);
+            Assert.AreEqual(1, parsedPaths.Count, "Unexpected number of paths were extracted from the input string.");
+            Assert.AreEqual(0, invalidPathCount, "No invalid path was expected.");
+
+            Assert.IsTrue(File.Exists(parsedPaths[0]), $"Parsed path doesn't point to a valid file:{parsedPaths[0]}");
+
+            DirectoryInfo inputDirectory = new DirectoryInfo(assetsDirectory);
+            DirectoryInfo parsedDirectory = new FileInfo(parsedPaths[0]).Directory;
+
+            Assert.AreEqual(inputDirectory.FullName, parsedDirectory.FullName, "Resulting path is not residing under the given folder.");
         }
     }
 }

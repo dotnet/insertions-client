@@ -56,7 +56,7 @@ namespace InsertionsClient.Core.Test
 
             Assert.IsFalse(results.IgnoredNuGets.Any(), "No packages should have been ignored.");
         }
-        
+
         [TestMethod]
         public void TestIgnorelist()
         {
@@ -68,8 +68,8 @@ namespace InsertionsClient.Core.Test
             string manifestFile = Path.Combine(assetsDirectory, "manifest.json");
             string defaultConfigFile = Path.Combine(assetsDirectory, "default.config");
             IEnumerable<Regex> whitelistedPackages = Enumerable.Empty<Regex>();
-            
-            ImmutableHashSet<string> ignoredPackages = ImmutableHashSet.Create( new string[]{
+
+            ImmutableHashSet<string> ignoredPackages = ImmutableHashSet.Create(new string[]{
                 @"^VS\.Redist\.Common\.NetCore\.AppHostPack\.x86_x64\.3\.1",
                 @"^VS\.Redist\.Common\.NetCore\.SharedFramework\.(x86|x64)\.[0-9]+\.[0-9]+$"
             });
@@ -84,7 +84,7 @@ namespace InsertionsClient.Core.Test
 
             // Ignore all modified files except for one
             Assert.IsFalse(results.UpdatedNuGets.Any(n => ignoredPackages.Contains(n.PackageId)), "A package that should have been ignored was updated.");
-            Assert.IsFalse(results.IgnoredNuGets.Any(n => !ignoredPackages.Contains(n)), "A package was ignored, but it shouldn't have been");            
+            Assert.IsFalse(results.IgnoredNuGets.Any(n => !ignoredPackages.Contains(n)), "A package was ignored, but it shouldn't have been");
         }
 
         [TestMethod]
@@ -122,7 +122,7 @@ namespace InsertionsClient.Core.Test
             string manifestFile = Path.Combine(assetsDirectory, "manifest.json");
             string defaultConfigFile = Path.Combine(assetsDirectory, "default.config");
             ImmutableHashSet<string> ignoredPackages = ImmutableHashSet<string>.Empty;
-            
+
             IEnumerable<Regex> whitelistedPackages = new Regex[]
             {
                 new Regex(@"VS\.Redist\.Common\.NetCore\.AppHostPack\.x86_x64\.3\.1"),

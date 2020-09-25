@@ -17,7 +17,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api
         /// <summary>
         /// Updates default.config NuGet package versions from matching manifest.json assets.
         /// </summary>
-        /// <param name="manifestFile">Specified manifest.json.</param>
+        /// <param name="manifestFiles">The paths to all the manifest.json files to be inserted.</param>
         /// <param name="defaultConfigFile">Full path to &quot;default.config&quot; file.</param>
         /// <param name="whitelistedPackages">Regex patterns matching with the packages that are allowed to be updated. If the set is empty,
         /// any package is allowed be updated unless specified in packagesToIgnore.</param>
@@ -26,7 +26,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api
         /// <param name="propsFilesRootDirectory">Directory that will be searched for props files.</param>
         /// <returns><see cref="UpdateResults"/> detailing the operation's outcome.</returns>
         UpdateResults UpdateVersions(
-            string manifestFile,
+            IEnumerable<string> manifestFiles,
             string defaultConfigFile,
             IEnumerable<Regex> whitelistedPackages,
             ImmutableHashSet<string>? packagesToIgnore,

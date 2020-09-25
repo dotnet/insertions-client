@@ -46,27 +46,35 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
         #region IInsertionApi API
 
         public UpdateResults UpdateVersions(
-            string manifestFile,
+            IEnumerable<string> manifestFiles,
             string defaultConfigFile,
             IEnumerable<Regex> whitelistedPackages,
             ImmutableHashSet<string>? packagesToIgnore,
             string? accessToken = null,
             string? propsFilesRootDirectory = null)
         {
-            List<Asset> assets = null!;
+            List<Asset> assets = new List<Asset>();
             DefaultConfigUpdater configUpdater;
 
-            if (!TryValidateManifestFile(manifestFile, out string details)
-                || !TryExtractManifestAssets(manifestFile, out assets, out details)
-                || !TryLoadDefaultConfig(defaultConfigFile, out configUpdater, out details))
+            if (!TryLoadDefaultConfig(defaultConfigFile, out configUpdater, out string details))
             {
-                return new UpdateResults { OutcomeDetails = details };
+                return new UpdateResults { OutcomeDetails = details, IgnoredNuGets = packagesToIgnore };
+            }
+
+            foreach (var manifestFile in manifestFiles)
+            {
+                if (!TryValidateManifestFile(manifestFile, out details)
+                    || !TryExtractManifestAssets(manifestFile, assets, out details))
+                {
+                    return new UpdateResults { OutcomeDetails = details, IgnoredNuGets = packagesToIgnore };
+                }
             }
 
             UpdateResults results = new UpdateResults
             {
                 IgnoredNuGets = packagesToIgnore
             };
+
             Stopwatch overallRunStopWatch = Stopwatch.StartNew();
             using CancellationTokenSource source = new CancellationTokenSource(_maxWaitDuration);
             try
@@ -180,9 +188,18 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
             return string.IsNullOrWhiteSpace(details);
         }
 
-        internal bool TryExtractManifestAssets(string manifestFile, out List<Asset> assets, out string details)
+        /// <summary>
+        /// Parses the manifest file and extracts the assets into the given collection.
+        /// </summary>
+        /// <param name="manifestFile">Path to the file that will be parsed.</param>
+        /// <param name="assets">The collection that the new assets will be inserted into.</param>
+        /// <param name="details">Details of the encountered issue in case of an error.
+        /// The value is null or empty in the case of success.</param>
+        /// <returns>True if the operation succeeded without errors. False, otherwise.</returns>
+        internal bool TryExtractManifestAssets(string manifestFile, ICollection<Asset> assets, out string details)
         {
             details = string.Empty;
+            Trace.WriteLine($"Loading the manifest file at path {manifestFile}");
 
             try
             {
@@ -190,59 +207,54 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
 
                 if (buildManifest == null)
                 {
-                    assets = new List<Asset>();
                     details = "Failed to read/deserialize manifest file";
                     return false;
                 }
 
                 if (!buildManifest.Validate())
                 {
-                    assets = new List<Asset>();
-                    details = $"Validation of de-serialized {InsertionConstants.ManifestFile} file content failed.";
+                    details = $"Validation of de-serialized manifest file content has failed.";
                     return false;
                 }
 
                 if (buildManifest.Builds == null || buildManifest.Builds.Count == 0)
                 {
-                    assets = new List<Asset>();
                     details = $"Manifest file contains no builds.";
                     return false;
                 }
 
-                Trace.WriteLine($"De-serialized {buildManifest.Builds.Count} builds from {InsertionConstants.ManifestFile}.");
+                Trace.WriteLine($"De-serialized {buildManifest.Builds.Count} builds from the manifest file.");
 
-                ConcurrentDictionary<string, Asset> map = new ConcurrentDictionary<string, Asset>();
-                foreach (Build build in buildManifest.Builds.AsParallel())
+                int initialCollectionSize = assets.Count;
+
+                foreach (Build build in buildManifest.Builds)
                 {
-                    foreach (Asset asset in build.Assets.AsParallel())
+                    if (build.Assets == null)
+                    {
+                        Trace.WriteLine("Manifest file contains build with no assets inside. " +
+                            $"Skipping build with buildNumber={build.BuildNumber}.");
+                        continue;
+                    }
+
+                    foreach (Asset asset in build.Assets)
                     {
                         if (string.IsNullOrWhiteSpace(asset.Name))
                         {
-                            Trace.WriteLine($"Manifest file contains an asset with null/empty name: {InsertionConstants.ManifestFile}");
+                            Trace.WriteLine($"Manifest file contains an asset with null/empty name. The asset will be skipped.");
                             continue;
                         }
 
-                        if (!map.TryAdd(asset.Name, asset))
-                        {
-                            Trace.WriteLine($"Duplicate entry in the specified {InsertionConstants.ManifestFile} for asset {asset.Name}.");
-                        }
+                        assets.Add(asset);
                     }
                 }
 
-                assets = new List<Asset>(map.Count);
-                foreach (Asset value in map.Values.OrderBy(x => x.Name))
+                if (initialCollectionSize == assets.Count)
                 {
-                    assets.Add(value);
-                }
-
-                if (map.Count < 1)
-                {
-                    details = $"No assets in {InsertionConstants.ManifestFile}";
+                    details = $"No assets were found in the manifest file.";
                 }
             }
             catch (Exception e)
             {
-                assets = new List<Asset>();
                 details = e.Message;
             }
             return string.IsNullOrWhiteSpace(details);
@@ -253,7 +265,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
             string json = File.ReadAllText(manifestFile);
             if (string.IsNullOrWhiteSpace(json))
             {
-                Trace.WriteLine($"Failed to read {InsertionConstants.ManifestFile} JSon content from file {manifestFile}.");
+                Trace.WriteLine($"Failed to read JSON content from file {manifestFile}.");
                 return null;
             }
             try
@@ -262,7 +274,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
             }
             catch (Exception e)
             {
-                Trace.WriteLine($"Failed to de-serialize {InsertionConstants.ManifestFile} file content. Reason: {e.Message}.");
+                Trace.WriteLine($"Failed to de-serialize the content of the file at path: {manifestFile}.{Environment.NewLine} Reason: {e.Message}.");
                 return null;
             }
         }

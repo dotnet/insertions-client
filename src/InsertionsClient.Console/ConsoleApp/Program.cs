@@ -120,8 +120,14 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
 
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
             IInsertionApi api = apiFactory.Create(MaxWaitDuration, MaxDownloadDuration, MaxConcurrency);
+            List<string> manifestFiles = InputLoading.LoadManifestPaths(ManifestFile, out int invalidManifestFileCount);
             IEnumerable<Regex> whitelistedPackages = InputLoading.LoadWhitelistedPackages(WhitelistedPackagesFile);
             ImmutableHashSet<string> ignoredPackages = ImmutableHashSet<string>.Empty;
+
+            if(invalidManifestFileCount != 0)
+            {
+                ShowErrorHelpAndExit($"Failed to find {invalidManifestFileCount.ToString()} manifest.json files specified in '{ManifestFile}'");
+            }
 
             if (!string.IsNullOrWhiteSpace(IgnoredPackagesFile))
             {
@@ -131,9 +137,9 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             {
                 ignoredPackages = InsertionConstants.DefaultDevUxTeamPackages;
             }
-
+            
             UpdateResults results = api.UpdateVersions(
-                    ManifestFile,
+                    manifestFiles,
                     DefaultConfigFile,
                     whitelistedPackages,
                     ignoredPackages,
@@ -144,7 +150,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             ShowResults(results);
 
             Trace.WriteLine($"Log: {LogFile}{Environment.NewLine}");
-            
+
             return results.Outcome ? 0 : 1;
         }
 
@@ -228,8 +234,8 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             Trace.WriteLine($">{ProgramName.Value}.exe {HelpParameters.Value}");
 
             Trace.WriteLine($"{Environment.NewLine}Options:");
-            Trace.WriteLine($"{SwitchDefaultConfig}   full path on disk to default.config to update");
-            Trace.WriteLine($"{SwitchManifest}   full path on disk to manifest.json");
+            Trace.WriteLine($"{SwitchDefaultConfig}   path on disk to default.config to update");
+            Trace.WriteLine($"{SwitchManifest}   path on disk to a manifest.json file or to the containing folder. Supports multiple entries separated by semicolons");
             Trace.WriteLine($"{SwitchWhitelistedPackages}   full path on disk to whitelisted packages file. Each line should contain a regex pattern that may match zero or more package ids [optional]");
             Trace.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
             Trace.WriteLine($"{SwitchPropsFilesRootDir}   directory to search for and update .props files [optional]");
