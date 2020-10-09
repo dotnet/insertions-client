@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.DotNet.InsertionsClient.Models
 {
+    //Code not used?
     internal sealed class AssetEqualityComparer : IEqualityComparer<Asset>
     {
         public bool Equals(Asset? x, Asset? y)

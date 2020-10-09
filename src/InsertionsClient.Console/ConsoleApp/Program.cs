@@ -259,6 +259,10 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             Environment.Exit(1);
         }
 
+        // As I said before, half of this file can be replace with existing library https://github.com/dotnet/command-line-api
+        // and this entire file has no test coverage. Do you mind to convert the parsing logic to use a library or add unit test
+        // coverage to this file? I think it would be much faster to convert it to a library, since commandline parsing is
+        // hard to test
         private static void ProcessCmdArguments(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
