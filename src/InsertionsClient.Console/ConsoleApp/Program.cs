@@ -154,6 +154,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             return results.Outcome ? 0 : 1;
         }
 
+        // nit: this should just be in UpdateResults class
         private static void ShowResults(UpdateResults results)
         {
             Console.ForegroundColor = results.Outcome ? ConsoleColor.Green : ConsoleColor.Red;
@@ -278,6 +279,8 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             {
                 if (arg.StartsWith(SwitchDefaultConfig))
                 {
+                    // override private static is just confusing. Static is global state, it should not change. Or it will lead to bugs. Convert to
+                    // the parsing library will solve this.
                     DefaultConfigFile = InputLoading.ProcessArgument(arg, SwitchDefaultConfig, $"Specified {InsertionConstants.DefaultConfigFile}:");
                 }
                 else if (arg.StartsWith(SwitchManifest))

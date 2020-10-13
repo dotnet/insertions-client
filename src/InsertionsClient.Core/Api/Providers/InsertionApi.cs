@@ -43,6 +43,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
         }
 
 
+        // when you have region, that means your class is too big
         #region IInsertionApi API
 
         public UpdateResults UpdateVersions(
@@ -329,7 +330,9 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
                 Trace.WriteLine($"Package {packageId} was updated to version {asset.Version}");
             }
         }
-
+        
+        
+        // need test coverage for this logic
         private bool TryGetPackageId(string assetName, string version, out string packageId)
         {
             packageId = string.Empty;
