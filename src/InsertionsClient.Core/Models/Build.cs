@@ -40,7 +40,7 @@ namespace Microsoft.DotNet.InsertionsClient.Models
         /// Boxed timestamp for build creation.
         /// </summary>
         [DataMember(Name = "produced", IsRequired = true)]
-        public DateTimeOffset? Produced { get; set; }
+        public string? Produced { get; set; }
 
         /// <summary>
         /// Build number.
