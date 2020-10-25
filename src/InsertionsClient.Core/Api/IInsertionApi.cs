@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using Microsoft.DotNet.InsertionsClient.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
@@ -24,6 +25,8 @@ namespace Microsoft.DotNet.InsertionsClient.Api
         /// <param name="packagesToIgnore"><see cref="HashSet{string}"/> of packages to ignore.</param>
         /// <param name="accessToken">Access token used when connecting to nuget feed.</param>
         /// <param name="propsFilesRootDirectory">Directory that will be searched for props files.</param>
+        /// <param name="buildFilter">Predicate to determine if a build should be included in the insertion process.
+        /// If null, all the builds will be included.</param>
         /// <returns><see cref="UpdateResults"/> detailing the operation's outcome.</returns>
         UpdateResults UpdateVersions(
             IEnumerable<string> manifestFiles,
@@ -31,6 +34,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api
             IEnumerable<Regex> whitelistedPackages,
             ImmutableHashSet<string>? packagesToIgnore,
             string? accessToken,
-            string? propsFilesRootDirectory);
+            string? propsFilesRootDirectory,
+            Predicate<Build>? buildFilter);
     }
 }

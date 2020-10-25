@@ -51,7 +51,8 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
             IEnumerable<Regex> whitelistedPackages,
             ImmutableHashSet<string>? packagesToIgnore,
             string? accessToken = null,
-            string? propsFilesRootDirectory = null)
+            string? propsFilesRootDirectory = null,
+            Predicate<Build>? buildFilter = null)
         {
             List<Asset> assets = new List<Asset>();
             DefaultConfigUpdater configUpdater;
@@ -64,7 +65,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
             foreach (var manifestFile in manifestFiles)
             {
                 if (!TryValidateManifestFile(manifestFile, out details)
-                    || !TryExtractManifestAssets(manifestFile, assets, out details))
+                    || !TryExtractManifestAssets(manifestFile, buildFilter, assets, out details))
                 {
                     return new UpdateResults { OutcomeDetails = details, IgnoredNuGets = packagesToIgnore };
                 }
@@ -192,11 +193,12 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
         /// Parses the manifest file and extracts the assets into the given collection.
         /// </summary>
         /// <param name="manifestFile">Path to the file that will be parsed.</param>
+        /// <param name="buildFilter">Filter that selects which builds from the manifest will be extracted.</param>
         /// <param name="assets">The collection that the new assets will be inserted into.</param>
         /// <param name="details">Details of the encountered issue in case of an error.
         /// The value is null or empty in the case of success.</param>
         /// <returns>True if the operation succeeded without errors. False, otherwise.</returns>
-        internal bool TryExtractManifestAssets(string manifestFile, ICollection<Asset> assets, out string details)
+        internal bool TryExtractManifestAssets(string manifestFile, Predicate<Build>? buildFilter, ICollection<Asset> assets, out string details)
         {
             details = string.Empty;
             Trace.WriteLine($"Loading the manifest file at path {manifestFile}");
@@ -229,6 +231,13 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
 
                 foreach (Build build in buildManifest.Builds)
                 {
+                    if(buildFilter != null && !buildFilter(build))
+                    {
+                        Trace.WriteLine($"The build with {nameof(build.BuildNumber)} {build.BuildNumber} was ignored by the filter. " +
+                            "Assets from this build will not be used in the insertion process.");
+                        continue;
+                    }
+
                     if (build.Assets == null)
                     {
                         Trace.WriteLine("Manifest file contains build with no assets inside. " +

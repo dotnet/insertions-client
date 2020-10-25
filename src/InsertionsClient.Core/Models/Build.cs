@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -30,10 +31,16 @@ namespace Microsoft.DotNet.InsertionsClient.Models
         public string? Branch { get; set; }
 
         /// <summary>
+        /// A list of channels that this build should be pushed into.
+        /// </summary>
+        [DataMember(Name = "channels")]
+        public List<Channel>? Channels { get; set; }
+
+        /// <summary>
         /// Boxed timestamp for build creation.
         /// </summary>
         [DataMember(Name = "produced", IsRequired = true)]
-        public string? Produced { get; set; }
+        public DateTimeOffset? Produced { get; set; }
 
         /// <summary>
         /// Build number.

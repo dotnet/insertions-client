@@ -26,6 +26,8 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
 
         private const string SwitchManifest = "-m:";
 
+        private const string SwitchBuildFilter = "-bf:";
+
         private const string SwitchWhitelistedPackages = "-wl:";
 
         private const string SwitchIgnorePackages = "-i:";
@@ -50,6 +52,8 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             txt.Append(" ");
             txt.Append($"{SwitchManifest}<manifest.json full file path>");
             txt.Append(" ");
+            txt.Append($"{SwitchBuildFilter}<filter that selects builds to insert>");
+            txt.Append(" ");
             txt.Append($"[{SwitchWhitelistedPackages}<whitelisted packages file path>]");
             txt.Append(" ");
             txt.Append($"[{SwitchIgnorePackages}<ignored packages file path>]");
@@ -72,6 +76,8 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
         private static string DefaultConfigFile = string.Empty;
 
         private static string ManifestFile = string.Empty;
+
+        private static string BuildFilterString = string.Empty;
 
         private static string WhitelistedPackagesFile = string.Empty;
 
@@ -123,6 +129,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             List<string> manifestFiles = InputLoading.LoadManifestPaths(ManifestFile, out int invalidManifestFileCount);
             IEnumerable<Regex> whitelistedPackages = InputLoading.LoadWhitelistedPackages(WhitelistedPackagesFile);
             ImmutableHashSet<string> ignoredPackages = ImmutableHashSet<string>.Empty;
+            Predicate<Build>? buildFilter = null;
 
             if(invalidManifestFileCount != 0)
             {
@@ -137,6 +144,11 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             {
                 ignoredPackages = InsertionConstants.DefaultDevUxTeamPackages;
             }
+
+            if(!string.IsNullOrWhiteSpace(BuildFilterString) && !InputLoading.LoadBuildFilter(BuildFilterString, out buildFilter))
+            {
+                ShowErrorHelpAndExit("Failed to parse build filters from input string: " + BuildFilterString);
+            }
             
             UpdateResults results = api.UpdateVersions(
                     manifestFiles,
@@ -144,7 +156,8 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
                     whitelistedPackages,
                     ignoredPackages,
                     FeedAccessToken,
-                    PropsFilesRootDirectory
+                    PropsFilesRootDirectory,
+                    buildFilter
                 );
 
             ShowResults(results);
@@ -236,6 +249,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             Trace.WriteLine($"{Environment.NewLine}Options:");
             Trace.WriteLine($"{SwitchDefaultConfig}   path on disk to default.config to update");
             Trace.WriteLine($"{SwitchManifest}   path on disk to a manifest.json file or to the containing folder. Supports multiple entries separated by semicolons");
+            Trace.WriteLine($"{SwitchBuildFilter}   filter string to selectively insert some of the builds from the manifest files, instead of all.");
             Trace.WriteLine($"{SwitchWhitelistedPackages}   full path on disk to whitelisted packages file. Each line should contain a regex pattern that may match zero or more package ids [optional]");
             Trace.WriteLine($"{SwitchIgnorePackages}   full path on disk to ignored packages file. Each line should have a package id [optional]");
             Trace.WriteLine($"{SwitchPropsFilesRootDir}   directory to search for and update .props files [optional]");
@@ -279,6 +293,10 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
                 else if (arg.StartsWith(SwitchManifest))
                 {
                     ManifestFile = InputLoading.ProcessArgument(arg, SwitchManifest, $"Specified {InsertionConstants.ManifestFile}:");
+                }
+                else if (arg.StartsWith(SwitchBuildFilter))
+                {
+                    BuildFilterString = InputLoading.ProcessArgument(arg, SwitchBuildFilter, $"Specified build filter:");
                 }
                 else if (arg.StartsWith(SwitchWhitelistedPackages))
                 {

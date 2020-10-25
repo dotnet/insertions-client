@@ -52,6 +52,7 @@ namespace InsertionsClient.Core.Test
                     whitelistedPackages,
                     ignoredPackages,
                     null,
+                    null,
                     null);
 
             Assert.IsFalse(results.IgnoredNuGets.Any(), "No packages should have been ignored.");
@@ -80,6 +81,7 @@ namespace InsertionsClient.Core.Test
                     whitelistedPackages,
                     ignoredPackages,
                     null,
+                    null,
                     null);
 
             // Ignore all modified files except for one
@@ -105,6 +107,7 @@ namespace InsertionsClient.Core.Test
                     defaultConfigFile,
                     whitelistedPackages,
                     ignoredPackages,
+                    null,
                     null,
                     null);
 
@@ -134,6 +137,7 @@ namespace InsertionsClient.Core.Test
                     defaultConfigFile,
                     whitelistedPackages,
                     ignoredPackages,
+                    null,
                     null,
                     null);
 

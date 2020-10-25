@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
 using Microsoft.DotNet.InsertionsClient.Models;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
@@ -20,7 +21,8 @@ namespace Microsoft.DotNet.InsertionsClient.Api
             IEnumerable<Regex> whitelistedPackages,
             ImmutableHashSet<string>? packagesToIgnore,
             string? accessToken,
-            string? propsFilesRootDirectory)
+            string? propsFilesRootDirectory,
+            Predicate<Build>? buildFilter)
         {
             return api.UpdateVersions(
                 new[] { manifestFile },
@@ -28,7 +30,8 @@ namespace Microsoft.DotNet.InsertionsClient.Api
                 whitelistedPackages,
                 packagesToIgnore,
                 accessToken,
-                propsFilesRootDirectory);
+                propsFilesRootDirectory,
+                buildFilter);
         }
     }
 }
