@@ -1,13 +1,15 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 
+using Microsoft.DotNet.InsertionsClient.Api;
 using Microsoft.DotNet.InsertionsClient.Common.Constants;
+using Microsoft.DotNet.InsertionsClient.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
@@ -74,7 +76,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
         /// <returns>A list of paths pointing to manifest files.</returns>
         internal static List<string> LoadManifestPaths(string manifestPaths, out int invalidPathCount)
         {
-            if(string.IsNullOrWhiteSpace(manifestPaths))
+            if (string.IsNullOrWhiteSpace(manifestPaths))
             {
                 invalidPathCount = 0;
                 return new List<string>();
@@ -86,7 +88,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
 
             foreach (string path in paths)
             {
-                if(string.IsNullOrWhiteSpace(path))
+                if (string.IsNullOrWhiteSpace(path))
                 {
                     continue;
                 }

@@ -59,6 +59,7 @@ namespace InsertionsClient.Console.Test
                     whitelistedPackages,
                     ignoredPackages,
                     null,
+                    null,
                     null);
 
             Assert.IsFalse(results.UpdatedNuGets.Any(n => whitelistedPackages.All(pattern => !pattern.IsMatch(n.PackageId))), "Packages that shouldn't have been updated were updated.");
@@ -83,6 +84,7 @@ namespace InsertionsClient.Console.Test
                     defaultConfigFile,
                     whitelistedPackages,
                     ignoredPackages,
+                    null,
                     null,
                     null);
 

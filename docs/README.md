@@ -35,11 +35,40 @@
     > _-ds:240_
 1. **-c:** Maximum concurrency of default.config version updates [**optional**].  Example:
     > _-c:10_
+1. **-bf:** Filter string to specify which builds from the manifest will be inserted.
+    
+    A simple build filter can be written as follows:
+    ```
+    -bf:repo=.*core-setup
+    ```
+
+    Right side of the equals sign is a regular expression that should fully match the value of the build property that is given on the left side. Thus, this filter only inserts builds where the repo property ends with the word _core-setup_.
+
+    The previous example contained only one rule: `repo=.*core-setup`. If you want to specify multiple rules, you can separate them with a comma. Such as:
+    ```
+    -bf:repo=.*core-setup,channel=release/3.1
+    ```
+
+    A set of rules separated by commas is called a "ruleset". For a build to pass the filter and get inserted, it should comply with **all** the rules within any ruleset.
+
+    A more complicated example of this could be:
+    ```
+    -bf:repo=.*core-setup,channel=release/3.1;repo=.*,channel=release/5.0
+    ```
+
+    Which means that a build can be inserted if:
+    a. The repo name ends with core-setup and the channels list contains a channel with the name "release/3.1"
+    b. Or, the repo name can be anything, but one of the channel names should be "release/5.0"
+
+    As you can see, multiple rulesets can be specified using semicolons. A build only needs to comply with one of the rulesets to be inserted.
+    
+    For each rule, the word left of the `=` sign represents a build property. Build property can have the following values: `repo`, `commit`, `branch`,`buildNumber`. There is also a special property named `channel`. If `channel` is used, then the regular expression on the right side of the equals sign should match with any of the channels of the build.
 
 _Warnings_
 1. NO SPACES ALLOWED IN EITHER default.config OR manifest.json FILE PATHS
 1. NO SPACES ALLOWED IN props file search directory
 1. The default duration & concurrency values should suffice
+1. When using build filters with -bf switch, special characters in the regular expression should be properly escaped.
 
 ## Log
 * **InsertionsClient** creates a log detailing every step taken
