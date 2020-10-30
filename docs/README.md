@@ -38,17 +38,23 @@
 1. **-bf:** Filter string to specify which builds from the manifest will be inserted.
     
     A simple build filter can be written as follows:
-    > _-bf:repo=.*core-setup_
+    ```
+    -bf:repo=.*core-setup
+    ```
 
     Right side of the equals sign is a regular expression that should fully match the value of the build property that is given on the left side. Thus, this filter only inserts builds where the repo property ends with the word _core-setup_.
 
     The previous example contained only one rule: `repo=.*core-setup`. If you want to specify multiple rules, you can separate them with a comma. Such as:
-    > _-bf:repo=.*core-setup,channel=release/3.1_
+    ```
+    -bf:repo=.*core-setup,channel=release/3.1
+    ```
 
     A set of rules separated by commas is called a "ruleset". For a build to pass the filter and get inserted, it should comply with **all** the rules within any ruleset.
 
     A more complicated example of this could be:
-    > _-bf:repo=.*core-setup,channel=release/3.1;repo=.*,channel=release/5.0_
+    ```
+    -bf:repo=.*core-setup,channel=release/3.1;repo=.*,channel=release/5.0
+    ```
 
     Which means that a build can be inserted if:
     a. The repo name ends with core-setup and the channels list contains a channel with the name "release/3.1"

@@ -145,7 +145,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
                 ignoredPackages = InsertionConstants.DefaultDevUxTeamPackages;
             }
 
-            if(!string.IsNullOrWhiteSpace(BuildFilterString) && !InputLoading.LoadBuildFilter(BuildFilterString, out buildFilter))
+            if(!string.IsNullOrWhiteSpace(BuildFilterString) && !BuildFilterFactory.TryCreateFromString(BuildFilterString, out buildFilter))
             {
                 ShowErrorHelpAndExit("Failed to parse build filters from input string: " + BuildFilterString);
             }

@@ -227,11 +227,15 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
 
                 Trace.WriteLine($"De-serialized {buildManifest.Builds.Count} builds from the manifest file.");
 
-                int initialCollectionSize = assets.Count;
+                if (!buildManifest.Builds.Any(b => b?.Assets != null && b.Assets.Any()))
+                {
+                    details = $"No assets were found in the manifest file.";
+                    return false;
+                }
 
                 foreach (Build build in buildManifest.Builds)
                 {
-                    if(buildFilter != null && !buildFilter(build))
+                    if (buildFilter != null && !buildFilter(build))
                     {
                         Trace.WriteLine($"The build with {nameof(build.BuildNumber)} {build.BuildNumber} was ignored by the filter. " +
                             "Assets from this build will not be used in the insertion process.");
@@ -255,11 +259,6 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
 
                         assets.Add(asset);
                     }
-                }
-
-                if (initialCollectionSize == assets.Count)
-                {
-                    details = $"No assets were found in the manifest file.";
                 }
             }
             catch (Exception e)
