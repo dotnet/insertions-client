@@ -62,7 +62,7 @@
 
     As you can see, multiple rulesets can be specified using semicolons. A build only needs to comply with one of the rulesets to be inserted.
     
-    For each rule, the word left of the `=` sign represents a build property. Build property can have the following values: `repo`, `commit`, `branch`,`buildNumber`. There is also a special property named `channel`. If `channel` is used, then the regular expression on the right side of the equals sign should match with any of the channels of the build.
+    For each rule, the word left of the `=` sign represents a build property. Build property can have the following values: `repo`, `commit`, `branch`,`buildNumber`. There are also two special properties named `channel` and `channelId`. If `channel` is used, then the regular expression on the right side of the equals sign should match with the name of any of the channels of the build. Similarly, `channelId` is used to select builds where any of the channel ids of a build should match the given regular expression.
 
 _Warnings_
 1. NO SPACES ALLOWED IN EITHER default.config OR manifest.json FILE PATHS

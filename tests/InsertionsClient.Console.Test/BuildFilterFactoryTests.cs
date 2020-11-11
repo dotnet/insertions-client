@@ -5,7 +5,6 @@ using Microsoft.DotNet.InsertionsClient.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace InsertionsClient.Console.Test
 {
@@ -40,8 +39,10 @@ namespace InsertionsClient.Console.Test
         // 2 rules, 1 ruleset
         [DataRow("repo=.*/installer,channel=.*", "www.github.com/dotnet/installer", "channelName")]
         [DataRow("repo=[M|m]ilkyway,channel=(ea|ti)ger", "Milkyway", "tiger")]
+        [DataRow("repo=[M|m]ilkyway,channelId=93.", "Milkyway", null, 937)]
         [DataRow("channel=(ea|ti)ger,repo=[M|m]ilkyway", "Milkyway", "tiger")]
         [DataRow("repo=^a$,channel=c", "a", "c")]
+        [DataRow("repo=^a$,channelId=1", "a", null, 1)]
         // 2 rules, 2 rulesets
         [DataRow("repo=.*/installer;repo=.*/aspnet-core", "www.github.com/dotnet/installer")]
         [DataRow("repo=.*/installer;repo=.*/aspnet-core", "www.github.com/dotnet/aspnet-core")]
@@ -50,8 +51,8 @@ namespace InsertionsClient.Console.Test
         [DataRow("repo=.*/installer,channel=release/5.0;repo=.*/aspnet-core,channel=release/3.1", "www.github.com/dotnet/installer", "release/5.0")]
         [DataRow("repo=.*/installer,channel=release/5.0;repo=.*/aspnet-core,channel=release/3.1", "www.github.com/dotnet/aspnet-core", "release/3.1")]
         // All valid property names
-        [DataRow("repo=.*,commit=.*,branch=.*,buildNumber=.*,channel=.*", "repo", "channel")]
-        public void TestMatchingBuilds(string inputFilter, string buildRepo, string? buildChannel = null)
+        [DataRow("repo=.*,commit=.*,branch=.*,buildNumber=.*,channel=.*,channelId=.*", "repo", "channel", 2384)]
+        public void TestMatchingBuilds(string inputFilter, string buildRepo, string? buildChannel = null, int? channelId = null)
         {
             bool filterCreated = BuildFilterFactory.TryCreateFromString(inputFilter, out Predicate<Build>? buildFilter);
             Assert.IsTrue(filterCreated, "Filter creation should have succeeded.");
@@ -60,12 +61,12 @@ namespace InsertionsClient.Console.Test
             Build build = new Build()
             {
                 Repository = buildRepo,
-                Channels = buildChannel == null ? null :
+                Channels = (buildChannel == null && channelId == null) ? null :
                     new List<Channel>()
                     {
                         new Channel()
                         {
-                            Id = 0,
+                            Id = channelId ?? 0,
                             Name = buildChannel
                         }
                     }
@@ -82,15 +83,15 @@ namespace InsertionsClient.Console.Test
         [DataRow("repo=full.*$", "not a full match")]
         // 2 rules, 1 ruleset
         [DataRow("repo=.*/installer,channel=.*", "www.github.com/dotnet/aspnet-core", "channelName")]
-        [DataRow("repo=dotnet,channel=.*", "www.github.com/dotnet/aspnet-core", "channelName")]
+        [DataRow("repo=dotnet,channelId=.*", "www.github.com/dotnet/aspnet-core", "9999")]
         [DataRow("repo=[M|m]ilkyway,channel=(ea|ti)ger", "Milkyhay", "timer")]
         // 2 rules, 2 rulesets
         [DataRow("repo=.*/installer;repo=.*/aspnet-core", "www.github.com/dotnet/core-setup")]
         [DataRow("repo=.*/dotnet/.*;repo=.*/aspnet-core", "www.github.com/microsoft/msbuild")]
         // 4 rules, 2 rulesets
         [DataRow("repo=.*/installer,channel=release/5.0;repo=.*/aspnet-core,channel=release/3.1", "www.github.com/dotnet/installer", "release/3.1")]
-        [DataRow("repo=.*/installer,channel=release/5.0;repo=.*/aspnet-core,channel=release/3.1", "www.github.com/dotnet/aspnet-core", "release/5.0")]
-        public void TestExcludedBuilds(string inputFilter, string buildRepo, string? buildChannel = null)
+        [DataRow("repo=.*/installer,channel=release/5.0;repo=.*/aspnet-core,channelId=(312|949)", "www.github.com/dotnet/aspnet-core", null, 945)]
+        public void TestExcludedBuilds(string inputFilter, string buildRepo, string? buildChannel = null, int? buildChannelId = null)
         {
             bool filterCreated = BuildFilterFactory.TryCreateFromString(inputFilter, out Predicate<Build>? buildFilter);
             Assert.IsTrue(filterCreated, "Filter creation should have succeeded.");
@@ -99,12 +100,12 @@ namespace InsertionsClient.Console.Test
             Build build = new Build()
             {
                 Repository = buildRepo,
-                Channels = buildChannel == null ? null :
+                Channels = (buildChannel == null && buildChannelId == null) ? null :
                     new List<Channel>()
                     {
                         new Channel()
                         {
-                            Id = 0,
+                            Id = buildChannelId ?? 0,
                             Name = buildChannel
                         }
                     }
