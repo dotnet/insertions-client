@@ -46,7 +46,8 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
 
         private static readonly Lazy<string> HelpParameters = new Lazy<string>(() =>
         {
-            StringBuilder txt = new StringBuilder();
+            // Rough length without params is ~600. 1024 should be safe in most cases including paths and tokens.
+            StringBuilder txt = new StringBuilder(1024);
 
             txt.Append($"{SwitchDefaultConfig}<default.config full file path>");
             txt.Append(" ");

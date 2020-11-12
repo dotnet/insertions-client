@@ -12,6 +12,8 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
 {
     internal static class BuildFilterFactory
     {
+        private static readonly Type TypeOfBuild = typeof(Build);
+
         /// <summary>
         /// Given a filter string, generates a predicate that will decide
         /// if the given build should pass or fail the filter.
@@ -36,7 +38,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
                 Expression? rootExpression = null;
 
                 // Parameter for the build that we pass to the filter i.e. the parameter for the final predicate.
-                ParameterExpression buildParameter = Expression.Parameter(typeof(Build), "build");
+                ParameterExpression buildParameter = Expression.Parameter(TypeOfBuild, "build");
 
                 string[] rulesets = filterString.Split(';');
                 foreach (string ruleset in rulesets)
@@ -48,7 +50,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
                     }
 
                     // Create the expression that only checks this one ruleset.
-                    if(!TryCreateRulesetExpression(buildParameter, ruleset, out Expression? rulesetExpression))
+                    if (!TryCreateRulesetExpression(buildParameter, ruleset, out Expression? rulesetExpression))
                     {
                         Trace.WriteLine("Failed to create the expression for ruleset: " + ruleset);
                         return false;
@@ -141,8 +143,7 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
                 }
             }
 
-            Trace.WriteLine("Failed to generate an expression from the given ruleset: " + ruleset);
-            return rulesetExpression != null;
+            return true;
         }
 
         /// <summary>
@@ -174,7 +175,10 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
                     buildSelector = CreateBuildPredicateBasedOnStringProperty(b => b.BuildNumber, regex);
                     break;
                 case "channel":
-                    buildSelector = CreateBuildPredicateBasedOnChannel(regex);
+                    buildSelector = CreateBuildPredicateBasedOnChannel(c => c.Name, regex);
+                    break;
+                case "channelId":
+                    buildSelector = CreateBuildPredicateBasedOnChannel(c => c.Id.ToString(), regex);
                     break;
                 default:
                     buildSelector = null;
@@ -207,11 +211,12 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
         }
 
         /// <summary>
-        /// Creates a predicate that checks if the provided regex matches any of the channels of the given build.
+        /// Creates a predicate that checks if the provided regex matches the selected property of any of the channels of the given build.
         /// </summary>
+        /// <param name="channelPropertyGetter">Function to select a string from a channel for regex matching.</param>
         /// <param name="regex">Regular expression to be used for evaluating the names of build channels.</param>
         /// <returns>The created predicate.</returns>
-        private static Predicate<Build> CreateBuildPredicateBasedOnChannel(Regex regex)
+        private static Predicate<Build> CreateBuildPredicateBasedOnChannel(Func<Channel, string?> channelPropertyGetter, Regex regex)
         {
             return (build) =>
             {
@@ -229,14 +234,15 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
                         continue;
                     }
 
-                    Match? match = regex.Match(channel.Name ?? "");
+                    string propertyValue = channelPropertyGetter(channel) ?? "";
+                    Match? match = regex.Match(propertyValue);
 
                     if (match == null || !match.Success)
                     {
                         return false;
                     }
 
-                    return match.Length == (channel.Name?.Length ?? 0);
+                    return match.Length == propertyValue.Length;
                 }
 
                 return false;
