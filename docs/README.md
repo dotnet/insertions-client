@@ -9,7 +9,7 @@ The tool works locally, meaning that the Visual Studio repo should already be ch
 - [Logging](#logging)
 - [Usage](#usage)
 - [Output](#output)
-- [Code Base](#codebase)
+- [Codebase](#codebase)
 
 ### [How it works](#how-it-works)
 Though there are details to it, what InsertionsClient does can be summarized in the following steps:
@@ -76,9 +76,9 @@ As you can see, multiple rulesets can be specified using semicolons. A build onl
 For each rule, the word left of the `=` sign represents a build property. Build property can have the following values: `repo`, `commit`, `branch`,`buildNumber`. There are also two special properties named `channel` and `channelId`. If `channel` is used, then the regular expression on the right side of the equals sign should match with the name of any of the channels of the build. Similarly, `channelId` is used to select builds where any of the channel ids of a build should match the given regular expression.
 
 _Warnings_
-1. NO SPACES ALLOWED IN EITHER default.config OR manifest.json FILE PATHS
-1. NO SPACES ALLOWED IN props file search directory
-1. The default duration & concurrency values should suffice
+1. No spaces are allowed in default.config or manifest.json file paths
+1. No spaces are allowed in props file search directory
+1. The default duration and concurrency values should suffice
 1. When using build filters with -bf switch, special characters in the regular expression should be properly escaped.
 
 ### [Logging](#logging)
@@ -89,8 +89,8 @@ _Warnings_
 #### Log Format
 Each log line details:
 1. The time stamp when the message was logged
-1. the id of the thread where the message was logged
-1. the message string
+1. The id of the thread where the message was logged
+1. The message string
 
 #### Sample Log Lines
 <pre>
@@ -114,12 +114,12 @@ The examples below rely on the following conditions:
 1. _default.config_  is located under the directory "\repos\Assets"
 1. _manifest.json_  is located under the directory "\repos\Assets"
 
-#### Opting to Specify File with NuGet Packages to Ignore
+##### Opting to Specify File with NuGet Packages to Ignore
 If you have an _ignored.txt_ file located under "\repos\Assets", you can run the following command to do an insertion while preserving the version numbers of packages specified in the _ignored.txt_:
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -i:\repos\Assets\ignored.txt
 ```
-#### Restricting the Affected Packages With an Allowlist
+##### Restricting the Affected Packages With an Allowlist
 Contents of a simple _allowlist.txt_ can be as follows:
 `^VS\.Redist\.Common\.NetCore\.SharedFramework\.(x86|x64)\.[0-9]+\.[0-9]+$`
 
@@ -128,19 +128,19 @@ If you have an _allowlist.txt_ file located under "\repos\Assets", the following
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -wl:\repos\Assets\allowlist.txt
 ```
 
-#### Opting to Ignore .NET Dev UX NuGet Packages
+##### Opting to Ignore .NET Dev UX NuGet Packages
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -idut
 ```
-#### Opting Not to Ignore any NuGet Packages
+##### Opting Not to Ignore any NuGet Packages
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json
 ```
-#### Specifying an Access Token to Update .props Files
+##### Specifying an Access Token to Update .props Files
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehroaq9k5zvvxstrqg2dzsedhlu757
 ```
-#### Specifying a .props File Search Directory
+##### Specifying a .props File Search Directory
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757 -p:C:\VS\src\SetupPackages\DotNetCoreSDK
 ```
@@ -182,4 +182,4 @@ Updated default.config NuGet package versions...
 </pre>
 
 ### [Codebase](#codebase)
-Information about the codebase can be found in [Codebase](docs/Codebase.md) page.
+Information about the codebase can be found in [Codebase](Codebase.md) page.
