@@ -6,10 +6,10 @@ Besides the solution, the documentation and the `.yml` file for the build pipeli
 This section covers the highlights of both `Core` and the `Console` projects as well as the `.yml` file for the build pipeline.
 
 **Table of Contents**
-- [Microsoft.DotNet.InsertionsClient.Core](#core-project)
+- [Core Project](#core-project)
   - [IInsertionApi Interface](#iinsertionapi-interface)
   - [InsertionApi Class](#insertionapi-class)
-- [Microsoft.DotNet.InsertionsClient.Console](#console-project)
+- [Console Project](#console-project)
   - [Program Class](#program-class)
   - [Logging](#logging)
 - [Build Pipeline](#build-pipeline)
