@@ -22,7 +22,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api
         /// <param name="defaultConfigFile">Full path to &quot;default.config&quot; file.</param>
         /// <param name="whitelistedPackages">Regex patterns matching with the packages that are allowed to be updated. If the set is empty,
         /// any package is allowed be updated unless specified in packagesToIgnore.</param>
-        /// <param name="packagesToIgnore"><see cref="HashSet{string}"/> of packages to ignore.</param>
+        /// <param name="packagesToIgnore">Set of packages to be ignored.</param>
         /// <param name="accessToken">Access token used when connecting to nuget feed.</param>
         /// <param name="propsFilesRootDirectory">Directory that will be searched for props files.</param>
         /// <param name="buildFilter">Predicate to determine if a build should be included in the insertion process.
