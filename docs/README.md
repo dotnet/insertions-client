@@ -1,7 +1,7 @@
 # InsertionsClient
-The InsertionsClient, .NET Core commnand line executable, is a tool that is used to insert a [drop](https://github.com/dotnet/arcade/blob/master/Documentation/Darc.md#gathering-a-build-drop) into Visual Studio by updating _default.config_, _.packageconfig_ and _.props_ files in the VS repo. 
+The InsertionsClient, .NET Core command line executable, is a tool that is used to insert a [drop](https://github.com/dotnet/arcade/blob/master/Documentation/Darc.md#gathering-a-build-drop) into Visual Studio by updating _default.config_, _.packageconfig_ and _.props_ files in Visual Studio repo. 
 
-The tool works locally, meaning that the VisualStudio repo should already be checked-out and available on the file system. Similarly, the changes made by the tool should be manually committed/pushed.
+The tool works locally, meaning that the Visual Studio repo should already be checked-out and available on the file system. Similarly, the changes made by the tool should be manually committed and pushed back to the repo.
 
 **Table of Contents**
 - [How it works](#howitworks)
@@ -12,30 +12,37 @@ The tool works locally, meaning that the VisualStudio repo should already be che
 - [Code Base](#codebase)
 
 ### [How it works](#how-it-works)
-The **InsertionsClient**:
+Though there are details to it, what InsertionsClient does can be summarized in the following steps:
 1. Iterates through the assets in the manifest file and matches them with the NuGet packages listed in _default.config_ and _.packageconfig_ files.
 1. Version numbers of the matching NuGet packages in config files are updated with the version numbers in the _manifest.json_ file.
 1. If an access token is specified with **-a:** switch, binaries for the updated packages are downloaded. Contents of the packages are used to update the values of properties defined under `PackagePreprocessorDefinitions` tag in .props files.
 1. Modified .props files are saved.
-1. The updated _default.config_ and _.packageconfig_ files are saved.
+1. Updated _default.config_ and _.packageconfig_ files are saved.
 
 ### [Input](#input)
+This section explains the options you can specify when invoking the tool. Although there are many, only two of them are required.
+
 | Switch | Description | Is Optional| Example |
 | :-- | :-- | :-- |:-- |
-|**-d:** |Path to the default.config.| :x: | `-d:c:\default.config`|
+|**-d:** |Path to the default.config file.| :x: | `-d:c:\default.config`|
 |**-m:** |Path to the manifest.json file or to the containing directory.| :x: | `-m:c:\files\manifest.json`<br/>or<br/> `-m:c:\files` |
 |**-i:** |Path to ignored packages file.| :heavy_check_mark: | `-i:c:\files\ignore.txt` |
-|**-idut** |Indicates that packages relevant to the .NET Dev UX team are ignored. If **-i:** is also set, the file specified with that option is used, superceding **-idut**.|:heavy_check_mark:| `-idut`|
-|**-wl:** |Path to the allowlist file. If this is specified, only the packages listed in this file will be updated. Each line in the file represents a regex pattern that will potentially match one or more package IDs. This switch will be ignored if the given file is empty.| :heavy_check_mark: | `-wl:c:\files\whitelist.txt` |
+|**-idut** |Indicates that the packages relevant to the .NET Dev UX team are ignored. If both set, **-i:** option overrides this switch.|:heavy_check_mark:| `-idut`|
+|**-wl:** |Path to the allowlist file. If this is specified, only the packages listed in this file will be updated. Each line in the file represents a regex pattern that will potentially match one or more package IDs. This switch will be ignored if the given file is empty.| :heavy_check_mark: | `-wl:c:\files\allowlist.txt` |
 |**-p**: |Path to the directory to search for .props files. If left unspecified, all the .props files under src\SetupPackages in the local VS repo will be searched.| :heavy_check_mark: |`-p:C:\VS\src\SetupPackages`|
-|**-a**: |Personal access token to access packages in [VS feed](https://pkgs.dev.azure.com/devdiv/_packaging/VS-CoreXtFeeds/nuget/v3/index.json). If not specified, props files will not be updated.| :heavy_check_mark: | `-a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757` |
-|**-w:** |Maximum allowed duration in seconds, excluding downloads.| :heavy_check_mark: | `-w:60` |
+|**-a**: |Personal access token with "read" access to the packages in the [VS feed](https://pkgs.dev.azure.com/devdiv/_packaging/VS-CoreXtFeeds/nuget/v3/index.json). If not specified, props files will not be updated.| :heavy_check_mark: | `-a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757` |
+|**-w:** |Maximum allowed duration in seconds for completing the insertions, excluding downloads.| :heavy_check_mark: | `-w:60` |
 |**-ds:** |Maximum allowed duration in seconds that can be spent downloading nuget packages | :heavy_check_mark: | `-ds:240` |
-|**-c:** |Maximum concurrency of default.config version updates.| :heavy_check_mark: | `-c:10` |
+|**-c:** |Maximum level of concurrency.| :heavy_check_mark: | `-c:10` |
 |**-bf:** |Filter string to specify which builds from the manifest will be inserted.| :heavy_check_mark: | `-bf:repo=.*core-setup` |
 
 #### More on **-m:**
-It is also possible to input multiple manifest files. In this case, the files will be processed in order. If the same package is updated from multiple manifest files, version number from the last specified manifest file will be used. To do this, use semicolon (;) to separate the paths as such: `-m:c:\files\manifest.json;c:\just\folder\\;c:\another\fullpath\manifest.json`
+It is also possible to input multiple manifest files. To do this, use semicolon (;) to separate the paths as such:
+ ```
+-m:c:\files\manifest.json;\relative\folder\\;c:\another\fullpath\manifest.json
+```
+
+ If the same package is updated from multiple manifest files, which manifest file will be used to set the final value is nondeterministic.
 
 #### More on **-bf:**
 A simple build filter can be written as follows:
@@ -59,8 +66,10 @@ A more complicated example of this could be:
 ```
 
 Which means that a build can be inserted if:
-a. The repo name ends with "core-setup" and the channels list contains a channel with the id "1299"
-b. Or, the repo name can be anything, but one of the channel ids should be "972"
+
+  a. The repo name ends with "core-setup" and the channels list contains a channel with the id "1299"
+
+  b. Or, the repo name can be anything, but one of the channel ids should be "972"
 
 As you can see, multiple rulesets can be specified using semicolons. A build only needs to comply with one of the rulesets to be inserted.
     
