@@ -12,7 +12,7 @@ The tool works locally, meaning that the Visual Studio repo should already be ch
 - [Codebase](#codebase)
 
 ### [How it works](#how-it-works)
-Though there are details to it, what InsertionsClient does can be summarized in the following steps:
+What InsertionsClient does can be summarized in the following steps:
 1. Iterates through the assets in the manifest file and matches them with the NuGet packages listed in _default.config_ and _.packageconfig_ files.
 1. Version numbers of the matching NuGet packages in config files are updated with the version numbers in the _manifest.json_ file.
 1. If an access token is specified with **-a:** switch, binaries for the updated packages are downloaded. Contents of the packages are used to update the values of properties defined under `PackagePreprocessorDefinitions` tag in .props files.
@@ -142,7 +142,7 @@ $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\m
 ```
 ##### Specifying a .props File Search Directory
 ```pwsh
-$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757 -p:C:\VS\src\SetupPackages\DotNetCoreSDK
+$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehrFxq9 -p:C:\VS\src\SetupPackages\DotNetCoreSDK
 ```
 
 ### [Output](#output)

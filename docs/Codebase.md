@@ -3,7 +3,7 @@ InsertionsClient solution consists of 2 projects for the application logic and 2
 
 Besides the solution, the documentation and the `.yml` file for the build pipeline also reside in the repo at https://github.com/dotnet/insertions-client.
 
-This section covers the highlights of both `Core` and the `Console` projects as well as the `.yml` file for the build pipeline.
+This section covers the highlights of both `Core` and the `Console` projects as well as the `.yml` file for the build pipeline. Test projects are not covered in this document.
 
 **Table of Contents**
 - [Core Project](#core-project)
@@ -16,8 +16,8 @@ This section covers the highlights of both `Core` and the `Console` projects as 
 
 
 ### [Core Project](#core-project)
-Core is the project where the main insertion logic resides in. The project exposes an interface (`IInsertionApi`) so that the code can be consumed by other projects and invoked like an API. 
-- `Console` project is an example of this. It receives the inputs from the console and invokes the api accordingly. See [Input](docs/README.md#Input) section for more details on how to use the tool from command line.
+Core is the project where the main insertion logic resides in. The project also exposes an interface (`IInsertionApi`) to abstract this logic and allows the code to be consumed by other projects and invoked like an API. 
+- `Console` project is an example of this. As the name implies, it is a console application. It receives the inputs from the console and invokes the API accordingly. See [Input](docs/README.md#Input) section for more details on how to use the tool from command line.
 
 #### [IInsertionApi Interface](#iinsertionapi-interface)
 Defines how to interact with the library to update versions of targeted assets, such as _default.config_.
@@ -34,7 +34,7 @@ UpdateResults UpdateVersions(
 - __manifestFiles:__ The paths to all the manifest.json files to be inserted.
 - __defaultConfigFile:__ Full path to _default.config_ file.
 - __whitelistedPackages:__ Regex patterns matching with IDs of the packages that are allowed to be updated. If the set is empty,
- any package is allowed be updated unless specified in packagesToIgnore argument.
+ any package is allowed to be updated unless specified in packagesToIgnore argument.
 - __packagesToIgnore:__ IDs of the packages to be ignored.
 - __accessToken:__ Access token to be used when connecting to VS feed.
 - __propsFilesRootDirectory:__ Directory that will be searched for `.props` files.
@@ -45,16 +45,19 @@ In a simple case, this method can be invoked in the following way:
 ```csharp
  IInsertionApiFactory apiFactory = new InsertionApiFactory();
  IInsertionApi api = apiFactory.Create(MaxWaitDuration, MaxDownloadDuration, MaxConcurrency);
+
  api.UpdateVersions(new []{"\\Assets\\manifest.json"},
     "\\\\VS\\.corext\\default.config",
     Enumerable.Empty<Regex>(),
     ImmutableHashSet.Create("VS.ExternalAPIs.MSBuild"),
-    null, null, null);
+    null,
+    null,
+    null);
 ```
 
 #### [InsertionApi Class](#insertionapi-class)
 `InsertionApi` is the only implementation of `IInsertionApi` in the solution. The main logic executes the following steps in order:
-1. Load _default.config_ file into memory. All the operations on _default.config_ is handled in `DefaultConfigUpdater` class.
+1. Load _default.config_ file into memory. All the operations on _default.config_ are handled in `DefaultConfigUpdater` class.
 1. Load manifest.json files.
 1. Determine the updates to the _default.config_ file. This operation is executed in parallel for each asset defined in manifest files.
 1. Determine the updates to `.props` files.
