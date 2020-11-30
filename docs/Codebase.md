@@ -62,9 +62,9 @@ In a simple case, this method can be invoked in the following way:
 1. Determine the updates to the _default.config_ file. This operation is executed in parallel for each asset defined in manifest files.
 1. Determine the updates to `.props` files.
     1. Determine all the `.swr` files.
-    2. Search the contents of `.swr` files for variables of the form `$(variable_name)`.
-    3. Download the packages updated in step 3 into memory.
-    4. Determine the value of the variables by comparing the _file names in the nuget packages_ with _the file names listed in swr payloads_.
+    1. Search the contents of `.swr` files for variables of the form `$(variable_name)`.
+    1. Download the packages updated in step 3 into memory.
+    1. Determine the value of the variables by comparing the _file names in the nuget packages_ with _the file names listed in swr payloads_.
 1. In the declaring `.props` files, replace the value of the variables with the values found in the previous step.
 1. Flush changes to `.props` files.
 1. Flush changes to `default.config` and `.packageconfig` files.
@@ -74,7 +74,7 @@ The console project contains the command line user interface codebase and loggin
 
 #### [Program Class](#program-class)
 - The Program class contains the assembly entry point
-and is the most interesting class in the assembly
+and this is where the most of the application logic for console project resides in.
 - The class defines the switches, explained in the _[Input](docs/README.md#input)_ section.
 
 #### [Logging](#logging)
@@ -85,7 +85,6 @@ and `TextWriterTraceListener` listeners, respectively.  See the _[Output](docs/R
 The build definition resides in the [`azure-pipelines.yml`](/azure-pipelines.yml) file.
 There are two build pipelines for InsertionsClient:
 - [Public pipeline](https://dev.azure.com/dnceng/public/_build?definitionId=846&_a=summary). Runs the validation builds for PRs.
-
 - [Internal pipeline](https://dev.azure.com/dnceng/internal/_build?definitionId=847&_a=summary). Besides validation, generates and publishes nuget packages to the [feed](https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng). There are two packages published:
   - [Microsoft.DotNet.InsertionsClient.Core](https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&package=Microsoft.DotNet.InsertionsClient.Core&protocolType=NuGet)
   - [Microsoft.DotNet.InsertionsClient.Console](https://dev.azure.com/dnceng/public/_packaging?_a=package&feed=dotnet-eng&package=Microsoft.DotNet.InsertionsClient.Console&protocolType=NuGet)
