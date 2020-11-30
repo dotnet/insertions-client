@@ -1,87 +1,98 @@
-# Overview
-**InsertionsClient** updates the versions of NuGet packages in _default.config_ with the corresponding versions specified in _manifest.json_ assets. It also updates the values of properties defined in .props files.
+# InsertionsClient
+The InsertionsClient, .NET Core command line executable, is a tool that is used to insert a [drop](https://github.com/dotnet/arcade/blob/master/Documentation/Darc.md#gathering-a-build-drop) into Visual Studio by updating _default.config_, _.packageconfig_ and _.props_ files in Visual Studio repo. 
 
-## How does **InsertionsClient** work?
-1. Loads into memory the contents of both _default.config_ and _manifest.json_ as well as all the _.packageconfig_ files listed in the _default.config_
-1. Searches _default.config_ and _.packageconfig_ files for corresponding NuGet packages for each _manifest.json_ asset
-1. For every match, the NuGet version in the config file is updated with that of the corresponding _manifest.json_ asset
-1. The updated _default.config_ and _.packageconfig_'s are saved on disk
-1. If an access token is specified with **-a:** switch, binaries for the updated packages are downloaded. Content of the packages are used to update the values of properties defined in `PackagePreprocessorDefinitions` tag in .props files
-1. Modified .props file are saved on disk
-## Input
-1. **-d:** Path to the default.config.  Example: 
-    > _-d:c:\default.config_
-1. **-m:** Path to the manifest.json file or to the containing directory.
-   
-   The following two examples use the same manifest file:
-    > _-m:c:\files\manifest.json_
-    > _-m:c:\files\_
+The tool works locally, meaning that the Visual Studio repo should already be checked-out and available on the file system. Similarly, the changes made by the tool should be manually committed and pushed back to the repo.
 
-   It is also possible to input multiple manifest files. In this case, the files will be processed in order. If the same package is updated from multiple manifest files, version number from the last specified manifest file will be used. To do this, use semicolon (;) to separate the paths as such:
-    > _m:c:\files\manifest.json;c:\just\folder\\;c:\another\fullpath\manifest.json_
-1. **-i:** Path to ignored packages file [**optional**]. Example: 
-    > _-i:c:\files\ignore.txt_
-1. **-idut** Indicates that packages relevant to the .NET Dev UX team are ignored [**optional**].  If **-i:** is also set, the file specified with that option is used, superceding **-idut**.
-    > _-idut_
-1. **-wl:** Path to the whitelist file [**optional**]. If this is specified, only the packages listed in this file will be updated. Each line in the file represents a regex pattern that will potentially match one or more package IDs. This switch will be ignored if the given file is empty.
-    > _-wl:c:\files\whitelist.txt_
-1. **-p**: Path to the directory to search for .props files [**optional**]. If left unspecified, all the .props files under src\SetupPackages in local VS repo will be searched.
-    > _-p:C:\VS\src\SetupPackages_
-1. **-a**: Personal access token to access packages in [VS feed](https://pkgs.dev.azure.com/devdiv/_packaging/VS-CoreXtFeeds/nuget/v3/index.json) [**optional**]. If not specified, props files will not be updated.
-    > _-a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757_
-1. **-w:** Maximum allowed duration in seconds, excluding downloads [**optional**].  Example: 
-    > _-w:60_
-1. **-ds:** Maximum allowed duration in seconds that can be spent downloading nuget packages [**optional**].  Example: 
-    > _-ds:240_
-1. **-c:** Maximum concurrency of default.config version updates [**optional**].  Example:
-    > _-c:10_
-1. **-bf:** Filter string to specify which builds from the manifest will be inserted.
+**Table of Contents**
+- [How it works](#howitworks)
+- [Input](#input)
+- [Logging](#logging)
+- [Usage](#usage)
+- [Output](#output)
+- [Codebase](#codebase)
+
+### [How it works](#how-it-works)
+What InsertionsClient does can be summarized in the following steps:
+1. Iterates through the assets in the manifest file and matches them with the NuGet packages listed in _default.config_ and _.packageconfig_ files.
+1. Version numbers of the matching NuGet packages in config files are updated with the version numbers in the _manifest.json_ file.
+1. If an access token is specified with **-a:** switch, binaries for the updated packages are downloaded. Contents of the packages are used to update the values of properties defined under `PackagePreprocessorDefinitions` tag in .props files.
+1. Modified .props files are saved.
+1. Updated _default.config_ and _.packageconfig_ files are saved.
+
+### [Input](#input)
+This section explains the options you can specify when invoking the tool. Although there are many, only two of them are required.
+
+| Switch | Description | Is Optional| Example |
+| :-- | :-- | :-- |:-- |
+|**-d:** |Path to the default.config file.| :x: | `-d:c:\default.config`|
+|**-m:** |Path to the manifest.json file or to the containing directory.| :x: | `-m:c:\files\manifest.json`<br/>or<br/> `-m:c:\files` |
+|**-i:** |Path to ignored packages file.| :heavy_check_mark: | `-i:c:\files\ignore.txt` |
+|**-idut** |Indicates that the packages relevant to the .NET Dev UX team are ignored. If both set, **-i:** option overrides this switch.|:heavy_check_mark:| `-idut`|
+|**-wl:** |Path to the allowlist file. If this is specified, only the packages listed in this file will be updated. Each line in the file represents a regex pattern that will potentially match one or more package IDs. This switch will be ignored if the given file is empty.| :heavy_check_mark: | `-wl:c:\files\allowlist.txt` |
+|**-p**: |Path to the directory to search for .props files. If left unspecified, all the .props files under src\SetupPackages in the local VS repo will be searched.| :heavy_check_mark: |`-p:C:\VS\src\SetupPackages`|
+|**-a**: |Personal access token with "read" access to the packages in the [VS feed](https://pkgs.dev.azure.com/devdiv/_packaging/VS-CoreXtFeeds/nuget/v3/index.json). If not specified, props files will not be updated.| :heavy_check_mark: | `-a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757` |
+|**-w:** |Maximum allowed duration in seconds for completing the insertions, excluding downloads.| :heavy_check_mark: | `-w:60` |
+|**-ds:** |Maximum allowed duration in seconds that can be spent downloading nuget packages | :heavy_check_mark: | `-ds:240` |
+|**-c:** |Maximum level of concurrency.| :heavy_check_mark: | `-c:10` |
+|**-bf:** |Filter string to specify which builds from the manifest will be inserted.| :heavy_check_mark: | `-bf:repo=.*core-setup` |
+
+#### More on **-m:**
+It is also possible to input multiple manifest files. To do this, use semicolon (;) to separate the paths as such:
+ ```
+-m:c:\files\manifest.json;\relative\folder\\;c:\another\fullpath\manifest.json
+```
+
+ If the same package is updated from multiple manifest files, which manifest file will be used to set the final value is nondeterministic.
+
+#### More on **-bf:**
+A simple build filter can be written as follows:
+
+```
+-bf:repo=.*core-setup
+```
+
+Right side of the equals sign is a regular expression that should fully match the value of the build property that is given on the left side. Thus, this filter only inserts builds where the _repo_ property ends with the word _core-setup_.
+
+The previous example contained only one rule: `repo=.*core-setup`. If you want to specify multiple rules, you can separate them with a comma. Such as:
+```
+-bf:repo=.*core-setup,channelId=1299
+```
+
+A set of rules separated by commas is called a "ruleset". For a build to pass the filter and get inserted, it should comply with **all** the rules within any ruleset.
+
+A more complicated example of this could be:
+```
+-bf:repo=.*core-setup,channelId=1299;repo=.*,channelId=972
+```
+
+Which means that a build can be inserted if:
+
+  a. The repo name ends with "core-setup" and the channels list contains a channel with the id "1299"
+
+  b. Or, the repo name can be anything, but one of the channel ids should be "972"
+
+As you can see, multiple rulesets can be specified using semicolons. A build only needs to comply with one of the rulesets to be inserted.
     
-    A simple build filter can be written as follows:
-    ```
-    -bf:repo=.*core-setup
-    ```
-
-    Right side of the equals sign is a regular expression that should fully match the value of the build property that is given on the left side. Thus, this filter only inserts builds where the repo property ends with the word _core-setup_.
-
-    The previous example contained only one rule: `repo=.*core-setup`. If you want to specify multiple rules, you can separate them with a comma. Such as:
-    ```
-    -bf:repo=.*core-setup,channel=release/3.1
-    ```
-
-    A set of rules separated by commas is called a "ruleset". For a build to pass the filter and get inserted, it should comply with **all** the rules within any ruleset.
-
-    A more complicated example of this could be:
-    ```
-    -bf:repo=.*core-setup,channel=release/3.1;repo=.*,channel=release/5.0
-    ```
-
-    Which means that a build can be inserted if:
-    a. The repo name ends with core-setup and the channels list contains a channel with the name "release/3.1"
-    b. Or, the repo name can be anything, but one of the channel names should be "release/5.0"
-
-    As you can see, multiple rulesets can be specified using semicolons. A build only needs to comply with one of the rulesets to be inserted.
-    
-    For each rule, the word left of the `=` sign represents a build property. Build property can have the following values: `repo`, `commit`, `branch`,`buildNumber`. There are also two special properties named `channel` and `channelId`. If `channel` is used, then the regular expression on the right side of the equals sign should match with the name of any of the channels of the build. Similarly, `channelId` is used to select builds where any of the channel ids of a build should match the given regular expression.
+For each rule, the word left of the `=` sign represents a build property. Build property can have the following values: `repo`, `commit`, `branch`,`buildNumber`. There are also two special properties named `channel` and `channelId`. If `channel` is used, then the regular expression on the right side of the equals sign should match with the name of any of the channels of the build. Similarly, `channelId` is used to select builds where any of the channel ids of a build should match the given regular expression.
 
 _Warnings_
-1. NO SPACES ALLOWED IN EITHER default.config OR manifest.json FILE PATHS
-1. NO SPACES ALLOWED IN props file search directory
-1. The default duration & concurrency values should suffice
+1. No spaces are allowed in default.config or manifest.json file paths
+1. No spaces are allowed in props file search directory
+1. The default duration and concurrency values should suffice
 1. When using build filters with -bf switch, special characters in the regular expression should be properly escaped.
 
-## Log
-* **InsertionsClient** creates a log detailing every step taken
-* The logs are placed in the **Logs** folder relative to the location of the _InsertionsClient.exe_
-* Full path to log file is display at the end of the program as well.
+### [Logging](#logging)
+* The tool creates a log, detailing every step taken.
+* The logs are placed in the **Logs** folder under the current directory.
+* Full path to the generated log file is display at the end of the program.
 
-### Log Format
-Each log line details...
+#### Log Format
+Each log line details:
 1. The time stamp when the message was logged
-1. the id of the thread where the message was logged
-1. the message logged
+1. The id of the thread where the message was logged
+1. The message string
 
-### Sample Log Lines
+#### Sample Log Lines
 <pre>
 12-3-2020 11:59:16.114133|thread:1|CMD line param. Specified default.config: C:\Users\bozturk\source\repos\VS\.corext\Configs\default.config
 12-3-2020 11:59:16.122993|thread:1|CMD line param. Specified manifest.json: C:\Users\bozturk\source\repos\InsertionsClient\tests\InsertionsClientTest\Assets\manifest.json
@@ -92,75 +103,75 @@ Each log line details...
 12-3-2020 11:59:16.421827|thread:1|Loaded .packageconfig content.
 </pre>
 
-## Use
-1. Launch command line session
+### [Usage](#usage)
+1. Launch a command line session.
 1. Navigate to the location of _InsertionsClient.exe_
-1. Alternative, if on WINDOWS, set **InsertionsClient** on the %path% variable to run the application from any location
-1. Launch _InsertionsClient.exe_ with the proper parameters
-### Examples
-The examples below rely on the following conditions...
-1. _InsertionsClient.exe_ located on \tools
-1. _default.config_ located in \repos\Assets
-1. _manifest.json_ located in \repos\Assets
+1. Alternatively, add the directory containing the _InsertionsClient.exe_ to the PATH environment variable.
+1. Launch _InsertionsClient.exe_ with proper arguments.
+#### Examples
+The examples below rely on the following conditions:
+1. _InsertionsClient.exe_ is located under the directory "\tools"
+1. _default.config_  is located under the directory "\repos\Assets"
+1. _manifest.json_  is located under the directory "\repos\Assets"
 
-#### Opting to Specify File with NuGet Packages to Ignore
-Location of additional needed resources...
-1. _ignored.txt_ located in \repos\Assets
+##### Opting to Specify File with NuGet Packages to Ignore
+If you have an _ignored.txt_ file located under "\repos\Assets", you can run the following command to do an insertion while preserving the version numbers of packages specified in the _ignored.txt_:
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -i:\repos\Assets\ignored.txt
 ```
-#### Restricting the affected packages with a whitelist
-Location of additional needed resources...
-1. _whitelist.txt_ located in \repos\Assets. Each line should be a regex pattern matching package IDs such as:  
+##### Restricting the Affected Packages With an Allowlist
+Contents of a simple _allowlist.txt_ can be as follows:
 `^VS\.Redist\.Common\.NetCore\.SharedFramework\.(x86|x64)\.[0-9]+\.[0-9]+$`
+
+If you have an _allowlist.txt_ file located under "\repos\Assets", the following command can be used:
 ```pwsh
-$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -wl:\repos\Assets\whitelist.txt
+$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -wl:\repos\Assets\allowlist.txt
 ```
 
-#### Opting to Ignore .NET Dev UX NuGet Packages
+##### Opting to Ignore .NET Dev UX NuGet Packages
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -idut
 ```
-#### Opting Not to Ignore any NuGet Packages
+##### Opting Not to Ignore any NuGet Packages
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json
 ```
-#### Specifying an Access Token to Update .props Files
+##### Specifying an Access Token to Update .props Files
 ```pwsh
 $ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehroaq9k5zvvxstrqg2dzsedhlu757
 ```
-#### Specifying a .props File Search Directory
+##### Specifying a .props File Search Directory
 ```pwsh
-$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehrFxq9k5zvvxstrqg2dzsedhlu757 -p:C:\VS\src\SetupPackages\DotNetCoreSDK
+$ \tools\InsertionsClient.exe -d:\repos\Assets\default.config -m:\repos\Assets\manifest.json -a:vv8ofhtojf7xuhehrFxq9 -p:C:\VS\src\SetupPackages\DotNetCoreSDK
 ```
 
-## Output
-_InsertionsClient.exe_ outputs the results of running operations to both a persistent log file and to console.
+### [Output](#output)
+_InsertionsClient.exe_ outputs the results of the running operations both to a persistent log file and to the console output.
 
-**Successful NuGet version update** Every successfully updated NuGet version in _default.config_ has a corresponding message such as:
+Every successfully updated package version in a _default.config_ or _.packageconfig file has a corresponding message such as:
 <pre>
 12-3-2020 11:59:16.694366|thread:6|Package VS.Redist.Common.WindowsDesktop.SharedFramework.x64.3.1 was updated to version 3.1.2-servicing.20067.4
 </pre>
 
-**Completion statistics** update duration statistics are summarized
+**Completion statistics** summarize the time spent on each asset in the manifest file.
 <pre>
 Statistics:
 
 ExactMatch - Update for case of matching manifest.json assets with multiple verions; where version of the exact matching NuGet asset was selected
 No. Items: 31
-Average: 41.4194-ms
-Minimum: 5.0000-ms
-Maximum: 269.0000-ms
+Average: 0.0041-ms
+Minimum: 0.0005-ms
+Maximum: 0.0269-ms
 
 NoMatch - No matching manifest.json assets for a given default.config NuGet
 No. Items: 528
-Average: 42.9811-ms
-Minimum: 3.0000-ms
-Maximum: 10,612.0000-ms
+Average: 0.0042-ms
+Minimum: 0.0003-ms
+Maximum: 0.0010-ms
 </pre>
 
 
-**Completion Summary** Upon completion, _InsertionsClient.exe_ summarizes the duration & updated NuGet versions, as follows...
+**Completion Summary** summarizes the total duration of the operation and the updated package versions as follows:
 <pre>
 Duration: 480.00-ms.
 Successful updates: 27.
@@ -169,3 +180,6 @@ Updated default.config NuGet package versions...
         VS.Redist.Common.AspNetCore.SharedFramework.x86.3.1, version: 3.1.2-servicing.20068.1
         ...
 </pre>
+
+### [Codebase](#codebase)
+Information about the codebase can be found in [Codebase](Codebase.md) page.

@@ -22,10 +22,9 @@ namespace Microsoft.DotNet.InsertionsClient.Telemetry
             }
         }
 
-
-        public void AddMeasurement(Update update, double latency)
+        public void AddMeasurement(Update update, long latencyInTicks)
         {
-            AddMeasurement(new Measurement(update, latency));
+            AddMeasurement(new Measurement(update, latencyInTicks));
         }
 
         public void AddMeasurement(Measurement measurement)

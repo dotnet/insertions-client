@@ -7,10 +7,10 @@ namespace Microsoft.DotNet.InsertionsClient.Telemetry.Models
 {
     internal sealed class Measurement
     {
-        public Measurement(Update outcome, double latency)
+        public Measurement(Update outcome, long latencyInTicks)
         {
             Update = outcome;
-            LatencyMs = latency;
+            LatencyMs = latencyInTicks / 10000d;
             TimeStamp = DateTime.UtcNow;
         }
 
@@ -19,7 +19,6 @@ namespace Microsoft.DotNet.InsertionsClient.Telemetry.Models
         public double LatencyMs { get; }
 
         public DateTime TimeStamp { get; }
-
 
         public override string ToString()
         {
