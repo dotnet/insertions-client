@@ -5,9 +5,11 @@ variables:
 
 trigger:
 - master
+- main
 
 pr:
 - master
+- main
 
 steps:
 - task: DotNetCoreCLI@2
