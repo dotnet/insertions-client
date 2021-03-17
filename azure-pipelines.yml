@@ -4,11 +4,9 @@ variables:
   Patch: '0'
 
 trigger:
-- master
 - main
 
 pr:
-- master
 - main
 
 steps:
