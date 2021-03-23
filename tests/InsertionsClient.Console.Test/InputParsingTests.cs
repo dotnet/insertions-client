@@ -62,7 +62,7 @@ namespace InsertionsClient.Console.Test
                     null,
                     null);
 
-            Assert.IsFalse(results.UpdatedNuGets.Any(n => whitelistedPackages.All(pattern => !pattern.IsMatch(n.PackageId))), "Packages that shouldn't have been updated were updated.");
+            Assert.IsFalse(results.UpdatedPackages.Any(n => whitelistedPackages.All(pattern => !pattern.IsMatch(n.PackageId))), "Packages that shouldn't have been updated were updated.");
         }
 
         [TestMethod]
@@ -89,7 +89,7 @@ namespace InsertionsClient.Console.Test
                     null);
 
             Assert.IsTrue(ignoredPackages.SetEquals(results.IgnoredNuGets), $"Mismatched ignore packages");
-            Assert.IsFalse(results.UpdatedNuGets.Any(n => ignoredPackages.Contains(n.PackageId)), "Packages that shouldn't have been updated were updated.");
+            Assert.IsFalse(results.UpdatedPackages.Any(n => ignoredPackages.Contains(n.PackageId)), "Packages that shouldn't have been updated were updated.");
         }
 
         /// <summary>

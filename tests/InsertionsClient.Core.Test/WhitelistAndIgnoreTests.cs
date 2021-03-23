@@ -85,7 +85,7 @@ namespace InsertionsClient.Core.Test
                     null);
 
             // Ignore all modified files except for one
-            Assert.IsFalse(results.UpdatedNuGets.Any(n => ignoredPackages.Contains(n.PackageId)), "A package that should have been ignored was updated.");
+            Assert.IsFalse(results.UpdatedPackages.Any(n => ignoredPackages.Contains(n.PackageId)), "A package that should have been ignored was updated.");
             Assert.IsFalse(results.IgnoredNuGets.Any(n => !ignoredPackages.Contains(n)), "A package was ignored, but it shouldn't have been");
         }
 
@@ -111,7 +111,7 @@ namespace InsertionsClient.Core.Test
                     null,
                     null);
 
-            Assert.IsTrue(results.UpdatedNuGets.Any(), "Empty whitelist shouldn't prevent package updates, but no packages were updated.");
+            Assert.IsTrue(results.UpdatedPackages.Any(), "Empty whitelist shouldn't prevent package updates, but no packages were updated.");
         }
 
         [TestMethod]
@@ -141,7 +141,7 @@ namespace InsertionsClient.Core.Test
                     null,
                     null);
 
-            Assert.IsFalse(results.UpdatedNuGets.Any(n => whitelistedPackages.All(pattern => !pattern.IsMatch(n.PackageId))),
+            Assert.IsFalse(results.UpdatedPackages.Any(n => whitelistedPackages.All(pattern => !pattern.IsMatch(n.PackageId))),
                 "A package was updated even though it wasn't in the whitelist.");
         }
     }

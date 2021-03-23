@@ -1,6 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-
-using Microsoft.DotNet.InsertionsClient.Api;
+﻿using Microsoft.DotNet.InsertionsClient.Api;
 using Microsoft.DotNet.InsertionsClient.Api.Providers;
 using Microsoft.DotNet.InsertionsClient.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,12 +7,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace InsertionsClient.Core.Test
 {
     [TestClass]
-    public sealed class BuildFilterTests
+    public class VersionNumberTests
     {
         [TestInitialize]
         public void Initialize()
@@ -35,7 +34,7 @@ namespace InsertionsClient.Core.Test
         }
 
         [TestMethod]
-        public void TestBuildRejections()
+        public void TestVersionNumberComparison()
         {
             IInsertionApiFactory apiFactory = new InsertionApiFactory();
             IInsertionApi api = apiFactory.Create(TimeSpan.FromSeconds(75), TimeSpan.FromSeconds(4));
@@ -44,33 +43,30 @@ namespace InsertionsClient.Core.Test
             string assetsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Assets");
             string manifestFile = Path.Combine(assetsDirectory, "manifest.json");
             string defaultConfigFile = Path.Combine(assetsDirectory, "default.config");
+            IEnumerable<Regex> whitelistedPackages = new Regex[]
+            {
+                new Regex(@"^VS\.Redist\.Common\.NetCore\.SharedFramework\.(x86|x64)\.[0-9]+\.[0-9]+$")
+            };
             ImmutableHashSet<string> ignoredPackages = ImmutableHashSet<string>.Empty;
-            IEnumerable<Regex> allowedPackages = new List<Regex>();
 
             results = api.UpdateVersions(
                     manifestFile,
                     defaultConfigFile,
-                    allowedPackages,
-                    null,
-                    null,
-                    null,
-                    build => false);
-
-            Assert.IsTrue(results.Outcome, "Insertion should have succeeded, but failed with error: " + results.OutcomeDetails);
-            Assert.IsTrue(results.UpdatedPackages == null || !results.UpdatedPackages.Any(), "No packages should have been updated.");
-
-            results = api.UpdateVersions(
-                    manifestFile,
-                    defaultConfigFile,
-                    allowedPackages,
-                    null,
+                    whitelistedPackages,
+                    ignoredPackages,
                     null,
                     null,
                     null);
 
-            Assert.IsTrue(results.Outcome, "Insertion should have succeeded, but failed with error: " + results.OutcomeDetails);
-            Assert.IsTrue(results.UpdatedPackages != null && results.UpdatedPackages.Any(), "Inconclusive test. This manifest didn't update any packages." +
-                " It is not possible to know if build filter worked or not.");
+            Assert.IsTrue(results.UpdatedPackages.Any(), "Some packages should have been updated.");
+
+            PackageUpdateResult packx64 = results.UpdatedPackages.FirstOrDefault(p => p.PackageId == "VS.Redist.Common.NetCore.SharedFramework.x64.3.1");
+            Assert.IsNotNull(packx64);
+            Assert.AreEqual(packx64.NewVersion, "4.1.2-servicing.20067.4");
+
+            PackageUpdateResult packx86 = results.UpdatedPackages.FirstOrDefault(p => p.PackageId == "VS.Redist.Common.NetCore.SharedFramework.x86.3.1");
+            Assert.IsNotNull(packx86);
+            Assert.AreEqual("3.1.3-servicing.20067.4", packx86.NewVersion);
         }
     }
 }

@@ -13,8 +13,7 @@ namespace Microsoft.DotNet.InsertionsClient.Models
     /// </summary>
     public sealed class UpdateResults
     {
-        private readonly ConcurrentBag<PackageUpdateResult> _updatedNugetsList = new ConcurrentBag<PackageUpdateResult>();
-
+        private readonly ConcurrentBag<PackageUpdateResult> _updatedPackages = new ConcurrentBag<PackageUpdateResult>();
 
         /// <summary>
         /// True if the <see cref="IInsertionApi.UpdateVersions(string, string, string)"/> attempt completed, false otherwise.
@@ -24,7 +23,7 @@ namespace Microsoft.DotNet.InsertionsClient.Models
         /// <summary>
         /// Updated default.config NuGet package versions.
         /// </summary>
-        public IEnumerable<PackageUpdateResult> UpdatedNuGets => _updatedNugetsList;
+        public IEnumerable<PackageUpdateResult> UpdatedPackages => _updatedPackages;
 
         /// <summary>
         /// Ids of ignored nuget packages.
@@ -53,16 +52,16 @@ namespace Microsoft.DotNet.InsertionsClient.Models
         public PropsUpdateResults? PropsFileUpdateResults { get; set; }
 
         /// <summary>
-        /// Adds the given package to the updated nuget list.
+        /// Adds the given package to the updated packages list.
         /// </summary>
         internal void AddPackage(PackageUpdateResult packageUpdateResult)
         {
-            _updatedNugetsList.Add(packageUpdateResult);
+            _updatedPackages.Add(packageUpdateResult);
         }
 
         public override string ToString()
         {
-            return $"Validation {(Outcome ? "succeeded" : "failed")} with {UpdatedNuGets.Count()} matched assets ({DurationMilliseconds:N0}-ms)";
+            return $"Validation {(Outcome ? "succeeded" : "failed")} with {UpdatedPackages.Count()} matched assets ({DurationMilliseconds:N0}-ms)";
         }
     }
 }

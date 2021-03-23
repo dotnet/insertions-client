@@ -2,6 +2,7 @@
 
 using Microsoft.DotNet.InsertionsClient.Common.Constants;
 using Microsoft.DotNet.InsertionsClient.Models;
+using NuGet.Versioning;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -153,25 +155,37 @@ namespace Microsoft.DotNet.InsertionsClient.Api
         /// </summary>
         /// <param name="packageId">Id of the package to change the version of</param>
         /// <param name="version">Version number to assign</param>
-        /// <returns>True if package was found. False otherwise.</returns>
+        /// <returns>
+        /// True if package was found and the version number corresponds to a valid semantic version.
+        /// False otherwise.
+        /// </returns>
         /// <remarks>This method is safe to call simultaneously from multiple threads.</remarks>
-        public bool TryUpdatePackage(string packageId, string version, out string existingVersion)
+        public bool TryUpdatePackage(string packageId, NuGetVersion version, out NuGetVersion? existingVersion)
         {
             if (!_packageXElements.TryGetValue(packageId, out XElement? xElement))
             {
-                existingVersion = string.Empty;
+                existingVersion = default;
                 return false;
             }
 
-            existingVersion = xElement.Attribute("version").Value;
-            if (existingVersion == version)
+            lock (xElement)
             {
-                // Package was found. But no version update was necessary
-                return true;
-            }
+                string existingVersionStr = xElement.Attribute("version").Value;
 
-            // Update the version
-            xElement.Attribute("version").Value = version;
+                if (!NuGetVersion.TryParse(existingVersionStr, out existingVersion))
+                {
+                    return false;
+                }
+
+                if (existingVersion >= version)
+                {
+                    // Package was found. But no version update was necessary
+                    return true;
+                }
+
+                // Update the version
+                xElement.Attribute("version").Value = version.ToFullString();
+            }
 
             // Store the document. Store a junk value (0) with it, because we have to.
             _modifiedDocuments[xElement.Document] = 0;
