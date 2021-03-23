@@ -3,6 +3,7 @@
 using Microsoft.DotNet.InsertionsClient.Api;
 using Microsoft.DotNet.InsertionsClient.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NuGet.Versioning;
 using System;
 using System.IO;
 
@@ -50,7 +51,7 @@ namespace InsertionsClientTest
             DefaultConfigUpdater updater = CreateAndLoadDefaultConfigUpdater();
 
             // Test Content: change a version in default.config or packageconfig, depending on the input
-            Assert.IsTrue(updater.TryUpdatePackage(packageId, "1.2.3.4.5", out _));
+            Assert.IsTrue(updater.TryUpdatePackage(packageId, NuGetVersion.Parse("99.2.3-hello3"), out _));
             FileSaveResult[] saveResults = updater.Save();
             Assert.IsNotNull(saveResults);
             Assert.AreEqual(1, saveResults.Length);
@@ -69,7 +70,7 @@ namespace InsertionsClientTest
             DefaultConfigUpdater updater = CreateAndLoadDefaultConfigUpdater();
 
             // Update a package that doesn't exist
-            Assert.IsFalse(updater.TryUpdatePackage("Some.Package.Nobody.Created", "xxx", out _));
+            Assert.IsFalse(updater.TryUpdatePackage("Some.Package.Nobody.Created", NuGetVersion.Parse("1.2.3"), out _));
             FileSaveResult[] saveResults = updater.Save();
             Assert.IsNotNull(saveResults);
             Assert.AreEqual(0, saveResults.Length);
@@ -90,15 +91,16 @@ namespace InsertionsClientTest
             DefaultConfigUpdater updater = CreateAndLoadDefaultConfigUpdater();
 
             // Test Content
-            string versionNumber = Guid.NewGuid().ToString();
+            string versionIdentifier = Guid.NewGuid().ToString("N");
+            NuGetVersion semanticVersion = NuGetVersion.Parse("99.2.3-preview" + versionIdentifier);
             // Edit a package that is inside default.config or .packageconfig depending on the input
-            Assert.IsTrue(updater.TryUpdatePackage(packageId, versionNumber, out _));
+            Assert.IsTrue(updater.TryUpdatePackage(packageId, semanticVersion, out _));
             FileSaveResult[] saveResults = updater.Save();
             Assert.IsNotNull(saveResults);
             Assert.AreEqual(1, saveResults.Length);
 
             Assert.IsTrue(saveResults[0].Succeeded);
-            Assert.IsTrue(File.ReadAllText(saveResults[0].Path).Contains(versionNumber), "Written version number was not found in the saved file.");
+            Assert.IsTrue(File.ReadAllText(saveResults[0].Path).Contains(versionIdentifier), "Written version number was not found in the saved file.");
         }
 
         private DefaultConfigUpdater CreateAndLoadDefaultConfigUpdater()

@@ -178,9 +178,9 @@ namespace Microsoft.DotNet.InsertionsClient.ConsoleApp
             }
             Console.ResetColor();
             Trace.WriteLine($"Duration: {results.DurationMilliseconds:N2}-ms.");
-            Trace.WriteLine($"Successful updates: {results.UpdatedNuGets.Count():N0}.");
+            Trace.WriteLine($"Successful updates: {results.UpdatedPackages.Count():N0}.");
             Trace.WriteLine("Found package version changes in config files...");
-            foreach (PackageUpdateResult updatedNuget in results.UpdatedNuGets.OrderBy(r => r.PackageId))
+            foreach (PackageUpdateResult updatedNuget in results.UpdatedPackages.OrderBy(r => r.PackageId))
             {
                 Trace.WriteLine($"           {updatedNuget.PackageId}: {updatedNuget.NewVersion}");
             }

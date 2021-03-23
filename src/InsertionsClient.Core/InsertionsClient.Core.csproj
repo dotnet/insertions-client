@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="NuGet.Protocol" Version="5.5.1" />
+    <PackageReference Include="NuGet.Versioning" Version="5.8.0" />
   </ItemGroup>
 
 </Project>

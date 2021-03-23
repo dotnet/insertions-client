@@ -7,6 +7,7 @@ using Microsoft.DotNet.InsertionsClient.Models;
 using Microsoft.DotNet.InsertionsClient.Models.Extensions;
 using Microsoft.DotNet.InsertionsClient.Props.Models;
 using Microsoft.DotNet.InsertionsClient.Telemetry;
+using NuGet.Versioning;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -119,7 +120,7 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
                         SwrFile[] swrFiles = swrFileReader.LoadSwrFiles(propsFilesRootDirectory);
 
                         PropsVariableDeducer variableDeducer = new PropsVariableDeducer(InsertionConstants.DefaultNugetFeed, accessToken);
-                        bool deduceOperationResult = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedNuGets,
+                        bool deduceOperationResult = variableDeducer.DeduceVariableValues(configUpdater, results.UpdatedPackages,
                             swrFiles, out List<PropsFileVariableReference> variables, out string outcomeDetails, _maxDownloadDuration);
 
                         PropsFileUpdater propsFileUpdater = new PropsFileUpdater();
@@ -323,7 +324,14 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
                 return;
             }
 
-            if (!configUpdater.TryUpdatePackage(packageId, asset.Version!, out string oldVersion))
+            if (!NuGetVersion.TryParse(asset.Version!, out NuGetVersion semanticVersion))
+            {
+                _metrics.AddMeasurement(Update.NoMatch, stopWatch.ElapsedTicks);
+                Trace.Write($"Asset version \"{asset.Version}\" is not a valid semantic version.");
+                return;
+            }
+
+            if (!configUpdater.TryUpdatePackage(packageId, semanticVersion, out NuGetVersion? oldVersion))
             {
                 _metrics.AddMeasurement(Update.NoMatch, stopWatch.ElapsedTicks);
                 return;
@@ -331,9 +339,9 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
 
             _metrics.AddMeasurement(Update.ExactMatch, stopWatch.ElapsedTicks);
 
-            if (oldVersion != asset.Version)
+            if (oldVersion < semanticVersion)
             {
-                results.AddPackage(new PackageUpdateResult(packageId, oldVersion, asset.Version!));
+                results.AddPackage(new PackageUpdateResult(packageId, oldVersion.ToFullString(), asset.Version!));
                 Trace.WriteLine($"Package {packageId} was updated to version {asset.Version}");
             }
         }
