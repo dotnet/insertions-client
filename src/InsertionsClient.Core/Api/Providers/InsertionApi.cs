@@ -342,7 +342,11 @@ namespace Microsoft.DotNet.InsertionsClient.Api.Providers
             if (oldVersion < semanticVersion)
             {
                 results.AddPackage(new PackageUpdateResult(packageId, oldVersion.ToFullString(), asset.Version!));
-                Trace.WriteLine($"Package {packageId} was updated to version {asset.Version}");
+                Trace.WriteLine($"Package '{packageId}' was updated to version {asset.Version}");
+            }
+            else
+            {
+                Trace.WriteLine($"Version number of package '{packageId}' was not changed since the current version ({oldVersion?.ToFullString()}) is more up-to-date than the given version ({asset.Version}).");
             }
         }
 
