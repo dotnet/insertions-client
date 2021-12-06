@@ -9,6 +9,9 @@ trigger:
 pr:
 - main
 
+pool:
+    vmImage: ubuntu-latest
+
 steps:
 - task: DotNetCoreCLI@2
   inputs:
