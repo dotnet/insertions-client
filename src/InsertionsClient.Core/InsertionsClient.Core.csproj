@@ -5,7 +5,7 @@
     <RootNamespace>Microsoft.DotNet.InsertionsClient</RootNamespace>
     <AssemblyName>Microsoft.DotNet.InsertionsClient.Core</AssemblyName>
     <Nullable>enable</Nullable>
-    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <WarningsAsErrors>$(WarningsAsErrors), nullable</WarningsAsErrors>
     
     <Authors>Microsoft, DotNet</Authors>
     <Company>Microsoft</Company>
